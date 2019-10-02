@@ -1,0 +1,33 @@
+* {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.qty-box {
+  border: 1px solid #94c4ec;
+  border-radius: 3px;
+  display: block;
+  height: 60px;
+  margin: inherit;
+  width: 200px;
+}
+
+.box {
+  color: #62a8e2;
+  font-family: sans-serif;
+  float: left;
+  line-height: 60px;
+  text-align: center;
+  width: fit-content;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dec,
+.inc {
+  height: 50%;
+
+}

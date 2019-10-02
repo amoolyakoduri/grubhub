@@ -1,0 +1,11 @@
+.tuple {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around; 
+}
+
+.card {
+    display: flex;
+    flex-direction: row;
+    justify-content:  space-between;
+}

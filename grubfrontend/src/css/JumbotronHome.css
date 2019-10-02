@@ -1,0 +1,47 @@
+.jumboTitle {
+    font-display: inherit;
+    color: white;
+    font-size: 34px;
+    display: block;
+    font-weight: 700;
+}
+.textBox {
+    width : 30%;
+    display : block;
+}
+
+.jumbotron{
+	background-image: url('./../pizza.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+} 
+
+.container {
+    display: flex; /* or inline-flex */
+    justify-content: center;
+    flex-direction: row;
+
+}
+
+.nav{
+    font-display: inherit;
+    color: white;
+    font-size: 20px;
+    display: block;
+    font-weight: bold;
+
+}
+
+.nav.active {
+    text-decoration: underline;
+
+}
+
+.title  {
+    font-display: inherit;
+    color: black;
+    font-size: 34px;
+    display: block;
+    font-weight: 700;
+}
+
