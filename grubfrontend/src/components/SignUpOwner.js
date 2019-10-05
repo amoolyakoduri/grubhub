@@ -5,6 +5,7 @@ import {
 } from 'reactstrap';
 import {connect} from 'react-redux';
 import { onRestRegisterationFailure, onRestRegisterationSuccess} from './../actions/actions'
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 
 
 class SignUpOwner extends React.Component {
@@ -66,34 +67,38 @@ class SignUpOwner extends React.Component {
     console.log("state is ",this.state);
 }
 
+handleInvalidSubmit = (event, errors, values) => {
+  this.setState({email: values.email, error: true});
+}
+
   render(){
     return <div>
       <Card>
         <CardBody>
           <CardTitle>Restaurant details!</CardTitle>
-          <Form >
+          <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.register}>
           <FormGroup>
           <Label for="name">Restaurant Name:</Label>
-          <Input type="text" name="name" id="name" onChange = {this.changeHandler} placeholder="name" />
+          <AvField type="text" name="name" id="name" label="Restaurant Name:" onChange = {this.changeHandler} placeholder="name" required/>
         </FormGroup>
         <FormGroup>
           <Label for="cuisine">Cuisine:</Label>
-          <Input type="text" name="cuisine" id="cuisine" onChange = {this.changeHandler} placeholder="cuisine" />
+          <AvField type="text" name="cuisine" label="Cuisine:" id="cuisine" onChange = {this.changeHandler} placeholder="cuisine" required/>
         </FormGroup>
         <FormGroup>
           <Label for="address">Address:</Label>
-          <Input type="text" name="address" id="address" onChange = {this.changeHandler} placeholder="address" />
+          <AvField type="text" name="address" label="Address:" id="address" onChange = {this.changeHandler} placeholder="address" required/>
         </FormGroup>
         <FormGroup>
           <Label for="phone">Phone:</Label>
-          <Input type="text" name="phone" id="phone" onChange={this.changeHandler} placeholder="phone" />
+          <AvField type="text" name="phone" label="Phone:" id="phone" onChange={this.changeHandler} placeholder="phone" required/>
         </FormGroup>
         <FormGroup>
           <Label for="zipcode">Zipcode:</Label>
-          <Input type="text" name="zipcode" id="zipcode" onChange={this.changeHandler} placeholder="zipcode" />
+          <AvField type="text" label="Zipcode:" name="zipcode" id="zipcode" onChange={this.changeHandler} placeholder="zipcode" required/>
         </FormGroup>
-          <Button type="submit" onClick={this.register}>Register!</Button>
-          </Form>
+          <Button type="submit" >Register!</Button>
+          </AvForm>
         </CardBody>
       </Card>
     </div>

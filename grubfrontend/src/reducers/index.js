@@ -23,6 +23,7 @@ function app(state,action) {
                 isLoggedIn : true,
                 address : action.payload.payload.address,
                 type : action.payload.payload.type,
+                displayPic : action.payload.payload.displayPic
             })
         case OWNER_LOGIN_SUCCESS:
             return Object.assign({},state,{
@@ -33,6 +34,7 @@ function app(state,action) {
                 isLoggedIn : true,
                 address : action.payload.payload.address,
                 type : action.payload.payload.type,
+                displayPic : action.payload.displayPic,
                 restDetails : action.payload.payload.restDetails
             })
         case LOGIN_FAILURE:
@@ -68,6 +70,7 @@ function app(state,action) {
                 firstName : action.payload.payload.firstName,
                 lastName : action.payload.payload.lastName,
                 isLoggedIn : true,
+                displayPic : action.payload.payload.displayPic,
                 type : action.payload.payload.type,
             });
         case REST_REGISTERATION_SUCCESS :
@@ -112,7 +115,10 @@ function app(state,action) {
         case GET_REST_DETAILS_SUCCESS : 
             return Object.assign({},state,{
                 restDetails : action.payload.restDetails,
-                cart : {}
+                cart : Object.assign({},{
+                    restId: action.payload.restDetails.id,
+                    items:[]
+                })
             })
         case ADD_TO_CART_SUCCESS :
             const nextStateCart = Object.assign({},state);

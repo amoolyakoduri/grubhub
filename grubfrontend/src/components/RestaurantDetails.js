@@ -1,7 +1,9 @@
 import React from 'react';
 import {Button , Input} from 'reactstrap';
 import {connect} from 'react-redux';
-import { onUpdateRestDetailsSuccess, onUpdateRestDetailsFailure} from './../actions/actions'
+import { onUpdateRestDetailsSuccess, onUpdateRestDetailsFailure} from './../actions/actions';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+
 
 
 class RestaurantDetails extends React.Component {
@@ -49,21 +51,26 @@ class RestaurantDetails extends React.Component {
         })) 
     }
 
+    handleInvalidSubmit = (event, errors, values) => {
+        this.setState({email: values.email, error: true});
+      }
 
     render() {
         return <div>
             <h4>Restaurant Details</h4>
+            <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.update}>
             Name : {this.props.restDetails.name}
-            <Input type= "text" name="name" onInput={this.changeHandler} placeholder={this.props.name}></Input>
+            <AvField type= "text" label={"Name : "+this.props.restDetails.name} name="name" onInput={this.changeHandler} placeholder={this.props.name}></AvField>
             Cuisine : {this.props.restDetails.cuisine}
-            <Input type= "text" name="cuisine" onChange={this.changeHandler} placeholder={this.props.cuisine}></Input>
+            <AvField type= "text" label={"Cuisine : "+this.props.restDetails.cuisine} name="cuisine" onChange={this.changeHandler} placeholder={this.props.cuisine}></AvField>
             Phone : {this.props.restDetails.phone}
-            <Input type= "text" name="phone" onChange={this.changeHandler} placeholder={this.props.phone}></Input>
+            <AvField type= "text" name="phone" label={"Phone : "+this.props.restDetails.phone} onChange={this.changeHandler} placeholder={this.props.phone}></AvField>
             Address : {this.props.restDetails.address}
-            <Input type= "text" name="address" onChange={this.changeHandler} placeholder={this.props.address}></Input>
+            <AvField type= "text" name="address" label={"Address : "+this.props.restDetails.address} onChange={this.changeHandler} placeholder={this.props.address}></AvField>
             Zipcode : {this.props.restDetails.zipcode}
-            <Input type= "text" name="zipcode" onChange={this.changeHandler} placeholder={this.props.zipcode}></Input>
-            <Button onClick={this.update}>Update Details</Button>
+            <AvField type= "text" name="zipcode" label={"Zipcode : "+this.props.restDetails.zipcode} onChange={this.changeHandler} placeholder={this.props.zipcode}></AvField>
+            <Button >Update Details</Button>
+            </AvForm>
         </div>
     }
 }

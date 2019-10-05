@@ -5,6 +5,8 @@ import {
   } from 'reactstrap';
 import BuyerHome from './BuyerHome';
 import { connect } from 'react-redux'
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+
 
 import { onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure } from '../actions/actions';
 
@@ -25,6 +27,9 @@ class Login extends React.Component {
         this.login  = this.login.bind(this);
     }
 
+    handleInvalidSubmit= (event, errors, values) => {
+      this.setState({email: values.email, error: true});
+    }
     
 
     login(event) {
@@ -77,9 +82,6 @@ class Login extends React.Component {
       var pword = md5(event.target.value);
       this.setState({password : pword});
     }
-    handleRememberMeChange = (event) => {
-      this.setState({rememberMe:event.target.value});
-    }
 
     render() {
       if(this.state.isLoggedIn)
@@ -89,18 +91,12 @@ class Login extends React.Component {
       <Card class="container">
         <CardBody>
           <CardTitle>Sign in with your Grubhub account!</CardTitle>
-          <Form noValidate="false">
-        <FormGroup>
-          <Label for="exampleEmail">Email</Label>
-          <Input type="email" name="email" required="true" id="emailId" req  onChange = {this.handleChange} placeholder="email" />
-        </FormGroup>
-        <FormGroup>
-          <Label for="examplePassword">Password</Label>
-          <Input type="password" name="password" id="password" onChange={this.handlePasswordChange} placeholder="password" />
-        </FormGroup>
-          {this.state.error && <div style={{color: "red"}}>{this.state.error}</div>}
-          <Button type="submit" onClick={this.login}>Submit</Button>
-          </Form>
+          <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.login}>
+          <AvField name="email" label="Email Address" id="emailId" type="email" onChange = {this.handleChange} placeholder="email"  required />
+          <AvField name="password" label="Password" id="password" type="password" onChange = {this.handlePasswordChange} placeholder="password"  required />
+          <Button color="primary" >Submit</Button>
+        </AvForm>
+         
         </CardBody>
       </Card>
     </div>

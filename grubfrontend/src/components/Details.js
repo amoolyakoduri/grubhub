@@ -2,13 +2,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import {Button , Input} from 'reactstrap';
 import { onUpdateDetailsSuccess, onUpdateDetailsFailure } from '../actions/actions';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+
 
 class Details extends React.Component {
     constructor(props){
         super(props);
         this.state = {
             user : {},
-            emailId: props.user.emailId
+            emailId: this.props.user.emailId,
+            firstName : "",
+            lastName : "",
+            address : "",
+            phone : ""
         }
         this.update = this.update.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
@@ -18,6 +24,10 @@ class Details extends React.Component {
     //     return {user: props.user};
     // }
 
+    handleInvalidSubmit = (event, errors, values) => {
+        this.setState({email: values.email, error: true});
+      }
+
     update() {
         fetch('http://localhost:3003/updateDetails',{
             method:'POST',
@@ -25,7 +35,7 @@ class Details extends React.Component {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-                emailId : this.state.emailId,
+                emailId : this.props.emailId,
                 user : this.state.user
             })
         })
@@ -33,17 +43,19 @@ class Details extends React.Component {
             return response.json();
         }).then( (myJson) => {
             console.log("myJson : ",myJson);
-            if(myJson.payload.affectedRows===0) {
-                this.props.updateDetailsFailureDispatch();
-            } else {
+            // if(myJson.payload.affectedRows===0) {
+            //     this.props.updateDetailsFailureDispatch();
+            // } else {
                 //fetch('http://localhost:3003/getUserDetails/'+this.state.emailId)
                 //.then( (results) => {
                 //    return results.json();
                 //}).then( (resultJson) => {
-                    console.log("PROPS ARE :",this.state.user);
-                    this.props.updateDetailsSuccessDispatch(this.state.user);
+                    console.log("PROPS ARE :",myJson.payload);
+                    this.props.updateDetailsSuccessDispatch(myJson.payload);
                 //})
-            }
+            // }
+        }).catch(e => {
+            this.props.updateDetailsFailureDispatch();
         })
     }
 
@@ -57,27 +69,33 @@ class Details extends React.Component {
         });
     }
 
+    handleInvalidSubmit = (event, errors, values) => {
+        this.setState({email: values.email, error: true});
+      }
+
     render() {
         return <div>
+            <AvForm  onInvalidSubmit={this.handleInvalidSubmit}>
             First Name : {this.state.user.firstName}
-            <Input type= "text" name="firstName" onInput={this.changeHandler} placeholder={this.props.user.firstName}></Input>
+            <AvField label = " First Name :" type= "text" name="firstName" onInput={this.changeHandler} placeholder={this.props.user.firstName} ></AvField>
             Last Name : {this.state.user.lastName}
-            <Input type= "text" name="lastName" onChange={this.changeHandler} placeholder={this.props.user.lastName}></Input>
+            <AvField type= "text" label = " Last Name :" name="lastName" onChange={this.changeHandler} placeholder={this.props.user.lastName} ></AvField>
             Phone : {this.state.user.phone}
-            <Input type= "text" name="phone" onChange={this.changeHandler} placeholder={this.props.user.phone}></Input>
+            <AvField type= "text" label = "Phone : " name="phone" onChange={this.changeHandler} placeholder={this.props.user.phone} ></AvField>
             Address : {this.state.user.address}
-            <Input type= "text" name="address" onChange={this.changeHandler} placeholder={this.props.user.address}></Input>
+            <AvField type= "text" name="address" label="Address : " onChange={this.changeHandler} placeholder={this.props.user.address} ></AvField>
             Email : {this.state.user.email}
-            <Input type= "text" name="emailId" onChange={this.changeHandler} placeholder={this.props.user.emailId}></Input>
+            <AvField type= "email" name="emailId" label= "Email : "  onChange={this.changeHandler} placeholder={this.props.user.emailId} ></AvField>
             <Button onClick={this.update}>Update Details</Button>
+            </AvForm>
         </div>
 
     }
 }
 
 const mapStateToProps = (state) => {
-    const { restaurants, ...user } = state;
-    return {user};
+    const { restaurants,emailId, ...user } = state;
+    return {user,emailId};
 }
 
 const mapDispatchToProps = (dispatch) => {

@@ -23,7 +23,7 @@ class OrdersContainer extends React.Component{
                 <OrderCard details = {order}></OrderCard>
             })}  
       </div>
-        </div>) : null
+        </div>) : <h4>No Orders</h4>
     }
 
 }

@@ -31,7 +31,7 @@ class OrderCard extends React.Component {
         this.props.getOrderItemsFailureDispatch();
         else {
           let payload = {
-            restId : this.props.details.id,
+            restId : this.props.details.restId,
             items : myJson.payload
           }
           this.props.getOrderItemsSuccessDispatch(payload)

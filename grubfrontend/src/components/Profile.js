@@ -16,7 +16,7 @@ class Profile extends React.Component {
     render(){
         return <div class="container" style = {{border:"black"}}>
             <div>
-            <img src={pic}></img>
+            <img width= "200px" src={"/"+this.props.displayPic}></img>
             </div>
             <Details/>
             { this.props.type=== "owner" && 
@@ -26,8 +26,8 @@ class Profile extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const {type , isLoggedIn } = state;
-    return {type:type,isLoggedIn:isLoggedIn};
+    const {type , isLoggedIn, displayPic } = state;
+    return {type:type,isLoggedIn:isLoggedIn,displayPic};
 }
 
 

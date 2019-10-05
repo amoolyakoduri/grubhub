@@ -5,6 +5,8 @@ import {onGetDeliveryDetailsSuccess} from './../actions/actions';
 import loginCheck from './LoginCheck'
 import Cart from './Cart';
 import isBuyer from './isBuyer';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+
 
 
 class Checkout extends React.Component {
@@ -51,7 +53,8 @@ class Checkout extends React.Component {
         return dateString;
     }
 
-    placeOrder = () => {
+    placeOrder = (event) => {
+        event.preventDefault();
         let dateString = this.getDateString();
         this.props.getDeliveryDetailsSuccessDispatch(this.state.deliveryDetails,dateString);
         fetch('http://localhost:3003/placeOrder',{
@@ -72,24 +75,25 @@ class Checkout extends React.Component {
           this.props.history.push("/lets-eat");
     }
 
+    handleInvalidSubmit = (event, errors, values) => {
+        this.setState({email: values.email, error: true});
+      }
+
     render() {
         return <div className="container" style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
         <div>
             <h4>Does everything below look correct?</h4>
                 <h6>Contact</h6>
                 <div>
-            First Name : {this.state.deliveryDetails.firstName}
-            <Input type= "text" name="firstName" onInput={this.changeHandler} placeholder={this.props.user.firstName}></Input>
-            Last Name : {this.state.deliveryDetails.lastName}
-            <Input type= "text" name="lastName" onChange={this.changeHandler} placeholder={this.props.user.lastName}></Input>
-            Phone : {this.state.deliveryDetails.phone}
-            <Input type= "text" name="phone" onChange={this.changeHandler} placeholder={this.props.user.phone}></Input>
-            Address : {this.state.deliveryDetails.address}
-            <Input type= "text" name="address" onChange={this.changeHandler} placeholder={this.props.user.address}></Input>
-            Delivery Instructions : {this.state.deliveryDetails.instructions}
-            <Input type= "text" name="instructions" onChange={this.changeHandler} placeholder={this.props.user.instructions}></Input>
+                    <AvForm onValidSubmit  ={this.placeOrder} onInvalidSubmit={this.handleInvalidSubmit}>
+            <AvField type= "text" name="firstName" label={"First Name : "+this.state.deliveryDetails.firstName} onChange={this.changeHandler} placeholder={this.props.user.firstName} ></AvField>
+            <AvField type= "text" name="lastName" label={"Last Name : "+this.state.deliveryDetails.lastName} onChange={this.changeHandler} placeholder={this.props.user.lastName} ></AvField>
+            <AvField type= "text" name="phone" onChange={this.changeHandler} label={"Phone : "+this.state.deliveryDetails.phone} placeholder={this.props.user.phone} ></AvField>
+            <AvField type= "text" name="address" onChange={this.changeHandler} label={"Address : "+this.state.deliveryDetails.address} placeholder={this.props.user.address} ></AvField>
+            <AvField type= "text" name="instructions" onChange={this.changeHandler} label={"Delivery Instructions : "+this.state.deliveryDetails.instructions} placeholder={this.props.user.instructions} ></AvField>
             <hr/>
-            <Button onClick={this.placeOrder}>Place Order!</Button>
+            <Button >Place Order!</Button>
+            </AvForm>
         </div>
         </div>
         <Cart/>

@@ -2,6 +2,9 @@ const routes = require('express').Router();
 const auth = require('../services/authenticationService');
 const userService = require('./../services/userService');
 const restService = require('./../services/restaurantService');
+var multer  = require('multer')
+var upload = multer({ dest: 'uploads/' })
+
 //create  an express app
 
 function isLoggedIn(req,res,next){
@@ -17,17 +20,13 @@ function getUserFromSession( req ) {
     return null;
 }
 
-routes.get('/getUserDetails', (req, res)=>{
+routes.get('/getUserDetailsFromSession', (req, res)=>{
     const userDetails = getUserFromSession(req);
     if(userDetails)
         res.status(200).json({payload: userDetails})
     else
         res.status(404).json({ userDetails: null})
 })
-
-routes.get('/', (req, res) => {
-    res.status(200).json({ message: 'Connected!' });
-  });
 
 routes.get('/logout', (req, res) => {
     res.clearCookie('loggedIn');
@@ -80,18 +79,21 @@ routes.get('/getUserDetails/:email',(req,res) => {
     })
 })
 
-routes.post('/signUp',(req,res) => {
+routes.post('/signUp', upload.single('displayPic'), (req,res) => {
     console.log("req body is ",req.body);
     var email = req.body.emailId;
     var password = req.body.password;
     var firstName = req.body.firstName;
     var lastName = req.body.lastName;
     var type = req.body.type;
-    auth.createAccount(email,password,firstName,lastName,type)
+    console.log("file is ",req.file);
+    auth.createAccount(email,password,firstName,lastName,type,req.file.path)
     .then( (response) => {
         userService.getUserDetails(email)
         .then( (myJson) => {
             payload = Object.assign({},myJson);
+            req.session.user = payload;
+            res.cookie('loggedIn', true, { maxAge: 600000*5 });
             if(type == "buyer") {
                 userService.pastOrders(email)
                 .then( (results) => {
@@ -283,10 +285,13 @@ routes.get('/getRestaurants',(req,res) => {
 routes.post('/updateDetails',(req,res) => {
     var user = req.body.user;
     var email = req.body.emailId;
-    userService.updateDetails(email,user)
+    userService.updateDetails(email,user, req.session.user)
     .then((response) => {
+        const updatedUser = Object.assign({}, req.session.user, user);
+        console.log('updated User => ', updatedUser);
+        req.session.user = updatedUser
         console.log("Updated details are : ",response);
-        res.status(200).json({payload:response,message:"Updated details"});
+        res.status(200).json({payload:updatedUser,message:"Updated details"});
     }).catch((error) => {
         console.log("Error in update details");
         res.status(400).json({payload:null,message:"unable to update details"});

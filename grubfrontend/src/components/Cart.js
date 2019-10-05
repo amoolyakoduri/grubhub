@@ -42,7 +42,7 @@ class Cart extends React.Component{
             <h4 className="container">Your Order</h4>
             <hr/>
             {
-                this.props.cart && 
+                this.props.cart && this.props.cart.items && 
                 this.props.cart.items.map( orderItem => {
                     amt = amt + orderItem.quantity*orderItem.price;
                     return <div className="container" style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>

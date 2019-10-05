@@ -28,7 +28,7 @@ class SectionView extends React.Component {
             itemId:itemId,
             quantity: quantity,
             price:price,
-            itemName: name
+            name: name
         }
         this.props.addToCartSuccessDispatch(payload);
         this.setState(prevState => ({

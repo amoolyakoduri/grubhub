@@ -5,6 +5,8 @@ import {
   } from 'reactstrap';
 import {onSignUpSuccess,onSignUpFailure} from './../actions/actions'
 import {connect} from 'react-redux';
+import { AvForm, AvField,AvRadioGroup,AvRadio } from 'availity-reactstrap-validation';
+
 
 class SignUp extends React.Component {
 
@@ -15,7 +17,8 @@ class SignUp extends React.Component {
             password : null,
             firstName : null,
             lastName : null,
-            type : null
+            type : null,
+            displayPic : null
         }
         this.signUp = this.signUp.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
@@ -24,18 +27,24 @@ class SignUp extends React.Component {
 
     signUp(e){
         e.preventDefault();
+        const data = new FormData();
+        data.append('emailId' , this.state.emailId);
+        data.append('password',this.state.password);
+        data.append('firstName', this.state.firstName);
+        data.append('lastName',this.state.lastName);
+        data.append('type',this.state.type);
+        data.append('displayPic',this.state.displayPic);
+
         fetch('http://localhost:3003/signUp',{
-        headers: {
-          'Content-Type': 'application/json'
-        },
         method : 'POST',
-        body : JSON.stringify({ 
-            emailId : this.state.emailId, 
-            password : this.state.password,
-            firstName : this.state.firstName,
-            lastName : this.state.lastName,
-            type : this.state.type
-        }),
+        body : data
+        // body : JSON.stringify({ 
+        //     emailId : this.state.emailId, 
+        //     password : this.state.password,
+        //     firstName : this.state.firstName,
+        //     lastName : this.state.lastName,
+        //     type : this.state.type
+        // }),
       })
       .then((response) => {
           console.log(response)
@@ -56,6 +65,10 @@ class SignUp extends React.Component {
       })
     }
 
+    handleInvalidSubmit = (event, errors, values) => {
+      this.setState({email: values.email, error: true});
+    }
+
     changeHandler(event) {
         console.log(event.target.value);
         let key = event.target.name;
@@ -71,48 +84,54 @@ class SignUp extends React.Component {
         this.setState({type:value});
     }
 
+    fileHandler = (event) => {
+      this.setState({displayPic : event.target.files[0]});
+
+    }
+
     render(){
         return <div>
             <Card>
         <CardBody>
           <CardTitle>Sign up for Grubhub account!</CardTitle>
-          <Form >
+          <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.signUp}>
           <FormGroup>
           <Label for="exampleEmail">First Name:</Label>
-          <Input type="text" name="firstName" id="firstName" onChange = {this.changeHandler} placeholder="name" />
+          <AvField type="text" label="First Name:" name="firstName" id="firstName" onChange = {this.changeHandler} placeholder="name" required/>
         </FormGroup>
         <FormGroup>
           <Label for="exampleEmail">Last Name:</Label>
-          <Input type="text" name="lastName" id="lastName" onChange = {this.changeHandler} placeholder="name" />
+          <AvField type="text" name="lastName" label="Last Name:" id="lastName" onChange = {this.changeHandler} placeholder="name" required />
         </FormGroup>
         <FormGroup>
           <Label for="exampleEmail">Email</Label>
-          <Input type="email" name="emailId" id="emailId" onChange = {this.changeHandler} placeholder="email" />
+          <AvField type="email" name="emailId" id="emailId" label="Email:" onChange = {this.changeHandler} placeholder="email" required/>
         </FormGroup>
         <FormGroup>
           <Label for="examplePassword">Password</Label>
-          <Input type="password" name="password" id="password" onChange={this.changeHandler} placeholder="password" />
+          <AvField type="password" name="password" id="password" label="Password:" onChange={this.changeHandler} placeholder="password" required/>
         </FormGroup>
+
+        <AvRadioGroup inline name="type" label="Radio Buttons! (inline)" required>
+          <AvRadio label="Buyer" value="buyer" name="type" id="buyer" onChange={this.changeRadioHandler} />
+          <AvRadio label="Owner" value="owner" name="type" id="owner" onChange={this.changeRadioHandler} />
+        </AvRadioGroup>
         <div class="form-check">
-    <input class="form-check-input" type="radio" name="type" id="buyer" value="buyer" onChange={this.changeRadioHandler}/>
+    <input class="form-check-input" type="radio" name="type" id="buyer" value="buyer" onChange={this.changeRadioHandler} required/>
     <label class="form-check-label" for="buyer">
        Buyer
      </label>
     </div>
         <div class="form-check">
-     <input class="form-check-input" type="radio" name="type" id="owner" value="owner" onChange={this.changeRadioHandler}/>
+     <input class="form-check-input" type="radio" name="type" id="owner" value="owner" onChange={this.changeRadioHandler} required/>
      <label class="form-check-label" for="owner">
     Owner
      </label>
     </div>
-        <FormGroup check>
-          <Label check>
-            <Input onChange={this.handleRememberMeChange} type="checkbox" />{' '}
-            Keep me Signed in!
-          </Label>
-        </FormGroup>
-          <Button type="submit" onClick={this.signUp}>Submit</Button>
-          </Form>
+    <AvField type='file' id='multi' label="Upload display picture" onChange={this.fileHandler} accept="image/*" required/>
+
+          <Button type="submit" >Submit</Button>
+          </AvForm>
         </CardBody>
       </Card>
         </div>

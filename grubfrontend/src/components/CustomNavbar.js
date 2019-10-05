@@ -67,15 +67,9 @@ class CustomNavbar extends React.Component {
        </NavItem>
         <UncontrolledDropdown nav inNavbar>
       <DropdownToggle nav caret>
-      Profile Owner
+      Hi, {this.props.firstName}!
       </DropdownToggle>
       <DropdownMenu right>
-        <DropdownItem>
-          Past Orders
-        </DropdownItem>
-        <DropdownItem>
-          Upcoming Orders
-        </DropdownItem>
         <DropdownItem divider />
         <DropdownItem>
           <Link to="/account" >Account</Link>
@@ -86,7 +80,7 @@ class CustomNavbar extends React.Component {
       </DropdownMenu>
     </UncontrolledDropdown>
     <NavItem>
-      <NavLink href="">Cart</NavLink>
+      <Link to="/cart">Cart</Link>
     </NavItem></div>) 
     else 
     nav = <div><Button onClick={this.login}>Login</Button> <Button onClick={this.signUp}>SignUp</Button> 
@@ -113,8 +107,9 @@ class CustomNavbar extends React.Component {
 
 function mapStateToProps(state) {
   const isLoggedIn = state.isLoggedIn;
-  const type = state.type;
-  return {isLoggedIn, type};
+  const type = state.type; 
+  const firstName = state.firstName;
+  return {isLoggedIn, type,firstName};
 }
 
 function mapDispatchToProps(dispatch) {

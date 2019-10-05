@@ -2,6 +2,7 @@ import React from 'react';
 import { Label,Button, Input } from 'reactstrap';
 import './../css/Filters.css'
 import {connect} from 'react-redux';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 import {onSearchFailure, onSearchSuccess} from './../actions/actions';
 
 class Filters extends React.Component {
@@ -54,17 +55,24 @@ class Filters extends React.Component {
       })
     }}
 
+
+  handleInvalidSubmit = (event, errors, values) => {
+    this.setState({email: values.email, error: true
+    })}
+
     render() {
         return <div style={{width:"300px", backgroundColor:"#fafafa", height:"100%",display:"flex",flexDirection:"column"}}>
         <h4 className="filterTitle">Filters</h4><a href="#" >Clear all!</a>
         <Label for="restaurant">Search for a restaurant:</Label>
-          <Input type="text" name="restaurant" id="restaurant" onChange={this.changeHandler} placeholder="" />
+        <AvForm onValidSubmit={this.handleValidSubmit} onInvalidSubmit={this.handleInvalidSubmit}>
+          <AvField type="text" label="Search for a restaurant:" name="restaurant" id="restaurant" onChange={this.changeHandler} placeholder="" />
           <Label for="item">Search for an item:</Label>
-          <Input type="text" name="item" id="item" onChange={this.changeHandler} placeholder="" />
+          <AvField type="text" label="Search for an item:" name="item" id="item" onChange={this.changeHandler} placeholder="" />
           <Label for="cuisine">Search for a cuisine:</Label>
-          <Input type="text" name="cuisine" id="cuisine" onChange={this.changeHandler} placeholder="" />
+          <AvField type="text" label="Search for a cuisine:" name="cuisine" id="cuisine" onChange={this.changeHandler} placeholder="" />
           <Button onClick={this.getResults}>Search</Button>
           {this.state.error && <div style={{color: "red"}}>{this.state.error}</div>}
+          </AvForm>
     </div>
 
     }

@@ -8,7 +8,7 @@ var authenticate = (email,password) => {
             if(error) {
                 reject(errorLog.invalidCred);
             }
-            if(password === results[0].password) {
+            if(results[0] && password === results[0].password) {
                 console.log("logged in!");
                 resolve("loggedIn");
             } else {
@@ -19,14 +19,14 @@ var authenticate = (email,password) => {
     
 }
 
-var createAccount = (email,password,firstName,lastName,type) => {
+var createAccount = (email,password,firstName,lastName,type,displayPic) => {
     return new Promise( (resolve,reject) => {
         db.query('INSERT INTO users VALUES( ? , md5(?))',[email,password],function(error,results,fields) {
             if(error) {
                 console.log("Error occurred.");
                 reject(errorLog.invalidCred);
             } else {
-                db.query('INSERT INTO user_details VALUES( ? , ?, ? ,null,null,?)',[email,firstName,lastName,type],function(error,results,fields){
+                db.query('INSERT INTO user_details VALUES( ? , ?, ? ,null,null,?,?)',[email,firstName,lastName,type,displayPic],function(error,results,fields){
                     if(error) {
                         console.log("Error occurred.");
                         reject(errorLog.invalidCred);

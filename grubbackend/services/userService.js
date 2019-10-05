@@ -14,10 +14,15 @@ var getUserDetails = (email) => {
 })}
 
 
-var updateDetails = (oldEmail,userDetails) => {
+var updateDetails = (oldEmail,userDetails, existingUserDetails) => {
+    const firstName = userDetails.firstName || existingUserDetails.firstName;
+    const lastName = userDetails.lastName || existingUserDetails.lastName;
+    const address = userDetails.address || existingUserDetails.address;
+    const phone = userDetails.phone || existingUserDetails.phone;
+    
     return new Promise(function(resolve,reject) {
         db.query('UPDATE user_details SET firstName = ? , lastName = ? , address = ?, phone = ?  WHERE emailId = ?',
-        [userDetails.firstName,userDetails.lastName,userDetails.address,userDetails.phone,oldEmail],
+        [firstName,lastName,address,phone,oldEmail],
         function(error,results,fields){
             if(error) {
                 console.log("Error in updateDetails ");

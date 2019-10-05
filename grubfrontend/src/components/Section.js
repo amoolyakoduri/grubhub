@@ -1,7 +1,8 @@
 import React from 'react';
 import { Button, Modal, Table, ModalHeader, ModalBody, ModalFooter, Input, Label } from 'reactstrap';
 import { connect } from 'react-redux';
-import { onAddItemSuccess, onAddItemFailure, onDeleteItemSuccess, onDeleteItemFailure} from './../actions/actions'
+import { onAddItemSuccess, onAddItemFailure, onDeleteItemSuccess, onDeleteItemFailure} from './../actions/actions';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
 
 class Section extends React.Component {
     constructor() {
@@ -98,19 +99,21 @@ class Section extends React.Component {
             <h4>{this.props.details.name}</h4>
             <Button color="primary" onClick={this.toggle1} dataTarget="#createItem">Add Item</Button>
             <Modal isOpen={this.state.modal1} toggle={this.toggle1} id="createItem" >
+            <AvForm onValidSubmit={this.create} onInvalidSubmit = {this.toggle1}>
           <ModalHeader >Add Item</ModalHeader>
           <ModalBody>
               <Label for = "name">Item Name:</Label>  
-              <Input type="text" id="name" name="name" onChange={this.changeHandler}></Input>
+              <AvField type="text" id="name" name="name" onChange={this.changeHandler} required></AvField>
               <Label for = "desc">Item Description:</Label>  
-              <Input type="text" id="desc" name="desc" onChange={this.changeHandler}></Input>
+              <AvField type="text" id="desc" name="desc" onChange={this.changeHandler} required></AvField>
               <Label for = "price">Item Price:</Label>  
-              <Input type="number" step="any" min="0" id="price" name="price" onChange={this.changeHandler}></Input>
+              <AvField type="number" step="any" min="0" id="price" name="price" onChange={this.changeHandler} required></AvField>
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={this.create}>Create Item</Button>{' '}
-            <Button color="secondary" onClick={this.toggle1}>Cancel</Button>
+            <Button color="primary" >Create Item</Button>{' '}
+            <Button color="secondary" >Cancel</Button>
           </ModalFooter>
+          </AvForm>
         </Modal>
             <Table>
         <thead>

@@ -8,7 +8,7 @@ import loginCheck from './LoginCheck';
 
 const orderStatus = [
     {name:"New", value: 1}, 
-    {name: "Prepared",value:2 }, 
+    {name: "Preparing",value:2 }, 
     {name:"Ready", value: 3},
     {value:"4", name:"Delivered"},
     {name:"Cancelled", value: 5}
@@ -91,13 +91,8 @@ class OwnerHome extends React.Component {
                         <td>
                             <FormGroup>
                             <Input type="select" onChange={(event) => this.changeHandler(order.id,event)} name="status" id="status">
-                                {/* <option value="1">New</option>
-                                <option value="2">Preparing</option>
-                                <option value="3">Ready</option>
-                                <option value="4">Delivered</option>
-                                <option value="5">Cancelled</option> */}
                                 {
-                                    orderStatus.map(o => (<option value={o.value} selected={o.name===order.status}>{o.name}</option>))
+                                    orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.value} selected={o.name===order.status}>{o.name}</option>))
                                 }
                             </Input>
                             </FormGroup>

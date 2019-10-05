@@ -21,7 +21,7 @@ class Main extends React.Component {
 
     componentDidMount() {
         if(isLoggedIn()) {
-            fetch('/getUserDetails')
+            fetch('/getUserDetailsFromSession')
             .then(res => res.json())
             .then(res => {
                 this.props.onOwnerLoginSuccess(res);
@@ -42,6 +42,8 @@ class Main extends React.Component {
                 <Route path="/search" component={Search}/>
                 <Route path="/account" component={Account} />
                 <Route path="/profile" component={Profile}/>
+                {/*<Route path="/pastOrders" component={PastOrders}/>
+                <Route path="/upcomingOrders" component={UpcomingOrders}/>*/}
                 <Route path="/signUp" component={SignUp}/>
                 <Route path="/home" component={OwnerHome}/>
                 <Route path="/menu" component={OwnerMenu}/>

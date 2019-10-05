@@ -5,13 +5,15 @@ import Section from './Section';
 import { onAddSectionSuccess, onAddSectionFailure} from './../actions/actions';
 import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
+import { AvForm, AvField } from 'availity-reactstrap-validation';
+
 
 
 class OwnerMenu extends React.Component {
     constructor(){
         super();
         this.state = {
-            modal: false
+            modal: false,
           };
         this.toggle = this.toggle.bind(this);
         this.changeHandler = this.changeHandler.bind(this);
@@ -57,6 +59,10 @@ class OwnerMenu extends React.Component {
         })
     }
 
+    handleInvalidSubmit = (event, errors, values) => {
+        this.setState({email: values.email, error: true});
+      }
+
     render() {
         return <div class="container" style={{display:"flex",flexDirection:"column"}}>
             <h4>Menu:</h4>
@@ -72,13 +78,13 @@ class OwnerMenu extends React.Component {
             <Modal isOpen={this.state.modal} toggle={this.toggle} >
             <ModalHeader>Add Section</ModalHeader>
             <ModalBody>
+            <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.create}>
                 <Label for = "">Section Name:</Label>  
-                <Input type="text" id="name" name="sectionName" onChange={this.changeHandler}></Input>
-            </ModalBody>
-            <ModalFooter>
-                <Button color="primary" onClick={this.create}>Create Section</Button>{' '}
+                <AvField type="text" id="name" label="Section Name:" name="sectionName" onChange={this.changeHandler} required></AvField>
+                <Button color="primary" >Create Section</Button>{' '}
                 <Button color="secondary" onClick={this.toggle}>Cancel</Button>
-            </ModalFooter>
+            </AvForm>
+            </ModalBody>
             </Modal>
         </div>
     }

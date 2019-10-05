@@ -29,6 +29,7 @@ app.use(function(req, res, next) {
   next();
 });
 app.use(express.static('public'))
+app.use('/uploads',express.static('uploads'));
 app.use(routes);
 app.use('/', proxy({
     target: 'http://localhost:3000'

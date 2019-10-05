@@ -59,6 +59,12 @@ class BuyerHome extends  React.Component {
         return <div >
         <JumbotronHome/>
         <div className="container">
+        <h1  style = {{textAlign : "center",color:"black"}}>Your Upcoming Orders</h1>
+        </div>
+        { this.props.upcomingOrders &&
+        <OrdersContainer orders = {this.props.upcomingOrders} display="card"/>
+         }
+        <div className="container">
         <h1  style = {{textAlign : "center",color:"black"}}>Your Past Orders</h1>
         </div>
         { this.props.pastOrders &&
