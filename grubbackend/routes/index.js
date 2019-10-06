@@ -45,14 +45,20 @@ routes.post('/login',(req,res) => {
             if(payload.type==="owner") {
                 restService.getRestDetailsByOwnerEmail(email)
                 .then( (results) => {
-                    payload["restDetails"] = results;
-                    restService.getMenu(results.id)
-                    .then( (resultSection) => {
-                        payload.restDetails["sections"]=resultSection;
+                    if(results) {
+                        payload["restDetails"] = results;
+                        restService.getMenu(results.id)
+                        .then( (resultSection) => {
+                            payload.restDetails["sections"]=resultSection;
+                            req.session.user = payload;
+                            res.cookie('loggedIn', true, { maxAge: 600000*5 });
+                            res.status(200).json({message:"Login Successful",payload:payload});
+                        })
+                    } else {
                         req.session.user = payload;
                         res.cookie('loggedIn', true, { maxAge: 600000*5 });
-                        res.status(200).json({message:"Login Successful",payload:payload});
-                    })
+                        res.status(200).json({message:"Login Successful",payload:payload}); 
+                    }
                 })
             } else {
                 res.cookie('loggedIn',true, { maxAge: 600000*5 });

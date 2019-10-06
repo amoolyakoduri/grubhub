@@ -3,7 +3,7 @@ const db = require('../database').db;
 
 var authenticate = (email,password) => {
     return new Promise( (resolve,reject) => {
-        db.query('SELECT * FROM USERS WHERE emailId = ? ',[email],function (error, results, fields) {
+        db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
             if(error) {
                 reject("Invalid Credentials!");
             }
