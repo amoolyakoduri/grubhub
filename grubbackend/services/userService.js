@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../database').db;
 
 
 var getUserDetails = (email) => {
@@ -115,7 +115,7 @@ var placeOrder = (restId,emailId,orderItems,deliveryDetails) => {
 
 var pastOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        db.query('SELECT o.*,r.name as restName from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId in (4,5)',[email],function(error,results,fields) {
+        db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId in (4,5)',[email],function(error,results,fields) {
             if(error) {
                 console.log("error in pastOrders");
                 reject("error");
@@ -128,7 +128,7 @@ var pastOrders = (email) => {
 
 var upcomingOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        db.query('SELECT o.*,r.name as restName from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId not in (4,5)',[email],function(error,results,fields) {
+        db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId not in (4,5)',[email],function(error,results,fields) {
             if(error) {
                 console.log("error in upcomingOrders");
                 reject("error");
@@ -177,7 +177,6 @@ var search = (name,item,cuisine) => {
                 console.log("Error in search api");
                 reject("error");
             } else {
-                console.log("Fetching search results ",results);
                 resolve(results);
             }
         })

@@ -36,7 +36,7 @@ function app(state,action) {
                 isLoggedIn : true,
                 address : action.payload.payload.address,
                 type : action.payload.payload.type,
-                displayPic : action.payload.displayPic,
+                displayPic : action.payload.payload.displayPic,
                 restDetails : action.payload.payload.restDetails
             })
         case LOGIN_FAILURE:
@@ -119,9 +119,10 @@ function app(state,action) {
             return nextStateDelete;
         case DELETE_SECTION_SUCCESS :
             const nextStateSection = Object.assign({},state);
-            const sectionsAll = nextStateSection.restDetails.sections;
+            const sectionsAll = Object.assign([],nextStateSection.restDetails.sections);
             const sectionIndexToDelete = sectionsAll.findIndex( s => s.name === action.payload.sectionName);
             sectionsAll.splice(sectionIndexToDelete,1);
+            nextStateSection.restDetails.sections = sectionsAll;
             return nextStateSection;
         case CURRENT_REST_DETAILS_SUCCESS :
             return Object.assign({},state,{

@@ -1,18 +1,17 @@
-const db = require('../database');
-const errorLog = require('./errorService');
+const db = require('../database').db;
 
 
 var authenticate = (email,password) => {
     return new Promise( (resolve,reject) => {
         db.query('SELECT * FROM USERS WHERE emailId = ? ',[email],function (error, results, fields) {
             if(error) {
-                reject(errorLog.invalidCred);
+                reject("Invalid Credentials!");
             }
             if(results[0] && password === results[0].password) {
                 console.log("logged in!");
                 resolve("loggedIn");
             } else {
-                reject(errorLog.invalidCred);
+                reject("Invalid Credentials!");
             }
         })
     })
@@ -24,12 +23,12 @@ var createAccount = (email,password,firstName,lastName,type,displayPic) => {
         db.query('INSERT INTO users VALUES( ? , md5(?))',[email,password],function(error,results,fields) {
             if(error) {
                 console.log("Error occurred.");
-                reject(errorLog.invalidCred);
+                reject("Invalid Credentials!");
             } else {
                 db.query('INSERT INTO user_details VALUES( ? , ?, ? ,null,null,?,?)',[email,firstName,lastName,type,displayPic],function(error,results,fields){
                     if(error) {
                         console.log("Error occurred.");
-                        reject(errorLog.invalidCred);
+                        reject("Invalid Credentials!");
                     } else {
                         console.log("Registration successful!");
                         resolve(results);

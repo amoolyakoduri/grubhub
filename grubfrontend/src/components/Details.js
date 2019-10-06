@@ -72,7 +72,9 @@ class Details extends React.Component {
                     error2: myJson.message
                 })
             } else {
-                alert('Password Updated!');
+                this.setState({
+                    error2: null
+                })
             }
         })
     }

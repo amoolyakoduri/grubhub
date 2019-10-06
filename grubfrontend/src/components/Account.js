@@ -8,10 +8,46 @@ import { Link, Switch, Route } from 'react-router-dom';
 import Profile from './Profile';
 import { connect } from 'react-redux';
 import loginCheck from './LoginCheck'
+import { onGetPastOrdersFailure, onGetUpcomingOrdersFailure, onGetUpcomingOrdersSuccess, onGetPastOrdersSuccess } from './../actions/actions'
+
 
 class Account extends React.Component {
   constructor() {
     super();
+    this.state = {
+      pastOrders: [],
+      upcomingOrders: []
+  }
+  }
+  componentDidMount() {
+    if(!this.props.pastOrders) {
+    fetch('http://localhost:3003/pastOrders/' + this.props.emailId, {
+            method: 'GET'
+        }).then((response) => {
+            return response.json();
+        }).then((myJson) => {
+            if (myJson.payload == null) {
+                console.log("Couldnt fetch past orders");
+                this.props.getPastOrdersFailureDispatch();
+            } else {
+                this.props.getPastOrdersSuccessDispatch(myJson.payload);
+            }
+        })
+      }
+    if(!this.props.upcomingOrders) {
+      fetch('http://localhost:3003/upcomingOrders/' + this.props.emailId, {
+            method: 'GET'
+        }).then((response) => {
+            return response.json();
+        }).then((myJson) => {
+            if (myJson.payload == null) {
+                console.log("Couldnt fetch past orders");
+                this.props.getUpcomingOrdersFailureDispatch();
+            } else {
+                this.props.getUpcomingOrdersSuccessDispatch(myJson.payload);
+            }
+        })
+    }
   }
 
   render() {
@@ -52,4 +88,13 @@ const mapStateToProps = (state) => {
   return { pastOrders, upcomingOrders, type };
 }
 
-export default connect(mapStateToProps)(loginCheck(Account));
+const mapDispatchToProps = (dispatch) => {
+  return {
+      getPastOrdersSuccessDispatch: (payload) => { dispatch(onGetPastOrdersSuccess(payload)) },
+      getPastOrdersFailureDispatch: () => { dispatch(onGetPastOrdersFailure()) },
+      getUpcomingOrdersSuccessDispatch: (payload) => { dispatch(onGetUpcomingOrdersSuccess(payload)) },
+      getUpcomingOrdersFailureDispatch: () => { dispatch(onGetUpcomingOrdersFailure()) },
+  }
+}
+
+export default connect(mapStateToProps,mapDispatchToProps)(loginCheck(Account));

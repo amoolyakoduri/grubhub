@@ -18,7 +18,7 @@ class Cart extends React.Component {
     }
 
     checkout = (event) => {
-        if (this.state.cart && this.state.cart.items && this.state.cart.items.length!=0) {
+        if (this.props.cart && this.props.cart.items && this.props.cart.items.length!=0) {
             this.setState({
                 error: null
             })

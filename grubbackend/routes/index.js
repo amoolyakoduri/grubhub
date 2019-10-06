@@ -33,7 +33,6 @@ routes.get('/logout', (req, res) => {
     res.status(200).json({})
 })
 routes.post('/login',(req,res) => {
-    console.log("in login backend ",req.body);
     var email = req.body.emailId;
     var password = req.body.password;
     var payload ;
@@ -239,7 +238,6 @@ routes.get('/getOrderItems/:id',(req,res) => {
     var orderId = req.params.id;
     restService.getOrderItems(orderId)
     .then( (response) => {
-        console.log(" Order items are : ",response);
         res.status(200).json({payload:response,message:"Fetching items for this order"});
     }).catch( (error) => {
         console.log("Error");
@@ -304,7 +302,6 @@ routes.get('/upcomingOrders/:emailId',(req,res) => {
 routes.get('/getRestaurants',(req,res) => {
     userService.getRestaurants()
     .then( (response) => {
-        console.log("Restaurants are ",response);
         res.status(200).json({restaurants: response});
     }).catch((error) => {
         console.log("Restaurants not available");
@@ -371,7 +368,6 @@ routes.post('/search',(req,res) => {
     var cuisine = req.body.cuisine;
     userService.search(name,item,cuisine)
     .then( (response) => {
-        console.log("Fetching search results ",response);
         res.status(200).json({message:"Fetching search results",payload:response});
     }).catch( (err) => {
         console.log("Error in search api");
@@ -379,4 +375,7 @@ routes.post('/search',(req,res) => {
     })
 })
 
+routes.get('/check', (req, res)=> {
+    res.status(200).json({});
+})
 module.exports = routes;

@@ -90,7 +90,7 @@ class CustomNavbar extends React.Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <Link to="/lets-eat"><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
+          <Link to={this.props.type === "buyer" ? "/lets-eat" : "/home"}><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>

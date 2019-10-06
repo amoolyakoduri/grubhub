@@ -1,4 +1,4 @@
-const db = require('../database');
+const db = require('../database').db;
 
 var addItem = (restId,name,desc,price,section) => {
     return new Promise( function(resolve,reject) {
@@ -54,7 +54,7 @@ var deleteSection = (restId,section) => {
                 reject("error");
             } else {
                 console.log("Section deleted");
-                resolve(results[0]);
+                resolve(results);
             }
         })
     })
@@ -258,7 +258,6 @@ var getMenu = (restId) => {
                                 reject("error");
                             } else {
                                 section["items"] = results;
-                                console.log("items are ",results);
                                 resolve(1);
                             }
                         })

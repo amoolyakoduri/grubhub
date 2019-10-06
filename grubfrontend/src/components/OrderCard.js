@@ -8,6 +8,7 @@ import pic from './../grub.png';
 import { onGetRestDetailsSuccess, onGetRestDetailsFailure, onGetOrderItemsFailure, onGetOrderItemsSuccess } from './../actions/actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import '../css/OrderCard.css'
 
 class OrderCard extends React.Component {
   constructor() {
@@ -48,7 +49,7 @@ class OrderCard extends React.Component {
     console.log("in order");
     var details = this.props.details;
     return (<Card >
-      <CardImg top width="100%" src={pic} alt="Card image cap" />
+      <CardImg style={{width: '250px'}}  src={'/'+details.displayPic} alt="Card image cap" />
       <CardBody>
         <CardTitle>{details.restName}</CardTitle>
         <CardSubtitle>Amount: {details.amt}</CardSubtitle>
