@@ -35,7 +35,7 @@ class SignUp extends React.Component {
         data.append('type',this.state.type);
         data.append('displayPic',this.state.displayPic);
 
-        fetch('http://localhost:3003/signUp',{
+        fetch('/signUp',{
         method : 'POST',
         body : data
         // body : JSON.stringify({ 

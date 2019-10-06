@@ -20,7 +20,7 @@ class RestaurantDetails extends React.Component {
 
     update() {
         const updatedRestDetails = Object.assign({},this.props.restDetails, this.state.restDetails);
-        fetch('http://localhost:3003/updateRestDetails',{
+        fetch('/updateRestDetails',{
             method:'POST',
             headers : {
                 "content-type" : "application/json"

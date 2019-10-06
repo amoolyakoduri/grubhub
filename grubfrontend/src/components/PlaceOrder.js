@@ -13,7 +13,7 @@ class PlaceOrder extends React.Component {
     }
 
     componentDidMount() {
-        fetch('http://localhost:3003/getRestDetails/' + this.props.restDetails.id, {
+        fetch('/getRestDetails/' + this.props.restDetails.id, {
             method: 'GET'
         }).then((response) => {
             return response.json();

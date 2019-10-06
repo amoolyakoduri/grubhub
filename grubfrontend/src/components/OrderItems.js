@@ -11,7 +11,7 @@ class OrderItems extends React.Component {
 
     render() {
         let order = this.props.order;
-        return <div className="container">
+        return <div className="container" style={{display:"flex",flexDirection:"column"}}>
             <h4>Order Details:</h4>
             <p>Order Id : {order.id}</p>
             <p>Name : {order.name}</p>

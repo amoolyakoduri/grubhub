@@ -26,7 +26,7 @@ class OrderCard extends React.Component {
         else
           this.props.getRestDetailsSuccessDispatch(myJson.payload);
       })
-    fetch('http://localhost:3003/getOrderItems/' + this.props.details.id)
+    fetch('/getOrderItems/' + this.props.details.id)
       .then((response) => {
         return response.json();
       }).then((myJson) => {

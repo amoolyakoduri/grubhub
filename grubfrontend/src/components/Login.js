@@ -35,7 +35,7 @@ class Login extends React.Component {
   login(event) {
     event.preventDefault();
     console.log("in submit ", this.state);
-    fetch('http://localhost:3003/login', {
+    fetch('/login', {
       headers: {
         'Content-Type': 'application/json'
       },

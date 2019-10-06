@@ -29,7 +29,7 @@ class Details extends React.Component {
     }
 
     update() {
-        fetch('http://localhost:3003/updateDetails', {
+        fetch('/updateDetails', {
             method: 'POST',
             headers: {
                 "content-type": "application/json"
@@ -54,7 +54,7 @@ class Details extends React.Component {
     }
 
     updatePassword = (event) => {
-        fetch('http://localhost:3003/updatePassword', {
+        fetch('/updatePassword', {
             method: 'POST',
             headers: {
                 "content-type": "application/json"

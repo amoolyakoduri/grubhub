@@ -21,7 +21,7 @@ class Account extends React.Component {
   }
   componentDidMount() {
     if(!this.props.pastOrders) {
-    fetch('http://localhost:3003/pastOrders/' + this.props.emailId, {
+    fetch('/pastOrders/' + this.props.emailId, {
             method: 'GET'
         }).then((response) => {
             return response.json();
@@ -35,7 +35,7 @@ class Account extends React.Component {
         })
       }
     if(!this.props.upcomingOrders) {
-      fetch('http://localhost:3003/upcomingOrders/' + this.props.emailId, {
+      fetch('/upcomingOrders/' + this.props.emailId, {
             method: 'GET'
         }).then((response) => {
             return response.json();

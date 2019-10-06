@@ -40,7 +40,7 @@ class Section extends React.Component {
         this.setState(prevState => ({
             modal1: !prevState.modal1
           }));
-        fetch('http://localhost:3003/addItem',{
+        fetch('/addItem',{
             headers: {
                 'Content-Type': 'application/json'
               },
@@ -71,7 +71,7 @@ class Section extends React.Component {
       this.setState(prevState => ({
           modal2: !prevState.modal2
         }));
-      fetch('http://localhost:3003/deleteItem',{
+      fetch('/deleteItem',{
           headers: {
               'Content-Type': 'application/json'
             },

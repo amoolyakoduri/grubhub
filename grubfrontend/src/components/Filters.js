@@ -33,7 +33,7 @@ class Filters extends React.Component {
       })
       return null;
     } else {
-      fetch('http://localhost:3003/search', {
+      fetch('/search', {
         method: 'POST',
         headers: {
           "content-type": "application/json"

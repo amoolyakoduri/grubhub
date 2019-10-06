@@ -57,7 +57,7 @@ class Checkout extends React.Component {
         event.preventDefault();
         let dateString = this.getDateString();
         this.props.getDeliveryDetailsSuccessDispatch(this.state.deliveryDetails, dateString);
-        fetch('http://localhost:3003/placeOrder', {
+        fetch('/placeOrder', {
             headers: {
                 'Content-Type': 'application/json'
             },
