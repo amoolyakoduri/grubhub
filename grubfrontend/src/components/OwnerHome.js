@@ -37,7 +37,7 @@ class OwnerHome extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/getOrders/' + this.props.restId)
+        fetch('/api/getOrders/' + this.props.restId)
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
@@ -47,7 +47,7 @@ class OwnerHome extends React.Component {
                     this.props.getOrdersSuccessDispatch(myJson.payload);
                 }
             })
-        fetch('/getPastOrders/' + this.props.restId)
+        fetch('/api/getPastOrders/' + this.props.restId)
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
@@ -61,7 +61,7 @@ class OwnerHome extends React.Component {
 
     changeHandler = (orderId, event) => {
 
-        fetch('/updateOrder', {
+        fetch('/api/updateOrder', {
             headers: {
                 'Content-Type': 'application/json'
             },

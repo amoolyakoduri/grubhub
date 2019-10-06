@@ -42,7 +42,7 @@ class CustomNavbar extends React.Component {
   }
 
   logout() {
-    fetch('/logout')
+    fetch('/api/logout')
       .then(res => res.json())
       .then(res => {
         this.props.logoutSuccessDispatch();

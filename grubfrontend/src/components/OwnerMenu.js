@@ -44,7 +44,7 @@ class OwnerMenu extends React.Component {
         this.setState(prevState => ({
             modal1: !prevState.modal1
         }));
-        fetch('/addSection', {
+        fetch('/api/addSection', {
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -71,7 +71,7 @@ class OwnerMenu extends React.Component {
         this.setState(prevState => ({
             modal2: !prevState.modal2
         }));
-        fetch('/deleteSection', {
+        fetch('/api/deleteSection', {
             headers: {
                 'Content-Type': 'application/json'
             },

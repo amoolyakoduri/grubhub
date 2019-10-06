@@ -21,7 +21,7 @@ class BuyerHome extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/pastOrders/' + this.props.emailId, {
+        fetch('/api/pastOrders/' + this.props.emailId, {
             method: 'GET'
         }).then((response) => {
             return response.json();
@@ -33,7 +33,7 @@ class BuyerHome extends React.Component {
                 this.props.getPastOrdersSuccessDispatch(myJson.payload);
             }
         })
-        fetch('/getRestaurants', {
+        fetch('/api/getRestaurants', {
             method: 'GET',
         }).then((response) => {
             return response.json();
@@ -41,7 +41,7 @@ class BuyerHome extends React.Component {
             console.log("myJson is ", myJson)
             this.props.getRestaurantsSuccessDispatch(myJson);
         })
-        fetch('/upcomingOrders/' + this.props.emailId, {
+        fetch('/api/upcomingOrders/' + this.props.emailId, {
             method: 'GET'
         }).then((response) => {
             return response.json();

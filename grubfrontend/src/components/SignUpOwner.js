@@ -34,7 +34,7 @@ class SignUpOwner extends React.Component {
         data.append('zipcode',this.state.zipcode);
         data.append('phone',this.state.phone);
         data.append('displayPic',this.state.displayPic);
-    fetch('/register',{
+    fetch('/api/register',{
     method : 'POST',
     body:data
     // body : JSON.stringify({ 
