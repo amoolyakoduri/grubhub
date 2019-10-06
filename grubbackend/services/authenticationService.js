@@ -41,10 +41,10 @@ var createAccount = (email,password,firstName,lastName,type,displayPic) => {
     
 }
 
-var createRestaurant = (name,phone,cusine,address,zipcode,emailId) => {
+var createRestaurant = (name,phone,cusine,address,zipcode,emailId,displayPic) => {
     return new Promise( (resolve,reject) => {
-        db.query('INSERT INTO restaurant (name,zip,phone,cuisine,address,ownerEmail) VALUES(? , ?, ? , ? , ?, ?)',
-        [name,zipcode,phone,cusine,address,emailId],
+        db.query('INSERT INTO restaurant (name,zip,phone,cuisine,address,ownerEmail,displayPic) VALUES(? , ?, ? , ? , ?, ?,?)',
+        [name,zipcode,phone,cusine,address,emailId,displayPic],
         function(error,results,fields) {
             if(error) {
                 console.log("Error occurred in createRestaurant.");

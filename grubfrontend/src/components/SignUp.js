@@ -56,7 +56,7 @@ class SignUp extends React.Component {
           this.props.signUpFailureDispatch();
       } else {
         console.log(" Registered ! ", jsonRes);
-        if(this.state.type==="buyer") 
+        if(this.props.type==="buyer") 
         this.props.history.push("/lets-eat");
         else 
         this.props.history.push('/signUpOwner');
@@ -90,45 +90,29 @@ class SignUp extends React.Component {
     }
 
     render(){
-        return <div>
+        return <div className="container">
             <Card>
         <CardBody>
-          <CardTitle>Sign up for Grubhub account!</CardTitle>
+          <CardTitle><h3>Sign up for Grubhub account!</h3></CardTitle>
           <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.signUp}>
           <FormGroup>
-          <Label for="exampleEmail">First Name:</Label>
           <AvField type="text" label="First Name:" name="firstName" id="firstName" onChange = {this.changeHandler} placeholder="name" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="exampleEmail">Last Name:</Label>
           <AvField type="text" name="lastName" label="Last Name:" id="lastName" onChange = {this.changeHandler} placeholder="name" required />
         </FormGroup>
         <FormGroup>
-          <Label for="exampleEmail">Email</Label>
           <AvField type="email" name="emailId" id="emailId" label="Email:" onChange = {this.changeHandler} placeholder="email" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="examplePassword">Password</Label>
           <AvField type="password" name="password" id="password" label="Password:" onChange={this.changeHandler} placeholder="password" required/>
         </FormGroup>
 
-        <AvRadioGroup inline name="type" label="Radio Buttons! (inline)" required>
+        <AvRadioGroup inline name="type" label="Account type" required>
           <AvRadio label="Buyer" value="buyer" name="type" id="buyer" onChange={this.changeRadioHandler} />
           <AvRadio label="Owner" value="owner" name="type" id="owner" onChange={this.changeRadioHandler} />
         </AvRadioGroup>
-        <div class="form-check">
-    <input class="form-check-input" type="radio" name="type" id="buyer" value="buyer" onChange={this.changeRadioHandler} required/>
-    <label class="form-check-label" for="buyer">
-       Buyer
-     </label>
-    </div>
-        <div class="form-check">
-     <input class="form-check-input" type="radio" name="type" id="owner" value="owner" onChange={this.changeRadioHandler} required/>
-     <label class="form-check-label" for="owner">
-    Owner
-     </label>
-    </div>
-    <AvField type='file' id='multi' label="Upload display picture" onChange={this.fileHandler} accept="image/*" required/>
+    <AvField type='file' id='multi' name="displayPic" label="Upload display picture" onChange={this.fileHandler} accept="image/*" required/>
 
           <Button type="submit" >Submit</Button>
           </AvForm>
@@ -136,6 +120,11 @@ class SignUp extends React.Component {
       </Card>
         </div>
     }
+}
+
+const mapStateToProps = (state) => {
+  const {type} = state;
+  return {type};
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -146,4 +135,4 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 
-export default connect(null,mapDispatchToProps)(SignUp);
+export default connect(mapStateToProps,mapDispatchToProps)(SignUp);

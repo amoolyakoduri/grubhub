@@ -1,21 +1,21 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {isOwner, isLoggedIn} from './../helpers/index';
+import { connect } from 'react-redux';
+import { isOwner, isLoggedIn } from './../helpers/index';
 import Unauthorized from './Unauthorized';
 
-const isOwnerComponent  = (WrappedComponent) => {
+const isOwnerComponent = (WrappedComponent) => {
     class WrappedComponentFromBuyer extends React.Component {
         render() {
-                const { props } = this;
-                return isLoggedIn() && isOwner(this.props.type) ? <WrappedComponent {...props} /> : <Unauthorized/>
-         };   
+            const { props } = this;
+            return isLoggedIn() && isOwner(this.props.type) ? <WrappedComponent {...props} /> : <Unauthorized />
+        };
     }
-    return connect(mapStateToProps)(WrappedComponentFromBuyer); 
+    return connect(mapStateToProps)(WrappedComponentFromBuyer);
 }
 
 const mapStateToProps = (state) => {
-    const {type} = state;
-    return {type}; 
+    const { type } = state;
+    return { type };
 }
 
 export default isOwnerComponent;

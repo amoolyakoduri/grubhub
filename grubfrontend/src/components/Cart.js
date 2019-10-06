@@ -1,38 +1,39 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {Button} from 'reactstrap';
+import { Button } from 'reactstrap';
 import { withRouter } from 'react-router-dom';
-import { onDeleteOrderItemSuccess} from './../actions/actions';
+import { onDeleteOrderItemSuccess } from './../actions/actions';
 import loginCheck from './LoginCheck';
 import isBuyer from './isBuyer';
 
 
-class Cart extends React.Component{
+class Cart extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             error: null,
-            cart:{}
+            cart: {}
 
         }
     }
 
     checkout = (event) => {
-        if(this.state.cart.items== [] ) {
-        this.setState({
-            error: "Add items to cart please."
-        })
-        return;
-    }
-    this.setState({
-        error: null
-    })
-    event.preventDefault();
-    this.props.history.push("/checkout");
+        if (this.state.cart && this.state.cart.items && this.state.cart.items.length!=0) {
+            this.setState({
+                error: null
+            })
+            event.preventDefault();
+            this.props.history.push("/checkout");
+        } else {
+            this.setState({
+                error: "Add items to cart please."
+            })
+            return;
+        }
     }
 
     delete = (itemId) => {
-        this.props.deleteOrderItemSuccessDispatch({itemId:itemId});
+        this.props.deleteOrderItemSuccessDispatch({ itemId: itemId });
     }
 
 
@@ -40,24 +41,24 @@ class Cart extends React.Component{
         let amt = 0;
         return <div >
             <h4 className="container">Your Order</h4>
-            <hr/>
+            <hr />
             {
-                this.props.cart && this.props.cart.items && 
-                this.props.cart.items.map( orderItem => {
-                    amt = amt + orderItem.quantity*orderItem.price;
-                    return <div className="container" style={{display:"flex",flexDirection:"row",justifyContent:"space-between"}}>
+                this.props.cart && this.props.cart.items &&
+                this.props.cart.items.map(orderItem => {
+                    amt = amt + orderItem.quantity * orderItem.price;
+                    return <div className="container" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <div><h6>{orderItem.name}</h6></div>
                         <div><h6>{orderItem.quantity}pcs</h6></div>
-                        <div><h6>{orderItem.quantity*orderItem.price}$</h6></div>
-                        <div><Button onClick = {() => { this.delete(orderItem.itemId)}} >Delete</Button></div>
-                        </div>
+                        <div><h6>{orderItem.quantity * orderItem.price}$</h6></div>
+                        <div><Button onClick={() => { this.delete(orderItem.itemId) }} >Delete</Button></div>
+                    </div>
                 })
             }
-            <hr/>
-            {this.state.error && <div style={{color: "red"}}>{this.state.error}</div>}
+            <hr />
             <h4 className="container">Items Total : {amt}$</h4>
-            <div className="container">
-            <Button onClick={this.checkout}>Proceed To Checkout</Button>
+            <div className="container" style={{display:"flex",flexDirection:"column",width:"fit-content"}}>
+                <Button onClick={this.checkout}>Proceed To Checkout</Button>
+                {this.state.error && <div style={{ color: "red" }}>{this.state.error}</div>}
             </div>
         </div>
     }
@@ -65,12 +66,12 @@ class Cart extends React.Component{
 
 const mapStateToProps = (state) => {
     // const {restDetails,cart} =state;
-    return {restDetails: state.restDetails,cart: state.cart}; 
+    return { restDetails: state.restDetails, cart: state.cart };
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        deleteOrderItemSuccessDispatch : (payload) => { dispatch(onDeleteOrderItemSuccess(payload))}
+        deleteOrderItemSuccessDispatch: (payload) => { dispatch(onDeleteOrderItemSuccess(payload)) }
     }
 }
 

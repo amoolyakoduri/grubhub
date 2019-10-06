@@ -113,7 +113,7 @@ routes.post('/signUp', upload.single('displayPic'), (req,res) => {
 })
 })
 
-routes.post('/register',(req,res) => {
+routes.post('/register',upload.single('displayPic'),(req,res) => {
     console.log("in register");
     var name = req.body.name;
     var zipcode = req.body.zipcode;
@@ -121,7 +121,7 @@ routes.post('/register',(req,res) => {
     var cuisine = req.body.cuisine;
     var address = req.body.address;
     var email = req.body.emailId;
-    auth.createRestaurant(name,phone,cuisine,address,zipcode,email)
+    auth.createRestaurant(name,phone,cuisine,address,zipcode,email,req.file.path)
     .then( (myJson) => {
         console.log(myJson);
         res.status(200).json({payload:myJson,message:"Restaurant registeration successful!"});
@@ -148,9 +148,9 @@ routes.post('/deleteSection',(req,res) => {
     restService.deleteSection(restId,section)
     .then( (myJson) => {
         console.log(myJson);
-        res.status(200).json({message:"Section deleted!"});
+        res.status(200).json({payload:myJson,message:"Section deleted!"});
     }).catch((err) => {
-        res.status(500).json({message:"Section not deleted"});
+        res.status(500).json({payload:null,message:"Section not deleted"});
     })
 })
 
@@ -196,6 +196,20 @@ routes.get('/getOrders/:id',(req,res) => {
     })
 })
 
+routes.get('/getPastOrders/:id',(req,res) => {
+    var restId = req.params.id;
+    restService.getPastOrders(restId)
+    .then((myJson) => {
+        console.log("myJson is ",myJson);
+        if(myJson.length != 0)
+        res.status(200).json({payload:{pastOrders: myJson},message:null});
+        else
+        res.status(200).json({payload:null,message:"No past orders"})
+    }).catch( (err) => {
+        res.status(500).json({payload:null,message:"Couldnt fetch orders"});
+    })
+})
+
 routes.post('/updateOrder',(req,res) => {
     var restId = req.body.restId;
     var orderId = req.body.orderId;
@@ -230,6 +244,22 @@ routes.get('/getOrderItems/:id',(req,res) => {
     }).catch( (error) => {
         console.log("Error");
         res.status(500).json({payload:null,message:"Couldnt fetch items for this order"});
+    })
+})
+
+routes.post( '/updatePassword',(req,res)=> {
+    var email = req.body.emailId;
+    var oldPassword = req.body.oldPassword;
+    var newPassword = req.body.newPassword;
+    userService.updatePassword(email,oldPassword,newPassword)
+    .then( (response) => {
+        if(response.payload.affectedRows===1){
+        res.status(200).json({payload:response,message:"Password Updated"});
+        } else {
+            res.status(500).json({payload:null,message:"Error in update password"});
+        }
+    }).catch( (error) => {
+        res.status(500).json({payload:null,message:"Error in update password"});
     })
 })
 
@@ -320,7 +350,7 @@ routes.post('/updateRestDetails',(req,res) => {
     var restDetails = {
         id : req.body.restId,
         name : req.body.restDetails.name,
-        zipcode : req.body.restDetails.zipcode,
+        zipcode : req.body.restDetails.zip,
         phone : req.body.restDetails.phone,
         cuisine : req.body.restDetails.cuisine,
         address : req.body.restDetails.address

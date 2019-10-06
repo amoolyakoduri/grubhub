@@ -19,7 +19,8 @@ class RestaurantContainer extends React.Component {
     render() {
         let display = this.props.display;
         return  this.props.restaurants ? (<div >
-            <h4> Restaurants </h4>
+            <h1 style={{textAlign: "center"}}> Restaurants </h1>
+            <div style={{display:"flex",justifyContent: 'space-evenly',flexDirection: this.props.display==='tuple' ? 'column': 'row'}}>
             {
                 this.props.restaurants.length == 0 ?
                 <h5>No restaurants to display</h5> :
@@ -32,6 +33,7 @@ class RestaurantContainer extends React.Component {
                    
                 })
             }
+            </div>
         </div>) : null
     }
 }

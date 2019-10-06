@@ -10,7 +10,9 @@ import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS,
         GET_ORDER_ITEMS_SUCCESS, GET_ORDER_ITEMS_FAILURE,
         UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
         SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
-        SEARCH_FAILURE} from './../actions/actions';
+        SEARCH_FAILURE,
+        GET_PAST_ORDERS_OWNER_SUCCESS,
+        DELETE_SECTION_SUCCESS} from './../actions/actions';
 
 function app(state,action) {
     switch(action.type) {
@@ -76,7 +78,7 @@ function app(state,action) {
         case REST_REGISTERATION_SUCCESS :
             return Object.assign({},state, {
                 restDetails : Object.assign({},{
-                restId : action.payload.restId,
+                id : action.payload.restId,
                 name : action.payload.name,
                 cuisine : action.payload.cuisine,
                 address : action.payload.address,
@@ -86,6 +88,10 @@ function app(state,action) {
         case GET_ORDERS_SUCCESS :
             return Object.assign({},state,{
                 orders : action.payload.orders
+            })
+        case GET_PAST_ORDERS_OWNER_SUCCESS : 
+            return Object.assign({},state,{
+                pastOrders : action.payload.pastOrders
             })
         case ADD_SECTION_SUCCESS :     
             return Object.assign({},state,{
@@ -102,12 +108,21 @@ function app(state,action) {
             return nextState;
         case DELETE_ITEM_SUCCESS : 
             const nextStateDelete = Object.assign({},state);
-            const sectionsDelete = nextStateDelete.restDetails.sections;
+            const sectionsDelete =   Object.assign([],nextStateDelete.restDetails.sections);
             const sectionIndex = sectionsDelete.findIndex( s => s.name === action.sectionName);
-            const itemIndex =sectionsDelete[sectionIndex].items.findIndex( i => i.id === action.payload.itemId)
-            const items = sectionsDelete[sectionIndex].items.splice(itemIndex,1);
-            sectionsDelete[sectionIndex].items = items;
+            const itemIndex =sectionsDelete[sectionIndex].items.findIndex( i => i.id == action.payload.itemId)
+            const sectionItems =  Object.assign([],sectionsDelete[sectionIndex].items);
+            //const items = sectionItems.splice(itemIndex,1);
+            sectionItems.splice(itemIndex,1);
+            sectionsDelete[sectionIndex].items = sectionItems;
+            nextStateDelete.restDetails.sections = sectionsDelete;
             return nextStateDelete;
+        case DELETE_SECTION_SUCCESS :
+            const nextStateSection = Object.assign({},state);
+            const sectionsAll = nextStateSection.restDetails.sections;
+            const sectionIndexToDelete = sectionsAll.findIndex( s => s.name === action.payload.sectionName);
+            sectionsAll.splice(sectionIndexToDelete,1);
+            return nextStateSection;
         case CURRENT_REST_DETAILS_SUCCESS :
             return Object.assign({},state,{
                 restDetails : action.payload

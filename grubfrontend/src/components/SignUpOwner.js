@@ -16,7 +16,9 @@ class SignUpOwner extends React.Component {
       zipcode : null,
       address : null,
       phone : null,
-      cuisine : null
+      cuisine : null,
+      displayPic : null
+
   }
   this.register = this.register.bind(this);
   this.changeHandler = this.changeHandler.bind(this);
@@ -24,19 +26,25 @@ class SignUpOwner extends React.Component {
 
   register(event){
     event.preventDefault();
+    const data = new FormData();
+        data.append('emailId' , this.props.emailId);
+        data.append('name',this.state.name);
+        data.append('cuisine', this.state.cuisine);
+        data.append('address',this.state.address);
+        data.append('zipcode',this.state.zipcode);
+        data.append('phone',this.state.phone);
+        data.append('displayPic',this.state.displayPic);
     fetch('http://localhost:3003/register',{
-    headers: {
-      'Content-Type': 'application/json'
-    },
     method : 'POST',
-    body : JSON.stringify({ 
-        emailId : this.props.emailId, 
-        name : this.state.name,
-        cuisine : this.state.cuisine,
-        address : this.state.address,
-        zipcode : this.state.zipcode,
-        phone : this.state.phone
-    }),
+    body:data
+    // body : JSON.stringify({ 
+    //     emailId : this.props.emailId, 
+    //     name : this.state.name,
+    //     cuisine : this.state.cuisine,
+    //     address : this.state.address,
+    //     zipcode : this.state.zipcode,
+    //     phone : this.state.phone
+    // }),
   })
   .then((response) => {
       console.log(response)
@@ -71,32 +79,33 @@ handleInvalidSubmit = (event, errors, values) => {
   this.setState({email: values.email, error: true});
 }
 
+fileHandler = (event) => {
+  this.setState({displayPic : event.target.files[0]});
+
+}
+
   render(){
-    return <div>
+    return <div className="container">
       <Card>
         <CardBody>
           <CardTitle>Restaurant details!</CardTitle>
           <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.register}>
           <FormGroup>
-          <Label for="name">Restaurant Name:</Label>
           <AvField type="text" name="name" id="name" label="Restaurant Name:" onChange = {this.changeHandler} placeholder="name" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="cuisine">Cuisine:</Label>
           <AvField type="text" name="cuisine" label="Cuisine:" id="cuisine" onChange = {this.changeHandler} placeholder="cuisine" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="address">Address:</Label>
           <AvField type="text" name="address" label="Address:" id="address" onChange = {this.changeHandler} placeholder="address" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="phone">Phone:</Label>
           <AvField type="text" name="phone" label="Phone:" id="phone" onChange={this.changeHandler} placeholder="phone" required/>
         </FormGroup>
         <FormGroup>
-          <Label for="zipcode">Zipcode:</Label>
           <AvField type="text" label="Zipcode:" name="zipcode" id="zipcode" onChange={this.changeHandler} placeholder="zipcode" required/>
         </FormGroup>
+        <AvField type='file' name="displayPic" id='multi' label="Upload display picture" onChange={this.fileHandler} accept="image/*" required/>
           <Button type="submit" >Register!</Button>
           </AvForm>
         </CardBody>

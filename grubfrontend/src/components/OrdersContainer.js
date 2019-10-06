@@ -5,24 +5,24 @@ import OrderTuple from './OrderTuple';
 import { connect } from 'react-redux'
 
 
-class OrdersContainer extends React.Component{
+class OrdersContainer extends React.Component {
     constructor() {
         super();
         this.state = {
         }
     }
 
-    
+
 
     render() {
-        return this.props.orders  ? (<div >
-        <div >
-            {this.props.orders && this.props.orders.map(order => {
-                return this.props.display==="tuple" ? 
-                <OrderTuple details={order} /> :
-                <OrderCard details = {order}></OrderCard>
-            })}  
-      </div>
+        return this.props.orders ? (<div >
+            <div style={{ display: "flex", justifyContent: 'space-evenly', flexDirection: this.props.display === "tuple" ? "column" : "row" }}>
+                {this.props.orders && this.props.orders.map(order => {
+                    return this.props.display === "tuple" ?
+                        <OrderTuple details={order} /> :
+                        <OrderCard details={order}></OrderCard>
+                })}
+            </div>
         </div>) : <h4>No Orders</h4>
     }
 

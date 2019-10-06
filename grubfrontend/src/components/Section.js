@@ -97,21 +97,18 @@ class Section extends React.Component {
     render() {
         return <div class="container" style = {{ display:"flex",flexDirection:"column"}}>
             <h4>{this.props.details.name}</h4>
-            <Button color="primary" onClick={this.toggle1} dataTarget="#createItem">Add Item</Button>
+            <Button color="primary" onClick={this.toggle1} style={{width:"fit-content"}} dataTarget="#createItem">Add Item</Button>
             <Modal isOpen={this.state.modal1} toggle={this.toggle1} id="createItem" >
             <AvForm onValidSubmit={this.create} onInvalidSubmit = {this.toggle1}>
           <ModalHeader >Add Item</ModalHeader>
           <ModalBody>
-              <Label for = "name">Item Name:</Label>  
-              <AvField type="text" id="name" name="name" onChange={this.changeHandler} required></AvField>
-              <Label for = "desc">Item Description:</Label>  
-              <AvField type="text" id="desc" name="desc" onChange={this.changeHandler} required></AvField>
-              <Label for = "price">Item Price:</Label>  
-              <AvField type="number" step="any" min="0" id="price" name="price" onChange={this.changeHandler} required></AvField>
+              <AvField type="text" id="name" label="Item Name:" name="name" onChange={this.changeHandler} required></AvField>
+              <AvField type="text" id="desc" name="desc" label="Item Description:" onChange={this.changeHandler} required></AvField>
+              <AvField type="number" min="0" label="Item Price:" id="price" name="price" onChange={this.changeHandler} required></AvField>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" >Create Item</Button>{' '}
-            <Button color="secondary" >Cancel</Button>
+            <Button color="secondary" onClick={this.toggle1} >Cancel</Button>
           </ModalFooter>
           </AvForm>
         </Modal>
@@ -138,7 +135,7 @@ class Section extends React.Component {
             }
         </tbody>
       </Table>
-      <Button color="primary" onClick={this.toggle2} dataTarget="#deleteItem">Delete Item</Button>
+      <Button color="primary" onClick={this.toggle2} style={{width:"fit-content"}} dataTarget="#deleteItem">Delete Item</Button>
             <Modal isOpen={this.state.modal2} toggle={this.toggle2} id="deleteItem" >
           <ModalHeader >Delete Item</ModalHeader>
           <ModalBody>

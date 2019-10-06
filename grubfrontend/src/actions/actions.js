@@ -13,6 +13,8 @@ const REST_REGISTERATION_SUCCESS = 'REST_REGISTERATION_SUCCESS';
 const REST_REGISTERATION_FAILURE = 'REST_REGISTERATION_FAILURE';
 const GET_ORDERS_SUCCESS = 'GET_ORDERS_SUCCESS';
 const GET_ORDERS_FAILURE = 'GET_ORDERS_FAILURE';
+const GET_PAST_ORDERS_OWNER_FAILURE = 'GET_PAST_ORDERS_OWNER_FAILURE';
+const GET_PAST_ORDERS_OWNER_SUCCESS = 'GET_PAST_ORDERS_OWNER_SUCCESS';
 const ADD_SECTION_SUCCESS = 'ADD_SECTION_SUCCESS';
 const ADD_SECTION_FAILURE = 'ADD_SECTION_FAILURE';
 const ADD_ITEM_SUCCESS = 'ADD_ITEM_SUCCESS';
@@ -35,6 +37,8 @@ const UPDATE_ORDER_SUCCESS = 'UPDATE_ORDER_SUCCESS';
 const UPDATE_ORDER_FAILURE = 'UPDATE_ORDER_FAILURE';
 const SEARCH_SUCCESS = 'SEARCH_SUCCESS';
 const SEARCH_FAILURE = 'SEARCH_FAILURE';
+const DELETE_SECTION_SUCCESS = 'DELETE_SECTION_SUCCESS';
+const DELETE_SECTION_FAILURE = 'DELETE_SECTION_FAILURE';
 
 function onOwnerLoginSuccess(payload) {
     return {
@@ -141,6 +145,20 @@ function onGetOrdersFailure() {
     }
 }
 
+function onGetPastOrdersOwnerSuccess(payload) {
+    return {
+        type: GET_PAST_ORDERS_OWNER_SUCCESS,
+        payload : payload
+    }
+}
+
+function onGetPastOrdersOwnerFailure() {
+    return {
+        type: GET_PAST_ORDERS_OWNER_FAILURE,
+        payload : null
+    }
+}
+
 function onAddSectionSuccess(payload) {
     return {
         type : ADD_SECTION_SUCCESS,
@@ -151,6 +169,20 @@ function onAddSectionSuccess(payload) {
 function onAddSectionFailure() {
     return {
         type : ADD_SECTION_FAILURE,
+        payload : null
+    }
+}
+
+function onDeleteSectionSuccess(payload) {
+    return {
+        type : DELETE_SECTION_SUCCESS,
+        payload : payload
+    }
+}
+
+function onDeleteSectionFailure() {
+    return {
+        type : DELETE_SECTION_FAILURE,
         payload : null
     }
 }
@@ -317,6 +349,8 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     onUpdateOrderFailure, onUpdateOrderSuccess,
     onSearchSuccess, onSearchFailure,
     onGetUpcomingOrdersSuccess, onGetUpcomingOrdersFailure,
+    onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess,
+    onDeleteSectionFailure, onDeleteSectionSuccess,
     LOGIN_FAILURE, OWNER_LOGIN_SUCCESS, BUYER_LOGIN_SUCCESS,
     LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
     UPDATE_DETAILS_SUCCESS, UPDATE_DETAILS_FAILURE,
@@ -335,7 +369,9 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     GET_ORDER_ITEMS_FAILURE, GET_ORDER_ITEMS_SUCCESS,
     UPDATE_ORDER_FAILURE, UPDATE_ORDER_SUCCESS,
     SEARCH_FAILURE, SEARCH_SUCCESS,
-    GET_UPCOMING_ORDERS_FAILURE, GET_UPCOMING_ORDERS_SUCCESS }
+    GET_PAST_ORDERS_OWNER_FAILURE, GET_PAST_ORDERS_OWNER_SUCCESS,
+    GET_UPCOMING_ORDERS_FAILURE, GET_UPCOMING_ORDERS_SUCCESS,
+    DELETE_SECTION_FAILURE, DELETE_SECTION_SUCCESS }
 
 
 

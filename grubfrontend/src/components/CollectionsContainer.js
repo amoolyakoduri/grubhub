@@ -12,13 +12,13 @@ class CollectionsContainer extends React.Component {
     }
 
     render() {
-        return  <div >
-        <div className="container">
-    <h1 className="jumboTitle" style = {{textAlign : "center",color:"black"}}>Explore our collections!</h1>
-    </div>
-    <Collection />
-    
-    </div>
+        return <div >
+            <div className="container">
+                <h1 className="jumboTitle" style={{ textAlign: "center", color: "black" }}>Explore our collections!</h1>
+            </div>
+            <Collection />
+
+        </div>
     }
 }
 

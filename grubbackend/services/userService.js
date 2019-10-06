@@ -64,14 +64,14 @@ var updateEmail = (oldEmail,newEmail) => {
     })
 }
 
-var updatePassword = (password,email) => {
+var updatePassword = (email,oldPassword,newPassword) => {
     return new Promise(function(resolve,reject) {
-        db.query('UPDATE users SET password = ? WHERE emailId = ?',[password,email],function(error,results,fields){
+        db.query('UPDATE users SET password = ? WHERE emailId = ? and password = ?',[newPassword,email,oldPassword,],function(error,results,fields){
             if(error) {
                 console.log("Error in updatePassword");
                 reject("error");
             } else {
-                resolve(results[0]);
+                resolve(results);
             }
         })
     })

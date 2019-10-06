@@ -19,13 +19,14 @@ class RestaurantDetails extends React.Component {
     }
 
     update() {
+        const updatedRestDetails = Object.assign({},this.props.restDetails, this.state.restDetails);
         fetch('http://localhost:3003/updateRestDetails',{
             method:'POST',
             headers : {
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
-                restDetails : this.state.restDetails,
+                restDetails : updatedRestDetails,
                 restId : this.props.restDetails.id
             })
         })
@@ -59,16 +60,11 @@ class RestaurantDetails extends React.Component {
         return <div>
             <h4>Restaurant Details</h4>
             <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.update}>
-            Name : {this.props.restDetails.name}
             <AvField type= "text" label={"Name : "+this.props.restDetails.name} name="name" onInput={this.changeHandler} placeholder={this.props.name}></AvField>
-            Cuisine : {this.props.restDetails.cuisine}
             <AvField type= "text" label={"Cuisine : "+this.props.restDetails.cuisine} name="cuisine" onChange={this.changeHandler} placeholder={this.props.cuisine}></AvField>
-            Phone : {this.props.restDetails.phone}
             <AvField type= "text" name="phone" label={"Phone : "+this.props.restDetails.phone} onChange={this.changeHandler} placeholder={this.props.phone}></AvField>
-            Address : {this.props.restDetails.address}
             <AvField type= "text" name="address" label={"Address : "+this.props.restDetails.address} onChange={this.changeHandler} placeholder={this.props.address}></AvField>
-            Zipcode : {this.props.restDetails.zipcode}
-            <AvField type= "text" name="zipcode" label={"Zipcode : "+this.props.restDetails.zipcode} onChange={this.changeHandler} placeholder={this.props.zipcode}></AvField>
+            <AvField type= "text" name="zip" label={"Zipcode : "+this.props.restDetails.zip} onChange={this.changeHandler} placeholder={this.props.zip}></AvField>
             <Button >Update Details</Button>
             </AvForm>
         </div>

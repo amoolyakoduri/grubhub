@@ -107,6 +107,41 @@ var getOrders = (restId) => {
     })
 }
 
+var getPastOrders = (restId) => {
+    return new Promise(function(resolve,reject) {
+        db.query(' SELECT o.*,os.status FROM orders o inner join order_status os on o.statusId = os.id WHERE o.restId = ? and (o.statusId = 4 or o.statusId=5)',[restId],function(error,results,fields) {
+            if(error) {
+                console.log("Error in getPastOrders");
+                reject("Error");
+            } else {
+                console.log("Orders for restId ",restId," are : ",results);
+                const promises = results.map( order => {
+                    return new Promise(function(resolve,reject) {
+                        db.query('SELECT m.name,m.price,oi.quantity FROM order_items oi, menu m where oi.orderId = ? and oi.itemId = m.id',[order.id],
+                        function(error,results,fields) {
+                            if(error) {
+                                console.log("Error in getPastOrders");
+                                reject("error");
+                            } else {
+                                console.log("items in order no ",order.id," are : ",results);
+                                order["items"] = results;
+                                console.log("order is ",order);
+                                resolve(1);
+                            }
+                        })
+                    })
+
+                })
+                Promise.all(promises).then( () => {
+                    resolve(results);
+                })
+            }
+        })
+    })
+}
+
+
+
 var updateOrderStatus = (restId,orderId,status) => {
     return new Promise(function(resolve,reject) {
         db.query('UPDATE orders SET statusId = ? WHERE id = ? and restId = ?',[status,orderId,restId],function(error,results,fields) {
@@ -268,3 +303,4 @@ module.exports.getMenu = getMenu;
 module.exports.getRestDetailsByOwnerEmail = getRestDetailsByOwnerEmail;
 module.exports.updateDetails = updateDetails;
 module.exports.getRestDetailsByRestId = getRestDetailsByRestId;
+module.exports.getPastOrders = getPastOrders;

@@ -24,7 +24,7 @@ class RestoCard extends React.Component {
 
     render() {
       var details = this.props.details;
-        return <Card style={{width:"400px",height:"200px",display:"flex",flexDirection:"row"}}>
+        return <Card>
         <CardImg class="img" top width="100%" src={pic} alt="Card image cap" />
         <CardBody>
           <CardTitle>{details.name}</CardTitle>
