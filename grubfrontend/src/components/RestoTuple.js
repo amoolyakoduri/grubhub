@@ -13,7 +13,7 @@ class RestoTuple extends React.Component {
         return <div>
             <div class="tuple">
                 <div >
-                <img src = {'/'+details.displayPic} />
+                <img  style={{width:"250px"}}  src = {'/'+details.displayPic} />
                 </div>
                 <div>
                 <h5> {details.name}</h5>

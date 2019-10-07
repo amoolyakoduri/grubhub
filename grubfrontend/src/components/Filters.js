@@ -66,12 +66,9 @@ class Filters extends React.Component {
   render() {
     return <div style={{ width: "300px", backgroundColor: "#fafafa", height: "100%", display: "flex", flexDirection: "column" }}>
       <h4 className="filterTitle">Filters</h4><a href="#" >Clear all!</a>
-      <Label for="restaurant">Search for a restaurant:</Label>
       <AvForm onValidSubmit={this.handleValidSubmit} onInvalidSubmit={this.handleInvalidSubmit}>
         <AvField type="text" label="Search for a restaurant:" name="restaurant" id="restaurant" onChange={this.changeHandler} placeholder="" />
-        <Label for="item">Search for an item:</Label>
         <AvField type="text" label="Search for an item:" name="item" id="item" onChange={this.changeHandler} placeholder="" />
-        <Label for="cuisine">Search for a cuisine:</Label>
         <AvField type="text" label="Search for a cuisine:" name="cuisine" id="cuisine" onChange={this.changeHandler} placeholder="" />
         <Button onClick={this.getResults}>Search</Button>
         {this.state.error && <div style={{ color: "red" }}>{this.state.error}</div>}

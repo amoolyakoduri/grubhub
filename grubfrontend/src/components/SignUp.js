@@ -56,7 +56,7 @@ class SignUp extends React.Component {
           this.props.signUpFailureDispatch();
       } else {
         console.log(" Registered ! ", jsonRes);
-        if(this.props.type==="buyer") 
+        if(jsonRes.payload.type==="buyer") 
         this.props.history.push("/lets-eat");
         else 
         this.props.history.push('/signUpOwner');

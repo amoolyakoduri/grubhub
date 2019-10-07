@@ -123,11 +123,11 @@ class OwnerMenu extends React.Component {
             </Modal>
             <Button color="primary" style={{ width: "fit-content" }} onClick={this.toggle2}>Delete Section</Button>
             <Modal isOpen={this.state.modal2} toggle={this.toggle2} >
-                <ModalHeader>Add Section</ModalHeader>
+                <ModalHeader>Delete Section</ModalHeader>
                 <ModalBody>
                     <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.delete}>
                         <AvField type="text" id="name" label="Section Name:" name="sectionName" onChange={this.changeHandler} required></AvField>
-                        <Button color="primary" >Create Section</Button>{' '}
+                        <Button color="primary" >Delete Section</Button>{' '}
                         <Button color="secondary" onClick={this.toggle2}>Cancel</Button>
                     </AvForm>
                 </ModalBody>
