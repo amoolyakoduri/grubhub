@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "Calculator",
+			"path": "."
+		},
+		{
+			"name": "calcfe",
+			"path": "/Users/amoolyakoduri/Documents/Projects/calcfe"
+		},
+		{
+			"name": "grubhub",
+			"path": "/Users/amoolyakoduri/Documents/Projects/grubhub"
+		},
+		{
+			"name": "grubbackend",
+			"path": "/Users/amoolyakoduri/Documents/Projects/grubbackend"
+		},
+		{
+			"name": "grubfrontent",
+			"path": "/Users/amoolyakoduri/Documents/Projects/grubfrontent"
+		}
+	],
+	"settings": {}
+}
