@@ -7,10 +7,11 @@ var upload = multer({ dest: 'uploads/' })
 var message = require('./../services/messageService');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
-//var jwtStrategy = require('./../config/passport');
-//passport.use(jwtStrategy);
+var LocalStrategy = require('passport-local').Strategy;
 require('./../config/passport')(passport);
+const secret_key = "Passphrase for encryption should be 45-50 char long";
 var requireAuth = passport.authenticate('jwt', {session: false});
+
 
 routes.get('/logout', (req, res) => {
     res.status(200).json({})
@@ -22,13 +23,12 @@ routes.post('/login',(req,res) => {
     var payload ;
     auth.authenticate(email,password)
     .then( (response) => {
-        var token = jwt.sign({email:email}, "Passphrase for encryption should be 45-50 char long", {
-            expiresIn: 10080 // in seconds
-        });
         userService.getUserDetails(email)
         .then( (myJson) => {
             payload = Object.assign({},myJson);
-            
+            var token = jwt.sign({email:email,payload:payload}, secret_key, {
+                expiresIn: 10080 // in seconds
+            });
             if(payload.type==="owner") {
                 restService.getRestDetailsByOwnerEmail(email)
                 .then( (results) => {
@@ -37,6 +37,7 @@ routes.post('/login',(req,res) => {
                         restService.getMenu(results.id)
                         .then( (resultSection) => {
                             payload.restDetails["sections"]=resultSection;
+                            
                             req.session.user = payload;
                             res.cookie('loggedIn', true, { maxAge: 600000*5 });
                             res.status(200).json({message:"Login Successful",payload:payload,token: 'JWT ' + token});

@@ -1,40 +1,85 @@
 const db = require('../database').db;
 const restSchema = require('./../models/restaurants').Restaurant;
 
+// var addItem = (restId,name,desc,price,section) => {
+//     return new Promise( function(resolve,reject) {
+//         db.query('INSERT INTO menu(name,descr,price,section,restId) VALUES(?,?,?,?,?)',[name,desc,price,section,restId],
+//         function(error, results, fields) {
+//             if(error) {
+//                 console.log("Error in addItem");
+//                 reject("error");
+//             } else {
+//                 console.log("Item added");
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
 var addItem = (restId,name,desc,price,section) => {
     return new Promise( function(resolve,reject) {
-        db.query('INSERT INTO menu(name,descr,price,section,restId) VALUES(?,?,?,?,?)',[name,desc,price,section,restId],
-        function(error, results, fields) {
+        restSchema.update({"_restaurant_id":restId, "sections": { $elemMatch : {
+            "name" : section} }, $push : {"menu":{ "name" : name, "descr":desc,"price":price}}
+        }, function(err,results){
             if(error) {
                 console.log("Error in addItem");
                 reject("error");
             } else {
-                console.log("Item added");
                 resolve(results);
             }
         })
-    })
+    });
 }
 
-var deleteItem = (restId,itemId,section) => {
-    return new Promise( function(resolve,reject) {
-        db.query('DELETE FROM menu WHERE restId = ? and id = ? and section=?',[restId,itemId,section],
-        function(error, results, fields) {
-            if(error) {
-                console.log("Error in deleteItem");
-                reject("error");
-            } else {
-                console.log("Item deleted");
-                resolve(results[0]);
-            }
+// var deleteItem = (restId,itemId,section) => {
+//     return new Promise( function(resolve,reject) {
+//         db.query('DELETE FROM menu WHERE restId = ? and id = ? and section=?',[restId,itemId,section],
+//         function(error, results, fields) {
+//             if(error) {
+//                 console.log("Error in deleteItem");
+//                 reject("error");
+//             } else {
+//                 console.log("Item deleted");
+//                 resolve(results[0]);
+//             }
+//         })
+//     })
+// }
+
+ var deleteItem = (restId,itemId,section) => {
+        return new Promise( function(resolve,reject) {
+            db.query('DELETE FROM menu WHERE restId = ? and id = ? and section=?',[restId,itemId,section],
+            function(error, results, fields) {
+                if(error) {
+                    console.log("Error in deleteItem");
+                    reject("error");
+                } else {
+                    console.log("Item deleted");
+                    resolve(results[0]);
+                }
+            })
         })
-    })
-}
+    }
+
+// var addSection = (restId,section) => {
+//     return new Promise( function(resolve,reject) {
+//         db.query('INSERT INTO sections VALUES( ?, ? ) ',[section,restId],
+//         function(error, results, fields) {
+//             if(error) {
+//                 console.log("Error in addSection");
+//                 reject("error");
+//             } else {
+//                 console.log("Section added");
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
 
 var addSection = (restId,section) => {
     return new Promise( function(resolve,reject) {
-        db.query('INSERT INTO sections VALUES( ?, ? ) ',[section,restId],
-        function(error, results, fields) {
+        restSchema.update({"_restaurant_id":restId}, { $push : { "sections" : {
+            "name" : section} }}, function(error, results, fields) {
             if(error) {
                 console.log("Error in addSection");
                 reject("error");
@@ -42,8 +87,8 @@ var addSection = (restId,section) => {
                 console.log("Section added");
                 resolve(results);
             }
-        })
     })
+})
 }
 
 var deleteSection = (restId,section) => {

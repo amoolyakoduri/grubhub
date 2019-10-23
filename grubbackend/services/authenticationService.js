@@ -3,37 +3,7 @@ const userSchema = require('./../models/users').User;
 const restSchema = require('./../models/restaurants').Restaurant;
 
 
-// var authenticate = (email,password) => {
-//     return new Promise( (resolve,reject) => {
-//         db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
-//             if(error) {
-//                 reject("Invalid Credentials!");
-//             }
-//             if(results[0] && password === results[0].password) {
-//                 console.log("logged in!");
-//                 resolve("loggedIn");
-//             } else {
-//                 reject("Invalid Credentials!");
-//             }
-//         })
-//     })
-//    }
-
 var authenticate = (email,password) => {
-    return new Promise( (resolve,reject) => {
-        userSchema.find({emailId:email, password:password}, function(err,user){
-            if(err){
-                console.log("error in authenticate")
-                reject("error");
-            } else {
-                console.log("logged in!");
-                resolve("loggedIn");
-            }
-        })
-    })
-}
-
-var findUser = (email) => {
     return new Promise( (resolve,reject) => {
         db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
             if(error) {
@@ -45,6 +15,36 @@ var findUser = (email) => {
             } else {
                 reject("Invalid Credentials!");
             }
+        })
+    })
+   }
+
+// var authenticate = (email,password) => {
+//     return new Promise( (resolve,reject) => {
+//         userSchema.find({emailId:email, password:password}, function(err,user){
+//             if(err){
+//                 console.log("error in authenticate")
+//                 reject("error");
+//             } else {
+//                 console.log("logged in!");
+//                 resolve("loggedIn");
+//             }
+//         })
+//     })
+// }
+
+var findUser = (email) => {
+    return new Promise( (resolve,reject) => {
+        db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
+            if(error) {
+                reject("Invalid Credentials!");
+            }
+            //if(results[0] && password === results[0].password) {
+            //    console.log("logged in!");
+                resolve(results);
+            //} else {
+            //    reject("Invalid Credentials!");
+            //}
         })
     })
     
@@ -132,7 +132,7 @@ var createRestaurant = (name,phone,cusine,address,zipcode,emailId,displayPic) =>
 
 
 module.exports.authenticate = authenticate;
-module.exports.createAccount = createAccount;
+module.exports.createUser = createUser;
 module.exports.createRestaurant = createRestaurant;
 module.exports.createUser = createUser;
 module.exports.findUser = findUser;

@@ -12,14 +12,15 @@ const RestaurantSchema = new Schema({
     ownerEmail : String,
     displayPic : String,
     sections : [ new Schema({
+        _section_id : Schema.Types.ObjectId,
         name : String,
-        menu : [ new Schema({
-            _item_id : Schema.Types.ObjectId,
-            name : String,
-            descr : String,
-            price : String 
-        })]
     })],
+    menu : [ new Schema({
+        _item_id : Schema.Types.ObjectId,
+        name : String,
+        descr : String,
+        price : String 
+    })]
 
 })
 
