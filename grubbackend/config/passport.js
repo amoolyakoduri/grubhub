@@ -10,9 +10,6 @@ module.exports = function (passport) {
         secretOrKey: "Passphrase for encryption should be 45-50 char long"
     };
     passport.use(new JwtStrategy(opts, function (jwt_payload, callback) {
-        auth.findUser( jwt_payload.emailId)
-        .then( () =>{
-            callback(null,true);
-        })
+        auth.findUser( jwt_payload.emailId);
     }));
 };

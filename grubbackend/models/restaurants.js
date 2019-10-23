@@ -20,20 +20,6 @@ const RestaurantSchema = new Schema({
             price : String 
         })]
     })],
-    orders : [ new Schema({
-        _order_id : Schema.Types.ObjectId,
-        name : String,
-        address : String,
-        amt : Number,
-        emailId : String,
-        status : String,
-        order_items : [ new Schema ({
-            order_item_id : Schema.Types.ObjectId,
-            item_id : String,
-            quantity : Number
-        })]
-
-    })]
 
 })
 

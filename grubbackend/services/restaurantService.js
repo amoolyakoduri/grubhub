@@ -1,4 +1,5 @@
 const db = require('../database').db;
+const restSchema = require('./../models/restaurants').Restaurant;
 
 var addItem = (restId,name,desc,price,section) => {
     return new Promise( function(resolve,reject) {
