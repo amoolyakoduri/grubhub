@@ -12,9 +12,13 @@ import OwnerHome from './OwnerHome';
 import OwnerMenu from './OwnerMenu';
 import PlaceOrder from './PlaceOrder';
 import Checkout from './Checkout';
-import { connect } from 'react-redux'
+import { connect } from 'react-redux';
+import DraggableOrders from './DraggableOrders';
 import { onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure } from '../actions/actions';
 import { isLoggedIn } from '../helpers';
+import { DndProvider } from 'react-dnd'
+	import HTML5Backend from 'react-dnd-html5-backend'
+	
 import Cart from './Cart';
 
 class Main extends React.Component {
@@ -48,6 +52,9 @@ class Main extends React.Component {
                     <Route path='/placeOrder' component={PlaceOrder} />
                     <Route path="/checkout" component={Checkout} />
                     <Route path="/cart" component={Cart} />
+                    <Route path="/upcomingOrders" render = {() => <DndProvider backend={HTML5Backend}>
+					<DraggableOrders />
+				</DndProvider>} />
                 </Router>
             </div>
         )
