@@ -4,40 +4,27 @@ const userService = require('./../services/userService');
 const restService = require('./../services/restaurantService');
 var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
-
-//create  an express app
-
-function isLoggedIn(req,res,next){
-    console.log("req sess is ",typeof req.session.user," ",req.session.user);
-    if(req.session.user.emailId )
-    next();
-    else throw new Error("not logged in. please login");
-}
-
-function getUserFromSession( req ) {
-    if(req.session.user)
-        return req.session.user;
-    return null;
-}
-
-routes.get('/getUserDetailsFromSession', (req, res)=>{
-    const userDetails = getUserFromSession(req);
-    if(userDetails)
-        res.status(200).json({payload: userDetails})
-    else
-        res.status(404).json({ userDetails: null})
-})
+var message = require('./../services/messageService');
+var passport = require('passport');
+var jwt = require('jsonwebtoken');
+//var jwtStrategy = require('./../config/passport');
+//passport.use(jwtStrategy);
+require('./../config/passport')(passport);
+var requireAuth = passport.authenticate('jwt', {session: false});
 
 routes.get('/logout', (req, res) => {
-    res.clearCookie('loggedIn');
     res.status(200).json({})
 })
+
 routes.post('/login',(req,res) => {
     var email = req.body.emailId;
     var password = req.body.password;
     var payload ;
     auth.authenticate(email,password)
     .then( (response) => {
+        var token = jwt.sign({email:email}, "Passphrase for encryption should be 45-50 char long", {
+            expiresIn: 10080 // in seconds
+        });
         userService.getUserDetails(email)
         .then( (myJson) => {
             payload = Object.assign({},myJson);
@@ -52,17 +39,13 @@ routes.post('/login',(req,res) => {
                             payload.restDetails["sections"]=resultSection;
                             req.session.user = payload;
                             res.cookie('loggedIn', true, { maxAge: 600000*5 });
-                            res.status(200).json({message:"Login Successful",payload:payload});
+                            res.status(200).json({message:"Login Successful",payload:payload,token: 'JWT ' + token});
                         })
                     } else {
-                        req.session.user = payload;
-                        res.cookie('loggedIn', true, { maxAge: 600000*5 });
-                        res.status(200).json({message:"Login Successful",payload:payload}); 
+                        res.status(200).json({message:"Login Successful",payload:payload,token: 'JWT ' + token}); 
                     }
                 })
             } else {
-                res.cookie('loggedIn',true, { maxAge: 600000*5 });
-                req.session.user = payload;
                 res.status(200).json({message:"Login Successful",payload:payload});
             }
         })
@@ -72,7 +55,7 @@ routes.post('/login',(req,res) => {
     })
 })
 
-routes.get('/getUserDetails/:email',(req,res) => {
+routes.get('/getUserDetails/:email',requireAuth,(req,res) => {
     var email = req.params.email;
     userService.getUserDetails(email) 
     .then((response) => {
@@ -88,10 +71,14 @@ routes.post('/signUp', upload.single('displayPic'), (req,res) => {
     console.log("req body is ",req.body);
     var email = req.body.emailId;
     var password = req.body.password;
-    var firstName = req.body.firstName;
-    var lastName = req.body.lastName;
-    var type = req.body.type;
-    console.log("file is ",req.file);
+    var userDetails = {
+        firstName : req.body.firstName,
+        lastName : req.body.lastName,
+        address : req.body.address,
+        phone : req.body.phone,
+        displayPic : req.file.path,
+        userType : req.body.type
+    }
     auth.createAccount(email,password,firstName,lastName,type,req.file.path)
     .then( (response) => {
         userService.getUserDetails(email)
@@ -135,7 +122,7 @@ routes.post('/register',upload.single('displayPic'),(req,res) => {
     })
 });
 
-routes.post('/addSection',(req,res) => {
+routes.post('/addSection',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var section = req.body.section;
     restService.addSection(restId,section)
@@ -147,7 +134,7 @@ routes.post('/addSection',(req,res) => {
     })
 })
 
-routes.post('/deleteSection',(req,res) => {
+routes.post('/deleteSection',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var section = req.body.section;
     restService.deleteSection(restId,section)
@@ -159,7 +146,7 @@ routes.post('/deleteSection',(req,res) => {
     })
 })
 
-routes.post('/addItem',(req,res) => {
+routes.post('/addItem',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var name = req.body.name;
     var desc = req.body.desc;
@@ -174,7 +161,7 @@ routes.post('/addItem',(req,res) => {
     })
 })
 
-routes.post('/deleteItem',(req,res) => {
+routes.post('/deleteItem',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var itemId = req.body.itemId;
     var section = req.body.section;
@@ -187,7 +174,7 @@ routes.post('/deleteItem',(req,res) => {
     })
 })
 
-routes.get('/getOrders/:id',(req,res) => {
+routes.get('/getOrders/:id',requireAuth,(req,res) => {
     var restId = req.params.id;
     restService.getOrders(restId)
     .then((myJson) => {
@@ -201,7 +188,7 @@ routes.get('/getOrders/:id',(req,res) => {
     })
 })
 
-routes.get('/getPastOrders/:id',(req,res) => {
+routes.get('/getPastOrders/:id',requireAuth,(req,res) => {
     var restId = req.params.id;
     restService.getPastOrders(restId)
     .then((myJson) => {
@@ -215,7 +202,7 @@ routes.get('/getPastOrders/:id',(req,res) => {
     })
 })
 
-routes.post('/updateOrder',(req,res) => {
+routes.post('/updateOrder',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var orderId = req.body.orderId;
     var status = req.body.status;
@@ -228,7 +215,7 @@ routes.post('/updateOrder',(req,res) => {
     })
 })
 
-routes.get('/getOrdersByStatus',(req,res) => {
+routes.get('/getOrdersByStatus',requireAuth,(req,res) => {
     var restId = req.query.restId;
     var status = req.query.status;
     restService.getOrdersByStatus(restId,status)
@@ -240,7 +227,7 @@ routes.get('/getOrdersByStatus',(req,res) => {
     })
 })
 
-routes.get('/getOrderItems/:id',(req,res) => {
+routes.get('/getOrderItems/:id',requireAuth,(req,res) => {
     var orderId = req.params.id;
     restService.getOrderItems(orderId)
     .then( (response) => {
@@ -251,7 +238,7 @@ routes.get('/getOrderItems/:id',(req,res) => {
     })
 })
 
-routes.post( '/updatePassword',(req,res)=> {
+routes.post( '/updatePassword',requireAuth,(req,res)=> {
     var email = req.body.emailId;
     var oldPassword = req.body.oldPassword;
     var newPassword = req.body.newPassword;
@@ -267,7 +254,7 @@ routes.post( '/updatePassword',(req,res)=> {
     })
 })
 
-routes.post('/placeOrder',(req,res) => {
+routes.post('/placeOrder',requireAuth,(req,res) => {
     var restId = req.body.restId;
     var emailId = req.body.emailId;
     var orderItems = req.body.orderItems;
@@ -282,7 +269,7 @@ routes.post('/placeOrder',(req,res) => {
     })
 })
 
-routes.get('/pastOrders/:emailId',(req,res) => {
+routes.get('/pastOrders/:emailId',requireAuth,(req,res) => {
     var emailId = req.params.emailId;
     userService.pastOrders(emailId)
     .then( (response) => {
@@ -294,7 +281,7 @@ routes.get('/pastOrders/:emailId',(req,res) => {
     })
 })
 
-routes.get('/upcomingOrders/:emailId',(req,res) => {
+routes.get('/upcomingOrders/:emailId',requireAuth,(req,res) => {
     var emailId = req.params.emailId;
     userService.upcomingOrders(emailId)
     .then( (response) => {
@@ -305,7 +292,7 @@ routes.get('/upcomingOrders/:emailId',(req,res) => {
     })
 })
 
-routes.get('/getRestaurants',(req,res) => {
+routes.get('/getRestaurants',requireAuth,(req,res) => {
     userService.getRestaurants()
     .then( (response) => {
         res.status(200).json({restaurants: response});
@@ -315,7 +302,7 @@ routes.get('/getRestaurants',(req,res) => {
     })
 })
 
-routes.post('/updateDetails',(req,res) => {
+routes.post('/updateDetails',requireAuth,(req,res) => {
     var user = req.body.user;
     var email = req.body.emailId;
     userService.updateDetails(email,user, req.session.user)
@@ -332,7 +319,7 @@ routes.post('/updateDetails',(req,res) => {
 
 })
 
-routes.get('/getRestDetails/:id',(req,res) => {
+routes.get('/getRestDetails/:id',requireAuth,(req,res) => {
     var restId = req.params.id;
     let payload = {};
     restService.getRestDetailsByRestId(restId)
@@ -349,7 +336,7 @@ routes.get('/getRestDetails/:id',(req,res) => {
         })
 })
 
-routes.post('/updateRestDetails',(req,res) => {
+routes.post('/updateRestDetails',requireAuth,(req,res) => {
     var restDetails = {
         id : req.body.restId,
         name : req.body.restDetails.name,
@@ -368,7 +355,7 @@ routes.post('/updateRestDetails',(req,res) => {
     })
 })
 
-routes.post('/search',(req,res) => {
+routes.post('/search',requireAuth,(req,res) => {
     var name = req.body.name;
     var item = req.body.item;
     var cuisine = req.body.cuisine;
@@ -381,7 +368,22 @@ routes.post('/search',(req,res) => {
     })
 })
 
-routes.get('/check', (req, res)=> {
+routes.get('/check',requireAuth, (req, res)=> {
+    message.sendMessage();
     res.status(200).json({});
+})
+
+
+routes.post('/createUser',requireAuth,(req,res) => {
+    var email = req.body.email;
+    var password = req.body.password;
+    var userDetails = req.body.userDetails;
+    auth.createUser(email,password,userDetails)
+    .then( (response) => {
+        res.status(200).json({message:"Creating user",payload:response});
+    }).catch( (err) => {
+        console.log("Error in user api");
+        res.status(400).json({message:"Error creating user",payload:null});
+    })
 })
 module.exports = routes;

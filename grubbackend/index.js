@@ -3,19 +3,18 @@ const app = express();
 const port = 3003;
 var cors = require('cors');
 var routes = require('./routes');
+var consumers = require('./consumers');
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
 var session = require('express-session');
 const proxy = require('http-proxy-middleware');
-
-
-app.use(session({
-    secret: 'grubhub',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false, path: '/', maxAge: 360000 }
-  }));
+// app.use(session({
+//     secret: 'grubhub',
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false, path: '/', maxAge: 360000 }
+//   }));
 
 
 
@@ -35,7 +34,3 @@ app.use('/', proxy({
     target: 'http://localhost:3000'
 }))
 app.listen(port, () => console.log(`Grubhub backend app listening on port ${port}!`));
-app.post('/login',function(req,res) {
-
-})
-

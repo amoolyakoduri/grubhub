@@ -1,7 +1,26 @@
 const db = require('../database').db;
+const userSchema = require('./../models/users').User;
+const restSchema = require('./../models/restaurants').Restaurant;
 
 
 var authenticate = (email,password) => {
+    return new Promise( (resolve,reject) => {
+        db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
+            if(error) {
+                reject("Invalid Credentials!");
+            }
+            if(results[0] && password === results[0].password) {
+                console.log("logged in!");
+                resolve("loggedIn");
+            } else {
+                reject("Invalid Credentials!");
+            }
+        })
+    })
+    
+}
+
+var findUser = (email) => {
     return new Promise( (resolve,reject) => {
         db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
             if(error) {
@@ -56,7 +75,18 @@ var createRestaurant = (name,phone,cusine,address,zipcode,emailId,displayPic) =>
     })
 }
 
+var createUser = (emailId,password,userDetails) => {
+    return new Promise( (resolve,reject) => {
+        var userInstance = new userSchema({emailId,password,userDetails});
+        userInstance.save(function(err){
+            if(err) console.log("error");
+        })
+    })
+}
+
 
 module.exports.authenticate = authenticate;
 module.exports.createAccount = createAccount;
 module.exports.createRestaurant = createRestaurant;
+module.exports.createUser = createUser;
+module.exports.findUser = findUser;
