@@ -79,7 +79,7 @@ var addItem = (restId,name,desc,price,section) => {
 var addSection = (restId,section) => {
     return new Promise( function(resolve,reject) {
         restSchema.update({"_restaurant_id":restId}, { $push : { "sections" : {
-            "name" : section} }}, function(error, results, fields) {
+            "name" : section} }}, function(error, results) {
             if(error) {
                 console.log("Error in addSection");
                 reject("error");
@@ -106,109 +106,125 @@ var deleteSection = (restId,section) => {
     })
 }
 
+// var getItemsInSection = (restId,section) => {
+//     return new Promise( function(resolve,reject) {
+//         db.query('SELECT * FROM menu WHERE restId = ? and section = ?',[restId,section],function(error,results,fields){
+//             if(error) {
+//                 console.log("Error in getItemsInSection");
+//                 reject("error");
+//             } else {
+//                 console.log("Items in section ",section," are : ",results);
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
+
 var getItemsInSection = (restId,section) => {
     return new Promise( function(resolve,reject) {
-        db.query('SELECT * FROM menu WHERE restId = ? and section = ?',[restId,section],function(error,results,fields){
-            if(error) {
+        restSchema.find({_restaurant_id: restId, $elemMatch : { "sections.name":section}},function(err,results ){
+        if(err) {
                 console.log("Error in getItemsInSection");
                 reject("error");
             } else {
                 console.log("Items in section ",section," are : ",results);
                 resolve(results);
             }
-        })
-    })
-}
+        })})}
 
-var getOrders = (restId) => {
-    return new Promise(function(resolve,reject) {
-        db.query(' SELECT o.*,os.status FROM orders o inner join order_status os on o.statusId = os.id WHERE o.restId = ? and o.statusId != 4 and o.statusId!=5',[restId],function(error,results,fields) {
-            if(error) {
-                console.log("Error in getOrders");
-                reject("Error");
-            } else {
-                console.log("Orders for restId ",restId," are : ",results);
-                const promises = results.map( order => {
-                    return new Promise(function(resolve,reject) {
-                        db.query('SELECT m.name,m.price,oi.quantity FROM order_items oi, menu m where oi.orderId = ? and oi.itemId = m.id',[order.id],
-                        function(error,results,fields) {
-                            if(error) {
-                                console.log("Error in getOrders");
-                                reject("error");
-                            } else {
-                                console.log("items in order no ",order.id," are : ",results);
-                                order["items"] = results;
-                                console.log("order is ",order);
-                                resolve(1);
-                            }
-                        })
-                    })
+// var getOrders = (restId) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query(' SELECT o.*,os.status FROM orders o inner join order_status os on o.statusId = os.id WHERE o.restId = ? and o.statusId != 4 and o.statusId!=5',[restId],function(error,results,fields) {
+//             if(error) {
+//                 console.log("Error in getOrders");
+//                 reject("Error");
+//             } else {
+//                 console.log("Orders for restId ",restId," are : ",results);
+//                 const promises = results.map( order => {
+//                     return new Promise(function(resolve,reject) {
+//                         db.query('SELECT m.name,m.price,oi.quantity FROM order_items oi, menu m where oi.orderId = ? and oi.itemId = m.id',[order.id],
+//                         function(error,results,fields) {
+//                             if(error) {
+//                                 console.log("Error in getOrders");
+//                                 reject("error");
+//                             } else {
+//                                 console.log("items in order no ",order.id," are : ",results);
+//                                 order["items"] = results;
+//                                 console.log("order is ",order);
+//                                 resolve(1);
+//                             }
+//                         })
+//                     })
 
-                })
-                Promise.all(promises).then( () => {
-                    resolve(results);
-                })
-            }
-        })
-    })
-}
-
-var getPastOrders = (restId) => {
-    return new Promise(function(resolve,reject) {
-        db.query(' SELECT o.*,os.status FROM orders o inner join order_status os on o.statusId = os.id WHERE o.restId = ? and (o.statusId = 4 or o.statusId=5)',[restId],function(error,results,fields) {
-            if(error) {
-                console.log("Error in getPastOrders");
-                reject("Error");
-            } else {
-                console.log("Orders for restId ",restId," are : ",results);
-                const promises = results.map( order => {
-                    return new Promise(function(resolve,reject) {
-                        db.query('SELECT m.name,m.price,oi.quantity FROM order_items oi, menu m where oi.orderId = ? and oi.itemId = m.id',[order.id],
-                        function(error,results,fields) {
-                            if(error) {
-                                console.log("Error in getPastOrders");
-                                reject("error");
-                            } else {
-                                console.log("items in order no ",order.id," are : ",results);
-                                order["items"] = results;
-                                console.log("order is ",order);
-                                resolve(1);
-                            }
-                        })
-                    })
-
-                })
-                Promise.all(promises).then( () => {
-                    resolve(results);
-                })
-            }
-        })
-    })
-}
+//                 })
+//                 Promise.all(promises).then( () => {
+//                     resolve(results);
+//                 })
+//             }
+//         })
+//     })
+// }
 
 
+// var getPastOrders = (restId) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query(' SELECT o.*,os.status FROM orders o inner join order_status os on o.statusId = os.id WHERE o.restId = ? and (o.statusId = 4 or o.statusId=5)',[restId],function(error,results,fields) {
+//             if(error) {
+//                 console.log("Error in getPastOrders");
+//                 reject("Error");
+//             } else {
+//                 console.log("Orders for restId ",restId," are : ",results);
+//                 const promises = results.map( order => {
+//                     return new Promise(function(resolve,reject) {
+//                         db.query('SELECT m.name,m.price,oi.quantity FROM order_items oi, menu m where oi.orderId = ? and oi.itemId = m.id',[order.id],
+//                         function(error,results,fields) {
+//                             if(error) {
+//                                 console.log("Error in getPastOrders");
+//                                 reject("error");
+//                             } else {
+//                                 console.log("items in order no ",order.id," are : ",results);
+//                                 order["items"] = results;
+//                                 console.log("order is ",order);
+//                                 resolve(1);
+//                             }
+//                         })
+//                     })
 
-var updateOrderStatus = (restId,orderId,status) => {
-    return new Promise(function(resolve,reject) {
-        db.query('UPDATE orders SET statusId = ? WHERE id = ? and restId = ?',[status,orderId,restId],function(error,results,fields) {
-            if(error) {
-                console.log("Error in updateOrderStatus");
-                reject("Error");
-            } else {
-                db.query('select o.id as orderId,s.id as statusId,s.status as status from orders o inner join order_status s on o.statusId=s.id where o.id=?',[orderId],
-                function(error,results,fields){
-                    if(error) {
-                        console.log("Error in updateOrderStatus");
-                        reject("Error"); 
-                    } else {
-                        console.log("Updated Status!");
-                        resolve(results[0]);
-                    }
-                })
-            }
-        })
-    })
-}
+//                 })
+//                 Promise.all(promises).then( () => {
+//                     resolve(results);
+//                 })
+//             }
+//         })
+//     })
+// }
+
+
+
+// var updateOrderStatus = (restId,orderId,status) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('UPDATE orders SET statusId = ? WHERE id = ? and restId = ?',[status,orderId,restId],function(error,results,fields) {
+//             if(error) {
+//                 console.log("Error in updateOrderStatus");
+//                 reject("Error");
+//             } else {
+//                 db.query('select o.id as orderId,s.id as statusId,s.status as status from orders o inner join order_status s on o.statusId=s.id where o.id=?',[orderId],
+//                 function(error,results,fields){
+//                     if(error) {
+//                         console.log("Error in updateOrderStatus");
+//                         reject("Error"); 
+//                     } else {
+//                         console.log("Updated Status!");
+//                         resolve(results[0]);
+//                     }
+//                 })
+//             }
+//         })
+//     })
+// }
+
+
 
 var getOrdersByStatus = (restId,status) => {
     return new Promise(function(resolve,reject) {
@@ -263,23 +279,51 @@ var getOrderItems = (orderId) => {
     })
 }
 
+// var getRestDetailsByOwnerEmail = (ownerEmail) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('select * from restaurant where ownerEmail = ?',[ownerEmail],function(error,results,fields){
+//             if(error){
+//                 console.log("error in getRestDetails");
+//                 reject("error");
+//             } else {
+//                 resolve(results[0]);
+//             }
+//         })
+//     })
+// }
+
+
 var getRestDetailsByOwnerEmail = (ownerEmail) => {
     return new Promise(function(resolve,reject) {
-        db.query('select * from restaurant where ownerEmail = ?',[ownerEmail],function(error,results,fields){
-            if(error){
+        //db.query('select * from restaurant where ownerEmail = ?',[ownerEmail],function(error,results,fields){
+            restSchema.find({ownerEmail : ownerEmail}, function(err,results){
+            if(err){
                 console.log("error in getRestDetails");
                 reject("error");
             } else {
-                resolve(results[0]);
+                resolve(results);
             }
         })
     })
 }
 
+// var getRestDetailsByRestId = (restId) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('select * from restaurant where id = ?',[restId],function(error,results,fields){
+//             if(error){
+//                 console.log("error in getRestDetails");
+//                 reject("error");
+//             } else {
+//                 resolve(results[0]);
+//             }
+//         })
+//     })
+// }
+
 var getRestDetailsByRestId = (restId) => {
     return new Promise(function(resolve,reject) {
-        db.query('select * from restaurant where id = ?',[restId],function(error,results,fields){
-            if(error){
+        restSchema.find({_restaurant_id : restId},function(err,results){
+            if(err){
                 console.log("error in getRestDetails");
                 reject("error");
             } else {
@@ -335,13 +379,27 @@ var updateDetails = (restDetails) => {
     })
 }
 
+// var updateDetails = (restDetails) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('UPDATE restaurant SET name = ? , cuisine = ? , address = ?, phone = ? , zip =?  WHERE id = ?',
+//         [restDetails.name,restDetails.cuisine,restDetails.address,restDetails.phone,restDetails.zipcode,restDetails.id],
+//         restSchema.update({_restaurant_id : restDetails.restId},{ })
+//         function(error,results,fields){
+//             if(error) {
+//                 console.log("Error in updateDetails ");
+//                 reject("Error");
+//             } else {
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
 module.exports.deleteItem  = deleteItem;
 module.exports.addItem = addItem;
 module.exports.deleteSection = deleteSection;
 module.exports.addSection  = addSection;
 module.exports.getItemsInSection = getItemsInSection;
-module.exports.getOrders = getOrders;
-module.exports.updateOrderStatus = updateOrderStatus;
 module.exports.getOrdersByStatus = getOrdersByStatus;
 module.exports.getOrderItems = getOrderItems;
 module.exports.getMenu = getMenu;

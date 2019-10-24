@@ -7,7 +7,6 @@ var upload = multer({ dest: 'uploads/' })
 var message = require('./../services/messageService');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
-var LocalStrategy = require('passport-local').Strategy;
 require('./../config/passport')(passport);
 const secret_key = "Passphrase for encryption should be 45-50 char long";
 var requireAuth = passport.authenticate('jwt', {session: false});
@@ -80,7 +79,8 @@ routes.post('/signUp', upload.single('displayPic'), (req,res) => {
         displayPic : req.file.path,
         userType : req.body.type
     }
-    auth.createAccount(email,password,firstName,lastName,type,req.file.path)
+    //auth.createAccount(email,password,firstName,lastName,type,req.file.path)
+    auth.createUser(email,password,userDetails)
     .then( (response) => {
         userService.getUserDetails(email)
         .then( (myJson) => {

@@ -8,10 +8,13 @@ const OrderSchema = new Schema({
         address : String,
         amt : Number,
         emailId : String,
+        _restaurant_id : String,
         status : String,
         order_items : [ new Schema ({
             order_item_id : Schema.Types.ObjectId,
             item_id : String,
+            name : String,
+            price : Number,
             quantity : Number
         })],
         chat : [ new Schema ({

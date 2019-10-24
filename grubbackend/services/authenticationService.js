@@ -3,35 +3,35 @@ const userSchema = require('./../models/users').User;
 const restSchema = require('./../models/restaurants').Restaurant;
 
 
-var authenticate = (email,password) => {
-    return new Promise( (resolve,reject) => {
-        db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
-            if(error) {
-                reject("Invalid Credentials!");
-            }
-            if(results[0] && password === results[0].password) {
-                console.log("logged in!");
-                resolve("loggedIn");
-            } else {
-                reject("Invalid Credentials!");
-            }
-        })
-    })
-   }
-
 // var authenticate = (email,password) => {
 //     return new Promise( (resolve,reject) => {
-//         userSchema.find({emailId:email, password:password}, function(err,user){
-//             if(err){
-//                 console.log("error in authenticate")
-//                 reject("error");
-//             } else {
+//         db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
+//             if(error) {
+//                 reject("Invalid Credentials!");
+//             }
+//             if(results[0] && password === results[0].password) {
 //                 console.log("logged in!");
 //                 resolve("loggedIn");
+//             } else {
+//                 reject("Invalid Credentials!");
 //             }
 //         })
 //     })
-// }
+//    }
+
+var authenticate = (email,password) => {
+    return new Promise( (resolve,reject) => {
+        userSchema.find({emailId:email, password:password}, function(err,user){
+            if(err){
+                console.log("error in authenticate")
+                reject("error");
+            } else {
+                console.log("logged in!");
+                resolve("loggedIn");
+            }
+        })
+    })
+}
 
 var findUser = (email) => {
     return new Promise( (resolve,reject) => {
@@ -80,7 +80,7 @@ var createUser = (emailId,password,userDetails) => {
                 reject("error");
             } else {
                 console.log("user created! ",results);
-                resolve("created user");
+                resolve(results);
             }
         })
     })
