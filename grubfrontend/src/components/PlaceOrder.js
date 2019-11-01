@@ -6,6 +6,8 @@ import SectionView from './SectionView';
 import Cart from './Cart';
 import isBuyer from './isBuyer';
 import loginCheck from './LoginCheck';
+import ls from 'local-storage';
+
 
 class PlaceOrder extends React.Component {
     constructor(props) {
@@ -13,12 +15,16 @@ class PlaceOrder extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/api/getRestDetails/' + this.props.restDetails.id, {
-            method: 'GET'
+        var jwtToken = ls.get('jwtToken').substring(3);
+        fetch('/api/getRestDetailsByRestName/' + this.props.restDetails.name, {
+            method: 'GET',
+            headers: {
+                "Authorization" : `Bearer${jwtToken}`,
+                },
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            if (myJson.payload == null)
+            if (myJson.success == false)
                 this.props.getRestDetailsFailureDispatch();
             else
                 this.props.getRestDetailsSuccessDispatch(myJson.payload);
@@ -32,11 +38,11 @@ class PlaceOrder extends React.Component {
                     <div>
                         <img src={pic} />
                     </div>
-                    <h3>{this.props.restDetails.name}</h3>
+                    <h3>{this.props.restDetails && this.props.restDetails.name}</h3>
                 </div>
-                {this.props.restDetails.sections &&
+                {this.props.restDetails && this.props.restDetails.sections &&
                     this.props.restDetails.sections.map(section => {
-                        return section.items.length != 0 ? <SectionView details={section} /> : null
+                        return section.menu.length != 0 ? <SectionView details={section} /> : null
                     })
                 }
             </div>
@@ -46,7 +52,6 @@ class PlaceOrder extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    // const {restDetails} = state;
     return { restDetails: state.restDetails, cart: state.cart }
 }
 
@@ -57,4 +62,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(PlaceOrder)));
+export default connect(mapStateToProps, mapDispatchToProps)(PlaceOrder)//(loginCheck(isBuyer(PlaceOrder)));

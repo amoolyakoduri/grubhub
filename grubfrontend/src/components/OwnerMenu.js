@@ -6,6 +6,8 @@ import { onAddSectionSuccess, onAddSectionFailure, onDeleteSectionSuccess, onDel
 import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
+import { stat } from 'fs';
 
 
 
@@ -41,55 +43,53 @@ class OwnerMenu extends React.Component {
     }
 
     create() {
+        var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal1: !prevState.modal1
         }));
         fetch('/api/addSection', {
             headers: {
-                'Content-Type': 'application/json'
+                "Authorization" : `Bearer${jwtToken}`,
+                "Content-Type": "application/json",
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 section: this.state.sectionName
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            console.log("created. ", myJson);
-            if (myJson.payload == null) {
+            if (myJson.success == false) {
                 this.props.addSectionFailureDispatch();
             } else {
-                let arr = Object.assign([], this.props.sections);
-                arr.push({ name: myJson.payload.section, items: [] });
-                this.props.addSectionSuccessDispatch(arr);
+                let sections = Object.assign([], this.props.sections);
+                sections.push({ name: this.state.sectionName, menu: [] });
+                this.props.addSectionSuccessDispatch(sections);
             }
         })
     }
 
     delete = ()=> {
+        var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal2: !prevState.modal2
         }));
         fetch('/api/deleteSection', {
             headers: {
-                'Content-Type': 'application/json'
+                "Authorization" : `Bearer${jwtToken}`,
+                "Content-Type": "application/json"
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 section: this.state.sectionName
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
             console.log("created. ", myJson);
-            if (myJson.payload == null) {
+            if (myJson.success == false) {
                 this.props.deleteSectionFailureDispatch();
             } else {
-                console.log("myJson.payload for section delete is ",myJson.payload)
-                let arr = Object.assign([], this.props.sections);
-                arr.push({ name: myJson.payload.section, items: [] });
                 this.props.deleteSectionSuccessDispatch({sectionName:this.state.sectionName});
             }
         })
@@ -104,9 +104,9 @@ class OwnerMenu extends React.Component {
             <h4>Menu:</h4>
             <div class="container" style={{ display: "flex", flexDirection: "column" }}>
                 {
-                    this.props.sections &&
+                    this.props.sections && 
                     this.props.sections.map(section => {
-                        return <Section key={section.name} details={section} />
+                        return <Section name={section.name} details = {section} />
                     })
                 }
             </div>
@@ -137,9 +137,8 @@ class OwnerMenu extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const restId = state.restDetails && state.restDetails.id;
     const sections = state.restDetails && state.restDetails.sections;
-    return { restId: restId, sections: sections };
+    return {  sections};
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -151,4 +150,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isOwner(OwnerMenu)));
+export default connect(mapStateToProps, mapDispatchToProps)(OwnerMenu)//(loginCheck(isOwner(OwnerMenu)));

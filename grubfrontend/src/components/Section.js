@@ -3,6 +3,8 @@ import { Button, Modal, Table, ModalHeader, ModalBody, ModalFooter, Input, Label
 import { connect } from 'react-redux';
 import { onAddItemSuccess, onAddItemFailure, onDeleteItemSuccess, onDeleteItemFailure} from './../actions/actions';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
+
 
 class Section extends React.Component {
     constructor() {
@@ -37,17 +39,18 @@ class Section extends React.Component {
     } 
 
     create() {
+      var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal1: !prevState.modal1
           }));
         fetch('/api/addItem',{
             headers: {
-                'Content-Type': 'application/json'
+              "Authorization" : `Bearer${jwtToken}`,
+              'Content-Type': 'application/json'
               },
               method : 'POST',
               body : JSON.stringify({ 
-                  restId : this.props.restId,
-                  section : this.props.details.name,
+                  section : this.props.name,
                   name : this.state.name,
                   desc : this.state.desc,
                   price : this.state.price,
@@ -55,48 +58,46 @@ class Section extends React.Component {
         }).then( (response) => {
             return response.json();
         }).then( (myJson) => {
-            console.log("created item. ",myJson);
-            if(myJson.payload==null){
+            if(myJson.success==false){
               this.props.addItemFailureDispatch();
             } else {
-              //let arr = Object.assign([], this.props.items);
-              //arr.push({name:myJson.payload.item,descr:myJson.payload.descr,price:myJson.payload.price,id:myJson.payload.id});
-              let arr = [{name:myJson.payload.item,descr:myJson.payload.descr,price:myJson.payload.price,id:myJson.payload.id}];
-              this.props.addItemSuccessDispatch(arr, this.props.details.name);
+              let item = [{name:this.state.name,descr:this.state.desc,price:this.state.price}];
+              this.props.addItemSuccessDispatch(item, this.props.name);
             }
         })
     }
 
     delete() {
+      var jwtToken = ls.get('jwtToken').substring(3);
       this.setState(prevState => ({
           modal2: !prevState.modal2
         }));
       fetch('/api/deleteItem',{
           headers: {
-              'Content-Type': 'application/json'
+            "Authorization" : `Bearer${jwtToken}`,
+            'Content-Type': 'application/json'
             },
             method : 'POST',
             body : JSON.stringify({ 
-                restId : this.props.restId,
-                section : this.props.details.name,
-                itemId : this.state.itemId
+                section : this.props.name,
+                name : this.state.itemName
               })
       }).then( (response) => {
           return response.json();
       }).then( (myJson) => {
           console.log("deleted item. ",myJson);
-          if(myJson.payload==null){
+          if(myJson.success==false){
             this.props.deleteItemFailureDispatch();
             console.log("item not deleted");
           } else {
-            this.props.deleteItemSuccessDispatch({itemId:myJson.payload.itemId}, this.props.details.name);
+            this.props.deleteItemSuccessDispatch({itemName:this.state.itemName}, this.props.name);
           }
       })
   }
 
     render() {
         return <div class="container" style = {{ display:"flex",flexDirection:"column"}}>
-            <h4>{this.props.details.name}</h4>
+            <h4>{this.props.name}</h4>
             <Button color="primary" onClick={this.toggle1} style={{width:"fit-content"}} dataTarget="#createItem">Add Item</Button>
             <Modal isOpen={this.state.modal1} toggle={this.toggle1} id="createItem" >
             <AvForm onValidSubmit={this.create} onInvalidSubmit = {this.toggle1}>
@@ -115,7 +116,6 @@ class Section extends React.Component {
             <Table>
         <thead>
           <tr>
-            <th>Item Id</th>
             <th>Name</th>
             <th>Desc</th>
             <th>Price</th>
@@ -123,10 +123,9 @@ class Section extends React.Component {
         </thead>
         <tbody>
             {
-                this.props.details.items && 
-                this.props.details.items.map( item => {
+                this.props.details.menu && 
+                this.props.details.menu.map( item => {
                     return (<tr>
-                        <td>{item.id}</td>
                         <td>{item.name}</td>
                         <td>{item.descr}</td>
                         <td>{item.price}</td>
@@ -139,8 +138,8 @@ class Section extends React.Component {
             <Modal isOpen={this.state.modal2} toggle={this.toggle2} id="deleteItem" >
           <ModalHeader >Delete Item</ModalHeader>
           <ModalBody>
-              <Label for = "itemId">Item Id:</Label> 
-              <Input type="number" min="0" id="itemId" name="itemId" onChange={this.changeHandler}></Input>
+              <Label for = "itemName">Item Name:</Label> 
+              <Input type="text" min="0" id="itemName" name="itemName" onChange={this.changeHandler}></Input>
           </ModalBody>
           <ModalFooter>
             <Button color="primary" onClick={this.delete}>Delete Item</Button>{' '}
@@ -152,11 +151,10 @@ class Section extends React.Component {
     }
 }
 
-const mapStateToProps = (state, ownProps) => {
-    const sectionName = ownProps.details.name;
-    const restId = state.restDetails.id;
-    const items = state.restDetails.sections.find(s=> s.name === sectionName).items;
-    return {restId: restId,items:items};
+const mapStateToProps = (state, props) => {
+    // var  sections  = state.restDetails && state.restDetails.sections;
+    // var menu =  sections && state.restDetails.sections.filter( s => s.name == props.name).menu;
+    // return {menu};
 }
 
 const mapDispatchToProps = (dispatch) => {

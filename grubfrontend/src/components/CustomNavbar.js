@@ -107,10 +107,9 @@ class CustomNavbar extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const isLoggedIn = state.isLoggedIn;
-  const type = state.type;
-  const firstName = state.firstName;
-  return { isLoggedIn, type, firstName };
+  const isLoggedIn = state.app.isLoggedIn;
+  const firstName = state.app.firstName;
+  return { isLoggedIn, firstName };
 }
 
 function mapDispatchToProps(dispatch) {

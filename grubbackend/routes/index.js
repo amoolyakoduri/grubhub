@@ -10,6 +10,8 @@ var jwt = require('jsonwebtoken');
 require('./../config/passport')(passport);
 const secret_key = "Passphrase for encryption should be 45-50 char long";
 var requireAuth = passport.authenticate('jwt', {session: false});
+var ExtractJwt = require('passport-jwt').ExtractJwt;
+
 
 
 routes.get('/logout', (req, res) => {
@@ -19,39 +21,23 @@ routes.get('/logout', (req, res) => {
 routes.post('/login',(req,res) => {
     var email = req.body.emailId;
     var password = req.body.password;
-    var payload ;
     auth.authenticate(email,password)
     .then( (response) => {
-        userService.getUserDetails(email)
-        .then( (myJson) => {
-            payload = Object.assign({},myJson);
-            var token = jwt.sign({email:email,payload:payload}, secret_key, {
+        if(response.length!=0){
+
+            var token = jwt.sign({email:email}, secret_key, {
                 expiresIn: 10080 // in seconds
             });
-            if(payload.type==="owner") {
-                restService.getRestDetailsByOwnerEmail(email)
-                .then( (results) => {
-                    if(results) {
-                        payload["restDetails"] = results;
-                        restService.getMenu(results.id)
-                        .then( (resultSection) => {
-                            payload.restDetails["sections"]=resultSection;
-                            
-                            req.session.user = payload;
-                            res.cookie('loggedIn', true, { maxAge: 600000*5 });
-                            res.status(200).json({message:"Login Successful",payload:payload,token: 'JWT ' + token});
-                        })
-                    } else {
-                        res.status(200).json({message:"Login Successful",payload:payload,token: 'JWT ' + token}); 
-                    }
-                })
-            } else {
-                res.status(200).json({message:"Login Successful",payload:payload});
+            //req.session.user = response[0].userDetails;
+            //res.cookie('loggedIn', true, { maxAge: 600000*5 });
+            res.status(200).json({success:true, message:"Login Successful",payload:response[0].userDetails,token: 'JWT ' + token});    
             }
-        })
-    }).catch( (error) => {
+        else {
+            res.status(401).json({success:false,message:"Invalid Credentials",payload:null});
+        }
+    }).catch( (err) => {
         console.log("Couldnt login");
-        res.status(400).json({payload:null,message:"Login failed!"});
+        res.status(401).json({success:false,message:err.message,payload:null});
     })
 })
 
@@ -60,10 +46,14 @@ routes.get('/getUserDetails/:email',requireAuth,(req,res) => {
     userService.getUserDetails(email) 
     .then((response) => {
         console.log("User details : ",response);
-        res.status(200).json({userDetails: response});
-    }).catch((error) => {
+        if(response.length!=0){
+            res.status(200).json({success:true,message:"Fetching user details",payload: response[0].userDetails});
+        } else {
+            res.status(200).json({success:true,message:"Invalid user email",payload: null});
+        }
+    }).catch((err) => {
         console.log("Couldnt get user details");
-        res.status(400).json({message:"Couldnt fetch user details"});
+        res.status(400).json({success:false,message:err.message,payload:null});
     })
 })
 
@@ -77,155 +67,168 @@ routes.post('/signUp', upload.single('displayPic'), (req,res) => {
         address : req.body.address,
         phone : req.body.phone,
         displayPic : req.file.path,
-        userType : req.body.type
+        userType : req.body.userType,
+        emailId : req.body.emailId
     }
-    //auth.createAccount(email,password,firstName,lastName,type,req.file.path)
     auth.createUser(email,password,userDetails)
-    .then( (response) => {
-        userService.getUserDetails(email)
-        .then( (myJson) => {
-            payload = Object.assign({},myJson);
-            req.session.user = payload;
-            res.cookie('loggedIn', true, { maxAge: 600000*5 });
-            if(type == "buyer") {
-                userService.pastOrders(email)
-                .then( (results) => {
-                    console.log("past orders are ",results );
-                    payload["pastOrders"] = results;
-                    res.status(200).json({payload:payload});
-                }).catch( (err) => {
-                    res.status(400).json({message:"Registration unsuccessful!"});
-                })
-            } else {
-            res.status(200).json({payload:payload});
-            }
-    }).catch( (error) => {
-        console.log("Couldnt login");
-        res.status(400).json({message:"Login failed!"});
+    .then((results) => {
+        res.status(200).json({success:true,message:"User successfully created"});
+    }).catch( (err) => {
+        res.status(500).json({success:false,message:err.message});
     })
 })
-})
 
-routes.post('/register',upload.single('displayPic'),(req,res) => {
+routes.post('/registerRestaurant',upload.single('displayPic'),(req,res) => {
     console.log("in register");
     var name = req.body.name;
-    var zipcode = req.body.zipcode;
+    var zip = req.body.zipcode;
     var phone = req.body.phone;
     var cuisine = req.body.cuisine;
     var address = req.body.address;
     var email = req.body.emailId;
-    auth.createRestaurant(name,phone,cuisine,address,zipcode,email,req.file.path)
-    .then( (myJson) => {
-        console.log(myJson);
-        res.status(200).json({payload:myJson,message:"Restaurant registeration successful!"});
+    var displayPic = req.file.path;
+    auth.createRestaurant(name,phone,cuisine,address,zip,email,displayPic)
+    .then( (results) => {
+        console.log(results);
+        res.status(200).json({success:true,message:"Restaurant successfully registered!"});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Restaurant registeration unsuccessful!"})
+        res.status(500).json({success:false,message:err.message})
     })
 });
 
+
+
 routes.post('/addSection',requireAuth,(req,res) => {
-    var restId = req.body.restId;
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
     var section = req.body.section;
-    restService.addSection(restId,section)
-    .then( (myJson) => {
-        console.log("section is ",myJson);
-        res.status(200).json({payload:{section:section},message:"Section added!"});
+    var ownerEmail = payload.email;
+    restService.addSection(ownerEmail,section)
+    .then( (response) => {
+        res.status(200).json({success:true,message:"Section added!",payload:null});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Section not added"});
+        res.status(500).json({success:false,message:err.message,payload:null});
     })
 })
 
 routes.post('/deleteSection',requireAuth,(req,res) => {
-    var restId = req.body.restId;
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var ownerEmail = payload.email;
     var section = req.body.section;
-    restService.deleteSection(restId,section)
-    .then( (myJson) => {
-        console.log(myJson);
-        res.status(200).json({payload:myJson,message:"Section deleted!"});
+    if(section == undefined ){
+        res.status(500).json({success:false,message:"Section missing",payload:null});
+    } else {
+    restService.deleteSection(ownerEmail,section)
+    .then( () => {
+        res.status(200).json({success:true,message:"Section deleted!",payload:null});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Section not deleted"});
-    })
+        res.status(500).json({success:false,message:err.message,payload:null});
+    })}
+})
+
+routes.get('/getItems/:section',requireAuth,(req,res) => {
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var ownerEmail = payload.email;
+    var section = req.params.section;
+    if(section == undefined ){
+        res.status(500).json({success:false,message:"Section missing",payload:null});
+    } else {
+
+    }
 })
 
 routes.post('/addItem',requireAuth,(req,res) => {
-    var restId = req.body.restId;
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var ownerEmail = payload.email;
     var name = req.body.name;
     var desc = req.body.desc;
     var price = req.body.price;
     var section = req.body.section;
-    restService.addItem(restId,name,desc,price,section)
-    .then((myJson) => {
-        console.log(myJson);
-        res.status(200).json({payload:{item:name,descr:desc,price:price,id:myJson.insertId},message:"Item added!"});
+    if(section == undefined ){
+        res.status(500).json({success:false,message:"Section missing",payload:null});
+    } else {
+    restService.addItem(ownerEmail,name,desc,price,section)
+    .then(() => {
+        res.status(200).json({success:true,message:"Item added!",payload:null});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Item not added"});
-    })
+        res.status(500).json({success:false,message:err.message,payload:null});
+    })}
 })
 
 routes.post('/deleteItem',requireAuth,(req,res) => {
-    var restId = req.body.restId;
-    var itemId = req.body.itemId;
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var ownerEmail = payload.email;
+    var itemName = req.body.name;
     var section = req.body.section;
-    restService.deleteItem(restId,itemId,section)
-    .then((myJson) => {
-        console.log(myJson);
-        res.status(200).json({payload:{itemId:itemId},message:"Item deleted!"});
+    if(section === undefined || itemName == undefined){
+        res.status(500).json({success:false,message:"Section or name missing",payload:null});
+    } else {
+    restService.deleteItem(ownerEmail,itemName,section)
+    .then(() => {
+        res.status(200).json({success:true,message:"Item deleted!",payload:null});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Item not deleted"});
+        res.status(500).json({success:false,message:err.message,payload:null});
+    })
+}
+})
+
+routes.get('/getOrders/:restName',requireAuth,(req,res) => {
+    var restName = req.params.restName;
+    restService.getOrders(restName)
+    .then((results) => {
+        if(results.length != 0)
+        res.status(200).json({success:true,message:"Orders fetched",payload: results});
+        else
+        res.status(200).json({success:true, message:"No orders", payload:null})
+    }).catch( (err) => {
+        res.status(500).json({success:false,message:err.message,payload:null});
     })
 })
 
-routes.get('/getOrders/:id',requireAuth,(req,res) => {
-    var restId = req.params.id;
-    restService.getOrders(restId)
-    .then((myJson) => {
-        console.log("myJson is ",myJson);
-        if(myJson.length != 0)
-        res.status(200).json({payload:{orders: myJson},message:null});
+routes.get('/getPastOrders/:restName',requireAuth,(req,res) => {
+    var restName = req.params.restName;
+    restService.getPastOrders(restName)
+    .then((results) => {
+        if(results.length != 0)
+        res.status(200).json({success:true,message:"Orders fetched",payload:results});
         else
-        res.status(200).json({payload:null,message:"No orders"})
+        res.status(200).json({success:true, message:"No orders", payload:null})
     }).catch( (err) => {
-        res.status(500).json({payload:null,message:"Couldnt fetch orders"});
-    })
-})
-
-routes.get('/getPastOrders/:id',requireAuth,(req,res) => {
-    var restId = req.params.id;
-    restService.getPastOrders(restId)
-    .then((myJson) => {
-        console.log("myJson is ",myJson);
-        if(myJson.length != 0)
-        res.status(200).json({payload:{pastOrders: myJson},message:null});
-        else
-        res.status(200).json({payload:null,message:"No past orders"})
-    }).catch( (err) => {
-        res.status(500).json({payload:null,message:"Couldnt fetch orders"});
+        res.status(500).json({success:false,message:err.message,payload:null});
     })
 })
 
 routes.post('/updateOrder',requireAuth,(req,res) => {
-    var restId = req.body.restId;
     var orderId = req.body.orderId;
     var status = req.body.status;
-    restService.updateOrderStatus(restId,orderId,status)
+    if(orderId == undefined || status == undefined) {
+        res.status(500).json({success:false,message:"Status or order id undefined",payload:null});
+    } else {
+    restService.updateOrderStatus(orderId,status)
     .then((myJson) => {
         console.log(myJson);
-        res.status(200).json({payload:myJson,message:"Updated status"});
+        res.status(200).json({status:true,message:"Updated status",payload:null});
     }).catch((err) => {
-        res.status(500).json({payload:null,message:"Couldnt update status"});
-    })
+        res.status(500).json({success:false,message:err.message,payload:null});
+    })}
 })
 
-routes.get('/getOrdersByStatus',requireAuth,(req,res) => {
-    var restId = req.query.restId;
-    var status = req.query.status;
-    restService.getOrdersByStatus(restId,status)
-    .then((myJson) => {
-        console.log(myJson);
-        res.status(200).json({orders:myJson});
+routes.post('/getOrdersByStatus',requireAuth,(req,res) => {
+    var restName = req.body.restName;
+    var status = req.body.status;
+    if(status == undefined || restName == undefined){
+        res.status(500).json({success:false,message:"Status or rest name undefined",payload:null});
+    } else {
+    restService.getOrdersByStatus(restName,status)
+    .then((results) => {
+        res.status(200).json({success:true,message:"Fetching orders",payload:{orders:results}});
     }).catch((err) => {
-        res.sendStatus(500).json({message:"Couldnt fetch orders"});
-    })
+        res.status(500).json({success:false,message:err.message,payload:null});
+    })}
 })
 
 routes.get('/getOrderItems/:id',requireAuth,(req,res) => {
@@ -256,50 +259,55 @@ routes.post( '/updatePassword',requireAuth,(req,res)=> {
 })
 
 routes.post('/placeOrder',requireAuth,(req,res) => {
-    var restId = req.body.restId;
-    var emailId = req.body.emailId;
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var emailId = payload.email;
+    var restName = req.body.restName;
     var orderItems = req.body.orderItems;
     var deliveryDetails = req.body.deliveryDetails;
-    userService.placeOrder(restId,emailId,orderItems,deliveryDetails)
-    .then( (myJson) => {
-        console.log("Order Placed");
-        res.status(200).json({message:"Order Placed"});
-    }).catch((error) => {
-        console.log("Order not placed.");
-        res.status(500).json({message:"Order not placed"});
-    })
+    if(restName == undefined || orderItems == undefined || deliveryDetails == undefined){
+        res.status(500).json({success:false, message:"rest name or order items or delivery details undefined",payload:null});
+    } else {
+    userService.placeOrder(restName,emailId,orderItems,deliveryDetails)
+    .then( () => {
+        res.status(200).json({success:true,message:"Order Placed",payload:null});
+    }).catch((err) => {
+        res.status(500).json({success:false, message:err.message,payload:null});
+    })}
 })
 
 routes.get('/pastOrders/:emailId',requireAuth,(req,res) => {
     var emailId = req.params.emailId;
+    if(emailId == undefined){
+        res.status(400).json({success:false,message:"Email id undefined",payload:null});
+    } else {
     userService.pastOrders(emailId)
-    .then( (response) => {
-        console.log("Past Orders are : ",response);
-        res.status(200).json({payload:response,message:"Fetching past orders."});
-    }) .catch( (error) => {
-        console.log("Orders not available");
-        res.status(400).json({payload:null,message:"Past Order not available"});
-    })
+    .then( (results) => {
+        res.status(200).json({success:true,message:"Fetching past orders",payload: results});
+    }) .catch( (err) => {
+        res.status(400).json({success:false,message:err.message,payload:null});
+    })}
 })
 
 routes.get('/upcomingOrders/:emailId',requireAuth,(req,res) => {
     var emailId = req.params.emailId;
+    if(emailId == undefined){
+        res.status(400).json({success:false,message:"Email id undefined",payload:null});
+    } else {
     userService.upcomingOrders(emailId)
-    .then( (response) => {
-        console.log("upcoming Orders are : ",response);
-        res.status(200).json({payload:response,message:"Fetching upcoming orders."});
+    .then( (results) => {
+        res.status(200).json({success:true,message:"Fetching upcoming orders",payload: results});
     }) .catch( (error) => {
-        res.status(400).json({payload:null,message:"No upcoming orders"});
-    })
+        res.status(400).json({success:false,message:err.message,payload:null});
+    })}
 })
 
 routes.get('/getRestaurants',requireAuth,(req,res) => {
-    userService.getRestaurants()
+    restService.getRestaurants()
     .then( (response) => {
-        res.status(200).json({restaurants: response});
-    }).catch((error) => {
-        console.log("Restaurants not available");
-        res.status(400).json({message:"Restaurants not available"});
+        res.status(200).json({success:true,message:"Fetching restaurants",payload : response});
+    }).catch((err) => {
+        res.status(500).json({success:false,message:err.message,payload:null});
     })
 })
 
@@ -320,22 +328,28 @@ routes.post('/updateDetails',requireAuth,(req,res) => {
 
 })
 
-routes.get('/getRestDetails/:id',requireAuth,(req,res) => {
-    var restId = req.params.id;
-    let payload = {};
-    restService.getRestDetailsByRestId(restId)
-        .then( (results) => {
-            payload["restDetails"] = results;
-            restService.getMenu(results.id)
-            .then( (resultSection) => {
-                payload.restDetails["sections"]=resultSection;
-                res.status(200).json({payload:payload,message:"Fetching Rest Details"});
-            })
-        }).catch( (error) => {
-            console.log("Error in getRestDetails");
-            res.status(400).json({payload:null,message:"unable to get rest details"});
-        })
-})
+routes.get('/getRestDetails/:ownerEmail',requireAuth,(req,res) => {
+    var ownerEmail = req.params.ownerEmail;
+    restService.getRestDetailsByOwnerEmail(ownerEmail)
+    .then( (results) => {
+        res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
+    }).catch( (err) => {
+        console.log("Error in getRestDetails");
+        res.status(400).json({success:false,message:err.message,payload:null});
+    })
+});
+
+routes.get('/getRestDetailsByRestName/:restName',requireAuth,(req,res) => {
+    var restName = req.params.restName;
+    restService.getRestDetailsByRestName(restName)
+    .then( (results) => {
+        res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
+    }).catch( (err) => {
+        console.log("Error in getRestDetails");
+        res.status(400).json({success:false,message:err.message,payload:null});
+    })
+});
+
 
 routes.post('/updateRestDetails',requireAuth,(req,res) => {
     var restDetails = {
@@ -375,16 +389,16 @@ routes.get('/check',requireAuth, (req, res)=> {
 })
 
 
-routes.post('/createUser',requireAuth,(req,res) => {
-    var email = req.body.email;
-    var password = req.body.password;
-    var userDetails = req.body.userDetails;
-    auth.createUser(email,password,userDetails)
-    .then( (response) => {
-        res.status(200).json({message:"Creating user",payload:response});
-    }).catch( (err) => {
-        console.log("Error in user api");
-        res.status(400).json({message:"Error creating user",payload:null});
-    })
-})
+// routes.post('/createUser',requireAuth,(req,res) => {
+//     var email = req.body.email;
+//     var password = req.body.password;
+//     var userDetails = req.body.userDetails;
+//     auth.createUser(email,password,userDetails)
+//     .then( (response) => {
+//         res.status(200).json({message:"Creating user",payload:response});
+//     }).catch( (err) => {
+//         console.log("Error in user api");
+//         res.status(400).json({message:"Error creating user",payload:null});
+//     })
+// })
 module.exports = routes;

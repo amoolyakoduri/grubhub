@@ -1,5 +1,9 @@
 const db = require('../database').db;
 const restSchema = require('./../models/restaurants').Restaurant;
+const sectionSchema = require('./../models/restaurants').Section;
+const menuSchema = require('./../models/restaurants').Menu;
+const orderSchema = require('./../models/orders').Order;
+var mongoose = require('mongoose');
 
 // var addItem = (restId,name,desc,price,section) => {
 //     return new Promise( function(resolve,reject) {
@@ -16,20 +20,46 @@ const restSchema = require('./../models/restaurants').Restaurant;
 //     })
 // }
 
-var addItem = (restId,name,desc,price,section) => {
+var addItem = (ownerEmail,name,desc,price,section) => {
     return new Promise( function(resolve,reject) {
-        restSchema.update({"_restaurant_id":restId, "sections": { $elemMatch : {
-            "name" : section} }, $push : {"menu":{ "name" : name, "descr":desc,"price":price}}
-        }, function(err,results){
-            if(error) {
-                console.log("Error in addItem");
-                reject("error");
+        var menuInstance = new menuSchema({ "name" : name, "descr":desc,"price":price});
+                restSchema.update({"ownerEmail":ownerEmail , "sections.name":section} ,
+                 {$push : { "sections.$.menu" : menuInstance }}, function(err, results) {
+                    if(err) {
+                        console.log("Error in addMenu");
+                        reject(err);
+                    } else {
+                        if(results.nModified === 0){
+                            var err = {
+                                message : "Could not find restaurant with ownerEmail "+ownerEmail+" or section "+section
+                            }
+                            console.log(err.message);
+                            reject(err); 
+                        } else {
+                            console.log("Item added");
+                            resolve(results);
+                        }
+                    }
+                })
+            })
+}
+
+
+
+var getRestaurants = () => {
+    return new Promise(function(resolve,reject){
+        restSchema.find({},function(err,results){
+        if(err){
+                console.log("Error in getRestaurants");
+                reject(err);
             } else {
                 resolve(results);
             }
         })
-    });
+    })
 }
+
+
 
 // var deleteItem = (restId,itemId,section) => {
 //     return new Promise( function(resolve,reject) {
@@ -46,16 +76,26 @@ var addItem = (restId,name,desc,price,section) => {
 //     })
 // }
 
- var deleteItem = (restId,itemId,section) => {
+ var deleteItem = (ownerEmail,itemName,section) => {
         return new Promise( function(resolve,reject) {
-            db.query('DELETE FROM menu WHERE restId = ? and id = ? and section=?',[restId,itemId,section],
-            function(error, results, fields) {
-                if(error) {
+            restSchema.update(
+                {"ownerEmail":ownerEmail, "sections.name":section},
+                { $pull : {"sections.$.menu" : {name : itemName}  } },
+            function(err, results) {
+                if(err) {
                     console.log("Error in deleteItem");
                     reject("error");
                 } else {
-                    console.log("Item deleted");
-                    resolve(results[0]);
+                    if(results.nModified === 0){
+                        var err = {
+                            message : "Could not find restaurant with ownerEmail "+ownerEmail+" or section "+section+" or item name "+itemName
+                        }
+                        console.log(err.message);
+                        reject(err); 
+                    } else {
+                        console.log("Section added");
+                        resolve(results);
+                    }
                 }
             })
         })
@@ -76,35 +116,72 @@ var addItem = (restId,name,desc,price,section) => {
 //     })
 // }
 
-var addSection = (restId,section) => {
+var addSection = (ownerEmail,section) => {
     return new Promise( function(resolve,reject) {
-        restSchema.update({"_restaurant_id":restId}, { $push : { "sections" : {
-            "name" : section} }}, function(error, results) {
-            if(error) {
-                console.log("Error in addSection");
-                reject("error");
-            } else {
-                console.log("Section added");
-                resolve(results);
-            }
+        var sectionInstance = new sectionSchema({"name" : section});
+                restSchema.update({"ownerEmail":ownerEmail}, { $push : { "sections" : sectionInstance }}, function(error, results) {
+                    if(error) {
+                        console.log("Error in addSection");
+                        reject(error);
+                    } else {
+                        if(results.nModified === 0){
+                            var err = {
+                                message : "Could not find restaurant with ownerEmail "+ownerEmail
+                            }
+                            console.log(err.message);
+                            reject(err); 
+                        } else {
+                            console.log("Section added");
+                            resolve(results);
+                        }
+                    }
+                })
+        //    }
+        //})
     })
-})
 }
 
-var deleteSection = (restId,section) => {
+// var deleteSection = (restId,section) => {
+//     return new Promise( function(resolve,reject) {
+//         db.query('DELETE FROM sections WHERE restId = ? and name = ?',[restId,section],
+//         function(error, results, fields) {
+//             if(error) {
+//                 console.log("Error in deleteSection");
+//                 reject("error");
+//             } else {
+//                 console.log("Section deleted");
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
+var deleteSection = (ownerEmail,section) => {
     return new Promise( function(resolve,reject) {
-        db.query('DELETE FROM sections WHERE restId = ? and name = ?',[restId,section],
-        function(error, results, fields) {
-            if(error) {
+        restSchema.update({"ownerEmail":ownerEmail},{ $pull : {sections : {name : section}  } },
+         function(err, results) {
+            if(err) {
                 console.log("Error in deleteSection");
-                reject("error");
+                reject(err);
             } else {
-                console.log("Section deleted");
-                resolve(results);
+                if(results.nModified === 0){
+                    var err = {
+                        message : "Could not find restaurant with ownerEmail "+ownerEmail+" or section "+section
+                    }
+                    console.log(err.message);
+                    reject(err); 
+                } else {
+                    console.log("Section deleted");
+                    resolve(results);
+                }
             }
         })
     })
 }
+    //db.getCollection("restaurants").update({"ownerEmail":"abhi1@gmail.com"},
+    //{ $pull : {sections : {name : "Breakfast"}  } }
+    //)
+    //
 
 // var getItemsInSection = (restId,section) => {
 //     return new Promise( function(resolve,reject) {
@@ -166,6 +243,19 @@ var getItemsInSection = (restId,section) => {
 //     })
 // }
 
+var getOrders = (restName) => {
+    return new Promise(function(resolve,reject) {
+        orderSchema.find({restName:restName},function(err,results){
+            if(err) {
+                console.log("Error in getOrders");
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        })
+    })
+}
+
 
 // var getPastOrders = (restId) => {
 //     return new Promise(function(resolve,reject) {
@@ -200,7 +290,18 @@ var getItemsInSection = (restId,section) => {
 //     })
 // }
 
-
+var getPastOrders = (restName) => {
+    return new Promise(function(resolve,reject) {
+        orderSchema.find({restName:restName, $or : [{status:"Delivered"},{status:"Cancelled"}]},function(err,results){
+            if(err) {
+                console.log("Error in getOrders");
+                reject(err);
+            } else {
+                resolve(results);
+            }
+        })
+    })
+}
 
 // var updateOrderStatus = (restId,orderId,status) => {
 //     return new Promise(function(resolve,reject) {
@@ -224,16 +325,42 @@ var getItemsInSection = (restId,section) => {
 //     })
 // }
 
-
-
-var getOrdersByStatus = (restId,status) => {
+var updateOrderStatus = (orderId,status) => {
     return new Promise(function(resolve,reject) {
-        db.query('SELECT * FROM orders WHERE restId = ? and status=?',[restId,status],function(error,results,fields) {
-            if(error) {
-                console.log("Error in getOrdersByStatus");
-                reject("Error");
+        var id = new mongoose.Types.ObjectId(orderId);
+        orderSchema.update({'_id' : id},{status:status},function(err,results){
+            if(err) {
+                console.log("Error in updateOrderStatus");
+                reject(err);
             } else {
-                console.log("Orders for restId ",restId," and status ",status," are : ",results);
+                resolve(results);
+            }
+        })
+    })
+}
+
+
+// var getOrdersByStatus = (restId,status) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('SELECT * FROM orders WHERE restId = ? and status=?',[restId,status],function(error,results,fields) {
+//             if(error) {
+//                 console.log("Error in getOrdersByStatus");
+//                 reject("Error");
+//             } else {
+//                 console.log("Orders for restId ",restId," and status ",status," are : ",results);
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
+var getOrdersByStatus = (restName,status) => {
+    return new Promise(function(resolve,reject) {
+        orderSchema.find({restName:restName,status:status},function(err,results){
+            if(err) {
+                console.log("Error in getOrdersByStatus");
+                reject(err.message);
+            } else {
                 resolve(results);
             }
         })
@@ -295,11 +422,9 @@ var getOrderItems = (orderId) => {
 
 var getRestDetailsByOwnerEmail = (ownerEmail) => {
     return new Promise(function(resolve,reject) {
-        //db.query('select * from restaurant where ownerEmail = ?',[ownerEmail],function(error,results,fields){
-            restSchema.find({ownerEmail : ownerEmail}, function(err,results){
+            restSchema.find({"ownerEmail" : ownerEmail}, function(err,results){
             if(err){
-                console.log("error in getRestDetails");
-                reject("error");
+                reject(err);
             } else {
                 resolve(results);
             }
@@ -320,12 +445,12 @@ var getRestDetailsByOwnerEmail = (ownerEmail) => {
 //     })
 // }
 
-var getRestDetailsByRestId = (restId) => {
+var getRestDetailsByRestName = (restName) => {
     return new Promise(function(resolve,reject) {
-        restSchema.find({_restaurant_id : restId},function(err,results){
+        restSchema.find({name : restName},function(err,results){
             if(err){
                 console.log("error in getRestDetails");
-                reject("error");
+                reject(err);
             } else {
                 resolve(results[0]);
             }
@@ -405,5 +530,8 @@ module.exports.getOrderItems = getOrderItems;
 module.exports.getMenu = getMenu;
 module.exports.getRestDetailsByOwnerEmail = getRestDetailsByOwnerEmail;
 module.exports.updateDetails = updateDetails;
-module.exports.getRestDetailsByRestId = getRestDetailsByRestId;
+module.exports.getRestDetailsByRestName = getRestDetailsByRestName;
+module.exports.getRestaurants = getRestaurants;
+module.exports.getOrders = getOrders;
 module.exports.getPastOrders = getPastOrders;
+module.exports.updateOrderStatus = updateOrderStatus;

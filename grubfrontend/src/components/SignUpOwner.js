@@ -6,6 +6,7 @@ import {
 import {connect} from 'react-redux';
 import { onRestRegisterationFailure, onRestRegisterationSuccess} from './../actions/actions'
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
 
 
 class SignUpOwner extends React.Component {
@@ -25,33 +26,26 @@ class SignUpOwner extends React.Component {
   }
 
   register(event){
+    var jwtToken = ls.get('jwtToken').substring(3);
     event.preventDefault();
     const data = new FormData();
-        data.append('emailId' , this.props.emailId);
         data.append('name',this.state.name);
         data.append('cuisine', this.state.cuisine);
         data.append('address',this.state.address);
         data.append('zipcode',this.state.zipcode);
         data.append('phone',this.state.phone);
         data.append('displayPic',this.state.displayPic);
-    fetch('/api/register',{
+        data.append('emailId',this.props.emailId);
+    fetch('/api/registerRestaurant',{
     method : 'POST',
-    body:data
-    // body : JSON.stringify({ 
-    //     emailId : this.props.emailId, 
-    //     name : this.state.name,
-    //     cuisine : this.state.cuisine,
-    //     address : this.state.address,
-    //     zipcode : this.state.zipcode,
-    //     phone : this.state.phone
-    // }),
+    body:data,
   })
   .then((response) => {
       console.log(response)
     return response.json();
   }).then((jsonRes) => {
     console.log("jsonRes is: ",jsonRes);
-    if(jsonRes.payload == null) {
+    if(jsonRes.success == false) {
       console.log("Couldnt register");
       this.props.restRegisterFailureDispatch();
   } else {

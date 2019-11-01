@@ -16,8 +16,6 @@ class RestoCard extends React.Component {
 
     placeOrder(event) {
       event.preventDefault();
-      console.log("this.props.details are ",this.props.details);
-      console.log("this.props.cur is ",this.props.currentRestDetailsSuccessDispatch);
       this.props.currentRestDetailsSuccessDispatch(this.props.details);
       this.props.history.push("/placeOrder");
     }

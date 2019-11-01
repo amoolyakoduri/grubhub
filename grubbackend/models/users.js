@@ -5,25 +5,44 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   _user_id : Schema.Types.ObjectId,
   emailId: { 
-    type :String,
+    type : String,
     unique : true,
     required : true
   },
   password: { 
-    type :String,
+    type : String,
     required : true
   },
   userDetails: {
-      firstName : String,
-      lastName : String,
-      address : String,
-      phone : { 
-        type :String,
-        unique : true,
-        required : true
-      },
-      displayPic : String,
-      userType : String
+    emailId: { 
+      type : String,
+      unique : true,
+    },
+    firstName : {
+      type : String,
+      required : true
+    },
+    lastName : { 
+      type : String,
+      required : true
+    },
+    address : { 
+      type : String,
+      required : false
+    },
+    phone : { 
+      type : String,
+      unique : true,
+      required : true
+    },
+    displayPic : { 
+      type : String,
+      required : true
+    },
+    userType : { 
+      type : String,
+      required : true
+    }
   },
 });
 

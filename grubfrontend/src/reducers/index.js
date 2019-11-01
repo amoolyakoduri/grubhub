@@ -4,17 +4,19 @@ import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS,
         REST_REGISTERATION_SUCCESS, DELETE_ITEM_SUCCESS,
         GET_ORDERS_SUCCESS, ADD_SECTION_SUCCESS, ADD_ITEM_SUCCESS,
         UPDATE_REST_DETAILS_SUCCESS, CURRENT_REST_DETAILS_SUCCESS,
-        GET_REST_DETAILS_SUCCESS, ADD_TO_CART_SUCCESS,
+        GET_REST_DETAILS_SUCCESS, GET_REST_DETAILS_FAILURE, ADD_TO_CART_SUCCESS,
         DELETE_ORDER_ITEM_SUCCESS, GET_DELIVERY_DETAILS_SUCCESS,
         GET_PAST_ORDERS_SUCCESS, GET_PAST_ORDERS_FAILURE,
         GET_ORDER_ITEMS_SUCCESS, GET_ORDER_ITEMS_FAILURE,
         UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
         SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
-        SEARCH_FAILURE,
+        SEARCH_FAILURE, GET_OWNER_REST_DETAILS_FAILURE, GET_OWNER_REST_DETAILS_SUCCESS,
         GET_PAST_ORDERS_OWNER_SUCCESS,
         DELETE_SECTION_SUCCESS} from './../actions/actions';
+import restDetails from './restDetails';
+import { combineReducers } from 'redux';
 
-function app(state,action) {
+function app(state = {},action) {
     switch(action.type) {
         case  BUYER_LOGIN_SUCCESS:
             return Object.assign({},state,{
@@ -24,7 +26,7 @@ function app(state,action) {
                 phone : action.payload.payload.phone,
                 isLoggedIn : true,
                 address : action.payload.payload.address,
-                type : action.payload.payload.type,
+                userType : action.payload.payload.userType,
                 displayPic : action.payload.payload.displayPic
             })
         case OWNER_LOGIN_SUCCESS:
@@ -35,9 +37,10 @@ function app(state,action) {
                 phone : action.payload.payload.phone,
                 isLoggedIn : true,
                 address : action.payload.payload.address,
-                type : action.payload.payload.type,
+                userType : action.payload.payload.userType,
                 displayPic : action.payload.payload.displayPic,
-                restDetails : action.payload.payload.restDetails
+                token : action.payload.token
+                //restDetails : action.payload.payload.restDetails
             })
         case LOGIN_FAILURE:
         case LOGOUT_SUCCESS: 
@@ -45,7 +48,7 @@ function app(state,action) {
             return Object.assign({},{isLoggedIn : false,emailId:null,firstName:null})
         case GET_RESTAURANTS_SUCCESS:
             return Object.assign({},state,{
-                restaurants : action.payload.restaurants
+                restaurants : action.payload
             })
         case UPDATE_DETAILS_SUCCESS :
             return Object.assign({},state,{
@@ -68,13 +71,10 @@ function app(state,action) {
             return nexState;
         case SIGNUP_SUCCESS:
             return Object.assign({},state,{
-                emailId : action.payload.payload.emailId,
-                firstName : action.payload.payload.firstName,
-                lastName : action.payload.payload.lastName,
-                isLoggedIn : true,
-                displayPic : action.payload.payload.displayPic,
-                type : action.payload.payload.type,
+                emailId : action.payload.emailId,
+                userType : action.payload.userType,
             });
+
         case REST_REGISTERATION_SUCCESS :
             return Object.assign({},state, {
                 restDetails : Object.assign({},{
@@ -87,55 +87,13 @@ function app(state,action) {
             })})
         case GET_ORDERS_SUCCESS :
             return Object.assign({},state,{
-                orders : action.payload.orders
+                orders : action.payload
             })
         case GET_PAST_ORDERS_OWNER_SUCCESS : 
             return Object.assign({},state,{
-                pastOrders : action.payload.pastOrders
+                pastOrders : action.payload
             })
-        case ADD_SECTION_SUCCESS :     
-            return Object.assign({},state,{
-                restDetails: {
-                    ...state.restDetails,
-                    sections: action.payload
-                }
-            })
-        case ADD_ITEM_SUCCESS :
-            const nextState = Object.assign({}, state);
-            const sections = nextState.restDetails.sections;
-            const sectionId = sections.findIndex(s => s.name === action.sectionName)
-            sections[sectionId].items =[ ...sections[sectionId].items, ...action.payload];
-            return nextState;
-        case DELETE_ITEM_SUCCESS : 
-            const nextStateDelete = Object.assign({},state);
-            const sectionsDelete =   Object.assign([],nextStateDelete.restDetails.sections);
-            const sectionIndex = sectionsDelete.findIndex( s => s.name === action.sectionName);
-            const itemIndex =sectionsDelete[sectionIndex].items.findIndex( i => i.id == action.payload.itemId)
-            const sectionItems =  Object.assign([],sectionsDelete[sectionIndex].items);
-            //const items = sectionItems.splice(itemIndex,1);
-            sectionItems.splice(itemIndex,1);
-            sectionsDelete[sectionIndex].items = sectionItems;
-            nextStateDelete.restDetails.sections = sectionsDelete;
-            return nextStateDelete;
-        case DELETE_SECTION_SUCCESS :
-            const nextStateSection = Object.assign({},state);
-            const sectionsAll = Object.assign([],nextStateSection.restDetails.sections);
-            const sectionIndexToDelete = sectionsAll.findIndex( s => s.name === action.payload.sectionName);
-            sectionsAll.splice(sectionIndexToDelete,1);
-            nextStateSection.restDetails.sections = sectionsAll;
-            return nextStateSection;
-        case CURRENT_REST_DETAILS_SUCCESS :
-            return Object.assign({},state,{
-                restDetails : action.payload
-            })
-        case GET_REST_DETAILS_SUCCESS : 
-            return Object.assign({},state,{
-                restDetails : action.payload.restDetails,
-                cart : Object.assign({},{
-                    restId: action.payload.restDetails.id,
-                    items:[]
-                })
-            })
+        
         case ADD_TO_CART_SUCCESS :
             const nextStateCart = Object.assign({},state);
             const cart = Object.assign({},nextStateCart.cart);
@@ -205,4 +163,5 @@ function app(state,action) {
     }
 }
 
-export default app;
+// export default app;
+export default combineReducers({ restDetails, app });

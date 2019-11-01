@@ -1,11 +1,13 @@
 import React from 'react';
 import { Table, Button, Collapse, CardBody, Card, FormGroup, Input } from 'reactstrap';
 
-import { onGetOrdersSuccess, onUpdateOrderFailure, onUpdateOrderSuccess, onGetOrdersFailure, onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess } from './../actions/actions';
+import { onGetOrdersSuccess, onGetOwnerRestDetailsFailure, onGetOwnerRestDetailsSuccess, onUpdateOrderFailure, onUpdateOrderSuccess, onGetOrdersFailure, onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess } from './../actions/actions';
 import { connect } from 'react-redux';
 import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
 import OrderItems from './OrderItems';
+import ls from 'local-storage';
+
 
 const orderStatus = [
     { name: "New", value: 1 },
@@ -37,26 +39,45 @@ class OwnerHome extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/api/getOrders/' + this.props.restId)
+        var jwtToken = ls.get('jwtToken').substring(3);
+        fetch('/api/getRestDetails/'+this.props.emailId,{
+            method: 'GET',
+            headers: {"Authorization" : `Bearer ${jwtToken}`}
+        })
+        .then( (response) => {
+            return response.json();
+        }).then( (myJson) => {
+            if(myJson.success==false){
+                this.props.getOwnerRestDetailsFailureDispatch();
+            } else {
+                this.props.getOwnerRestDetailsSuccessDispatch(myJson.payload[0]);
+            }
+        }).then(() => {
+        fetch('/api/getOrders/' + this.props.restDetails.name,{
+            method: 'GET',
+            headers: {"Authorization" : `Bearer ${jwtToken}`}})
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
-                if (myJson.payload == null) {
+                if (myJson.success == false) {
                     this.props.getOrdersFailureDispatch();
                 } else {
                     this.props.getOrdersSuccessDispatch(myJson.payload);
                 }
             })
-        fetch('/api/getPastOrders/' + this.props.restId)
+        }).then( () => {
+        fetch('/api/getPastOrders/' + this.props.restDetails.name,{
+            method: 'GET',
+            headers: {"Authorization" : `Bearer ${jwtToken}`}})
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
-                if (myJson.payload == null) {
+                if (myJson.success == false) {
                     this.props.getPastOrdersOwnerFailureDispatch();
                 } else {
                     this.props.getPastOrdersOwnerSuccessDispatch(myJson.payload);
                 }
-            })
+            })})
     }
 
     changeHandler = (orderId, event) => {
@@ -176,14 +197,16 @@ const mapDispatchToProps = (dispatch) => {
         updateOrderSuccessDispatch: (payload) => { dispatch(onUpdateOrderSuccess(payload)) },
         updateOrderFailureDispatch: () => { dispatch(onUpdateOrderFailure()) },
         getPastOrdersOwnerFailureDispatch: () => { dispatch(onGetPastOrdersOwnerFailure()) },
-        getPastOrdersOwnerSuccessDispatch: (payload) => { dispatch(onGetPastOrdersOwnerSuccess(payload)) }
+        getPastOrdersOwnerSuccessDispatch: (payload) => { dispatch(onGetPastOrdersOwnerSuccess(payload))},
+        getOwnerRestDetailsSuccessDispatch : (payload) => { dispatch(onGetOwnerRestDetailsSuccess(payload))},
+        getOwnerRestDetailsFailureDispatch : () => { dispatch(onGetOwnerRestDetailsFailure())}
     }
 }
 
 const mapStateToProps = (state) => {
-    const restId = state && state.restDetails && state.restDetails.id;
-    const { orders, pastOrders } = state;
-    return { restId: restId, orders: orders, pastOrders };
+    const { orders, pastOrders,restDetails } = state;
+    const { emailId } = state.app;
+    return { restDetails, orders, pastOrders,emailId };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isOwner(OwnerHome)));
+export default connect(mapStateToProps, mapDispatchToProps)(OwnerHome)//(loginCheck(isOwner(OwnerHome)));

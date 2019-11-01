@@ -2,28 +2,66 @@ var mongoose = require('mongoose');
 
 const Schema = mongoose.Schema;
 
-const OrderSchema = new Schema({
-        _order_id : Schema.Types.ObjectId,
-        name : String,
-        address : String,
-        amt : Number,
-        emailId : String,
-        _restaurant_id : String,
-        status : String,
-        order_items : [ new Schema ({
-            order_item_id : Schema.Types.ObjectId,
-            item_id : String,
-            name : String,
-            price : Number,
-            quantity : Number
-        })],
-        chat : [ new Schema ({
-            message : String,
-            from : String
-        },{ timestamps: { createdAt: 'created_at' } })
-        ] 
+const OrderItemsSchema = new Schema ({
+    order_item_id : Schema.Types.ObjectId,
+    name : {
+        type : String,
+        required : true
+    },
+    price : {
+        type : Number,
+        required : true
+    },
+    quantity : {
+        type : Number,
+        required : true
+    }
 })
 
-var Order = mongoose.model('Order',OrderSchema);
+const ChatSchema = new Schema ({
+    message : {
+        type : String,
+        required : true
+    },
+    from : {
+        type : String,
+        required : true
+    }
+},{ timestamps: { createdAt: 'created_at' } })
 
-module.exports.Order = Order;
+
+const OrderSchema = new Schema({
+        _id : mongoose.Schema.Types.ObjectId,
+        name : {
+            type : String,
+            required : true
+        },
+        address : {
+            type : String,
+            required : true
+        },
+        amt : {
+            type : String,
+            required : true
+        },
+        ownerEmail : {
+            type : String,
+            required : true
+        },
+        restName : {
+            type : String,
+            required : true
+        },
+        status : {
+            type : String,
+            required : true
+        },
+        order_items : {
+            type : [ OrderItemsSchema],
+            required : true },
+        chat : [ ChatSchema] 
+})
+
+module.exports.Order = mongoose.model('Order',OrderSchema);
+module.exports.OrderItems = mongoose.model('OrderItems',OrderItemsSchema);
+module.exports.Chat = mongoose.model('Chat',ChatSchema);

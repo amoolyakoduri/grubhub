@@ -1,6 +1,9 @@
 const db = require('../database').db;
 const userSchema = require('./../models/users').User;
 const restSchema = require('./../models/restaurants').Restaurant;
+const orderSchema = require('./../models/orders').Order;
+const orderItemsSchema = require('./../models/orders').OrderItems;
+const chatSchema = require('./../models/orders').Chat;
 
 
 // var getUserDetails = (email) => {
@@ -18,11 +21,11 @@ const restSchema = require('./../models/restaurants').Restaurant;
 var getUserDetails = (email) => {
     return new Promise(function(resolve, reject){
         userSchema.find({emailId : email}, function(err,results){
-            if(error) {
+            if(err) {
                 console.log("error in getUserDetails");
                 reject("error");
             } else {
-            resolve(results[0]);
+            resolve(results);
             }
         })
 })}
@@ -125,15 +128,57 @@ var updatePassword = (email,oldPassword,newPassword) => {
 //             })
 // })}
 
+var placeOrder = (restName,emailId,orderItems,deliveryDetails) => {
+    return new Promise(function(resolve,reject) {
+        var amt = 0;
+        const promiseForAmt = orderItems.map( (orderItem) => {
+            amt = amt + (orderItem.quantity * orderItem.price);
+        })
+        Promise.resolve(promiseForAmt).then( () => {
+            var orderItemsArray = [];
+            const promiseForOrderItems = orderItems.map( (orderItem) => {
+                orderItemsInstance = new orderItemsSchema({name : orderItem.itemName,quantity:orderItem.quantity,price:orderItem.price});
+                orderItemsArray.push(orderItemsInstance);
+            })
+            Promise.resolve(promiseForOrderItems).then( () => {
+                orderInstance = new orderSchema({name : deliveryDetails.firstName, address : deliveryDetails.address,
+                    amt : amt, emailId : emailId, restName : restName, status : "New", order_items : orderItemsArray })
+                orderInstance.save(function(err,results){
+                    if(err) {
+                        console.log("Error in placeOrder");
+                        reject(err);
+                    } else {
+                        console.log("Order placed ");
+                        resolve(results);
+                    }
+                })
+            })
+        })
+    })
+}
  
+
+
+// var pastOrders = (email) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId in (4,5)',[email],function(error,results,fields) {
+//             if(error) {
+//                 console.log("error in pastOrders");
+//                 reject("error");
+//             } else {
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
 
 
 var pastOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId in (4,5)',[email],function(error,results,fields) {
-            if(error) {
+        orderSchema.find({emailId:email,$or : [{status:"Delivered"},{status:"Cancelled"}]},function(err,results){
+            if(err) {
                 console.log("error in pastOrders");
-                reject("error");
+                reject(err);
             } else {
                 resolve(results);
             }
@@ -141,12 +186,26 @@ var pastOrders = (email) => {
     })
 }
 
+// var upcomingOrders = (email) => {
+//     return new Promise(function(resolve,reject) {
+//         db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId not in (4,5)',[email],function(error,results,fields) {
+//             if(error) {
+//                 console.log("error in upcomingOrders");
+//                 reject("error");
+//             } else {
+//                 resolve(results);
+//             }
+//         })
+//     })
+// }
+
+
 var upcomingOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        db.query('SELECT o.*,r.name as restName,r.displayPic as displayPic from orders o inner join restaurant r on o.restId = r.id where emailId = ? and statusId not in (4,5)',[email],function(error,results,fields) {
-            if(error) {
-                console.log("error in upcomingOrders");
-                reject("error");
+        orderSchema.find({emailId:email,$or : [{status:"New"},{status:"Preparing"},{status:"Ready"}]},function(err,results){
+            if(err) {
+                console.log("error in pastOrders");
+                reject(err);
             } else {
                 resolve(results);
             }
@@ -167,19 +226,7 @@ var upcomingOrders = (email) => {
 //     })
 // }
 
-var getRestaurants = () => {
-    return new Promise(function(resolve,reject){
-        //db.query('SELECT * FROM restaurant',function(error,results,fields) {
-        restSchema.find({},function(err,results){
-        if(error){
-                console.log("Error in getRestaurants");
-                reject("error");
-            } else {
-                resolve(results);
-            }
-        })
-    })
-}
+
 
 // var search = (name,item,cuisine) => {
 //     return new Promise(function(resolve,reject){
@@ -240,6 +287,6 @@ module.exports.updateEmail = updateEmail;
 module.exports.updatePassword = updatePassword;
 module.exports.pastOrders = pastOrders;
 module.exports.upcomingOrders = upcomingOrders;
-module.exports.getRestaurants = getRestaurants;
 module.exports.updateDetails = updateDetails;
 module.exports.search  = search;
+module.exports.placeOrder = placeOrder;

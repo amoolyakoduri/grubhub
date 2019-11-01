@@ -21,13 +21,17 @@ const restSchema = require('./../models/restaurants').Restaurant;
 
 var authenticate = (email,password) => {
     return new Promise( (resolve,reject) => {
-        userSchema.find({emailId:email, password:password}, function(err,user){
+        userSchema.find({emailId:email, password:password}, function(err,results){
             if(err){
                 console.log("error in authenticate")
-                reject("error");
+                reject(err);
             } else {
-                console.log("logged in!");
-                resolve("loggedIn");
+                if(results.length == 0) {
+                    console.log("Not logged in!");
+                } else{
+                    console.log("logged in! ",results);
+                }
+                resolve(results);
             }
         })
     })
@@ -35,17 +39,12 @@ var authenticate = (email,password) => {
 
 var findUser = (email) => {
     return new Promise( (resolve,reject) => {
-        db.query('SELECT * FROM users WHERE emailId = ? ',[email],function (error, results, fields) {
-            if(error) {
+        userSchema.find({emailId:email},function(err,results){
+            if(err) {
                 reject("Invalid Credentials!");
             }
-            //if(results[0] && password === results[0].password) {
-            //    console.log("logged in!");
-                resolve(results);
-            //} else {
-            //    reject("Invalid Credentials!");
-            //}
-        })
+            resolve(results);
+        })   
     })
     
 }
@@ -77,7 +76,7 @@ var createUser = (emailId,password,userDetails) => {
         userInstance.save(function(err,results){
             if(err){
                 console.log("error in create user")
-                reject("error");
+                reject(err);
             } else {
                 console.log("user created! ",results);
                 resolve(results);
@@ -106,13 +105,13 @@ var createUser = (emailId,password,userDetails) => {
 //     })
 // }
 
-var createRestaurant = (name,phone,cusine,address,zipcode,emailId,displayPic) => {
+var createRestaurant = (name,phone,cuisine,address,zip,ownerEmail,displayPic) => {
     return new Promise( (resolve,reject) => {
-        var restInstance = new restSchema({name,zip,phone,cusine,address,emailId,displayPic,sections});
+        var restInstance = new restSchema({name,zip,phone,cuisine,address,ownerEmail,displayPic,sections:[],menu:[]});
         restInstance.save(function(err,results){ 
-            if(error) {
+            if(err) {
                 console.log("Error occurred in createRestaurant.");
-                reject("error");
+                reject(err);
             } else {
                 console.log("Restaurant created ",results);
                 resolve(results);

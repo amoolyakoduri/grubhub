@@ -1,3 +1,5 @@
+import { func } from "prop-types";
+
 const OWNER_LOGIN_SUCCESS = "OWNER_LOGIN_SUCCESS";
 const BUYER_LOGIN_SUCCESS = "BUYER_LOGIN_SUCCESS";
 const LOGIN_FAILURE = "LOGIN_FAILURE";
@@ -39,6 +41,8 @@ const SEARCH_SUCCESS = 'SEARCH_SUCCESS';
 const SEARCH_FAILURE = 'SEARCH_FAILURE';
 const DELETE_SECTION_SUCCESS = 'DELETE_SECTION_SUCCESS';
 const DELETE_SECTION_FAILURE = 'DELETE_SECTION_FAILURE';
+const GET_OWNER_REST_DETAILS_SUCCESS = 'GET_OWNER_REST_DETAILS_SUCCESS';
+const GET_OWNER_REST_DETAILS_FAILURE = 'GET_OWNER_REST_DETAILS_FAILURE';
 
 function onOwnerLoginSuccess(payload) {
     return {
@@ -330,6 +334,20 @@ function onSearchFailure() {
     }
 }
 
+function onGetOwnerRestDetailsSuccess(payload) {
+    return {
+        type : GET_OWNER_REST_DETAILS_SUCCESS,
+        payload : payload
+    }
+}
+
+function onGetOwnerRestDetailsFailure(){
+    return {
+        type : GET_OWNER_REST_DETAILS_FAILURE,
+        payload : null
+    }
+}
+
 export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     onLogoutSuccess, onGetRestaurantsSuccess,
     onUpdateDetailsSuccess, onUpdateDetailsFailure,
@@ -351,6 +369,7 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     onGetUpcomingOrdersSuccess, onGetUpcomingOrdersFailure,
     onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess,
     onDeleteSectionFailure, onDeleteSectionSuccess,
+    onGetOwnerRestDetailsSuccess, onGetOwnerRestDetailsFailure,
     LOGIN_FAILURE, OWNER_LOGIN_SUCCESS, BUYER_LOGIN_SUCCESS,
     LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
     UPDATE_DETAILS_SUCCESS, UPDATE_DETAILS_FAILURE,
@@ -371,7 +390,8 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     SEARCH_FAILURE, SEARCH_SUCCESS,
     GET_PAST_ORDERS_OWNER_FAILURE, GET_PAST_ORDERS_OWNER_SUCCESS,
     GET_UPCOMING_ORDERS_FAILURE, GET_UPCOMING_ORDERS_SUCCESS,
-    DELETE_SECTION_FAILURE, DELETE_SECTION_SUCCESS }
+    DELETE_SECTION_FAILURE, DELETE_SECTION_SUCCESS,
+    GET_OWNER_REST_DETAILS_SUCCESS, GET_OWNER_REST_DETAILS_FAILURE }
 
 
 
