@@ -43,6 +43,14 @@ const DELETE_SECTION_SUCCESS = 'DELETE_SECTION_SUCCESS';
 const DELETE_SECTION_FAILURE = 'DELETE_SECTION_FAILURE';
 const GET_OWNER_REST_DETAILS_SUCCESS = 'GET_OWNER_REST_DETAILS_SUCCESS';
 const GET_OWNER_REST_DETAILS_FAILURE = 'GET_OWNER_REST_DETAILS_FAILURE';
+const SEND_MESSAGE_SUCCESS = 'SEND_MESSAGE_SUCCESS';
+
+function onSendMessageSuccess(payload){
+    return {
+        type : SEND_MESSAGE_SUCCESS,
+        payload : payload
+    }
+}
 
 function onOwnerLoginSuccess(payload) {
     return {
@@ -365,7 +373,7 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     onGetPastOrdersSuccess, onGetPastOrdersFailure,
     onGetOrderItemsFailure, onGetOrderItemsSuccess,
     onUpdateOrderFailure, onUpdateOrderSuccess,
-    onSearchSuccess, onSearchFailure,
+    onSearchSuccess, onSearchFailure, onSendMessageSuccess,
     onGetUpcomingOrdersSuccess, onGetUpcomingOrdersFailure,
     onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess,
     onDeleteSectionFailure, onDeleteSectionSuccess,
@@ -375,7 +383,7 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     UPDATE_DETAILS_SUCCESS, UPDATE_DETAILS_FAILURE,
     UPDATE_REST_DETAILS_SUCCESS, UPDATE_REST_DETAILS_FAILURE,
     SIGNUP_FAILURE,SIGNUP_SUCCESS,
-    REST_REGISTERATION_FAILURE,
+    REST_REGISTERATION_FAILURE, SEND_MESSAGE_SUCCESS,
     REST_REGISTERATION_SUCCESS,
     GET_ORDERS_SUCCESS, GET_ORDERS_FAILURE,
     ADD_SECTION_FAILURE, ADD_SECTION_SUCCESS,

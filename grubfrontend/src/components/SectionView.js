@@ -25,7 +25,6 @@ class SectionView extends React.Component {
 
     addToCart(itemId,quantity,price,name) {
         let payload = {
-            itemId:itemId,
             quantity: quantity,
             price:price,
             name: name
@@ -47,8 +46,8 @@ class SectionView extends React.Component {
         return <div >
             <h4>{this.props.details.name}</h4>
             <div style={{display:"flex",flexDirection:"row"}}>
-            {this.props.details.items && 
-                this.props.details.items.map( item => {
+            {this.props.details.menu && 
+                this.props.details.menu.map( item => {
                     return (
                         <ItemDetails details={item} addToCart = {this.addToCart} /> 
                    )

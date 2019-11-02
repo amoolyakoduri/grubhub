@@ -265,10 +265,11 @@ routes.post('/placeOrder',requireAuth,(req,res) => {
     var restName = req.body.restName;
     var orderItems = req.body.orderItems;
     var deliveryDetails = req.body.deliveryDetails;
+    var restPic = req.body.restPic
     if(restName == undefined || orderItems == undefined || deliveryDetails == undefined){
         res.status(500).json({success:false, message:"rest name or order items or delivery details undefined",payload:null});
     } else {
-    userService.placeOrder(restName,emailId,orderItems,deliveryDetails)
+    userService.placeOrder(restPic,restName,emailId,orderItems,deliveryDetails)
     .then( () => {
         res.status(200).json({success:true,message:"Order Placed",payload:null});
     }).catch((err) => {

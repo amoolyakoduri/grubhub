@@ -19,16 +19,16 @@ class Profile extends React.Component {
             <img width= "200px" src={"/"+this.props.displayPic}></img>
             </div>
             <Details/>
-            { this.props.type=== "owner" && 
+            { this.props.userType=== "owner" && 
                 <RestaurantDetails/> }
         </div>
     }
 }
 
 const mapStateToProps = (state) => {
-    const {type , isLoggedIn, displayPic } = state;
-    return {type:type,isLoggedIn:isLoggedIn,displayPic};
+    const {userType , isLoggedIn, displayPic } = state.app;
+    return {userType,isLoggedIn,displayPic};
 }
 
 
-export default connect(mapStateToProps)(loginCheck(Profile));
+export default connect(mapStateToProps)(Profile)//(loginCheck(Profile));

@@ -49,7 +49,6 @@ class CustomNavbar extends React.Component {
         this.props.history.push('/login');
       })
 
-    // window.location.href="/login"
   }
 
   toggle() {
@@ -64,7 +63,7 @@ class CustomNavbar extends React.Component {
     if (this.props.isLoggedIn)
       nav = (<div style={{ display: "flex", flexDirection: "row" }}>
         <NavItem>
-          <Link style={{ color: "#606369" }} to={this.props.type === "buyer" ? "/lets-eat" : "/home"}>Home</Link>
+          <Link style={{ color: "#606369" }} to={this.props.userType === "buyer" ? "/lets-eat" : "/home"}>Home</Link>
         </NavItem>
         <UncontrolledDropdown nav inNavbar>
           <DropdownToggle nav caret>
@@ -90,7 +89,7 @@ class CustomNavbar extends React.Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <Link to={this.props.type === "buyer" ? "/lets-eat" : "/home"}><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
+          <Link to={this.props.userType === "buyer" ? "/lets-eat" : "/home"}><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
@@ -109,7 +108,8 @@ class CustomNavbar extends React.Component {
 function mapStateToProps(state) {
   const isLoggedIn = state.app.isLoggedIn;
   const firstName = state.app.firstName;
-  return { isLoggedIn, firstName };
+  const userType = state.app.userType;
+  return { isLoggedIn, firstName, userType };
 }
 
 function mapDispatchToProps(dispatch) {

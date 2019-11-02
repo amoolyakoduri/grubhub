@@ -116,7 +116,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 const mapStateToProps = (state) => {
-  const {emailId} = state;
+  const {emailId} = state.app;
   return {emailId}
 }
 

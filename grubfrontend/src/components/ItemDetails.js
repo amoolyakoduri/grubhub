@@ -54,4 +54,4 @@ class ItemDetails extends React.Component {
   }
 }
 
-export default loginCheck(isBuyer(ItemDetails));
+export default (ItemDetails)//loginCheck(isBuyer(ItemDetails));

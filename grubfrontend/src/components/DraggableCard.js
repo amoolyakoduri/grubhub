@@ -1,17 +1,17 @@
 import React, { useRef } from 'react'
-import OrderCard from './OrderCard';
 import { useDrag, useDrop } from 'react-dnd'
+import OrderCard from './OrderCard';
 const style = {
-  border: '1px dashed gray',
-  padding: '0.5rem 1rem',
-  marginBottom: '.5rem',
-  backgroundColor: 'white',
+  // border: '1px dashed gray',
+  // padding: '0.5rem 1rem',
+  // marginBottom: '.5rem',
+  // backgroundColor: 'white',
   cursor: 'move',
 }
-const Card = ({ id, details, index, moveCard }) => {
+const Card = ({ id, text, index, moveCard }) => {
   const ref = useRef(null)
   const [, drop] = useDrop({
-    accept: 'card',
+    accept: 'CARD',
     hover(item, monitor) {
       if (!ref.current) {
         return
@@ -52,7 +52,7 @@ const Card = ({ id, details, index, moveCard }) => {
     },
   })
   const [{ isDragging }, drag] = useDrag({
-    item: { type: 'card', id, index },
+    item: { type: 'CARD', id, index },
     collect: monitor => ({
       isDragging: monitor.isDragging(),
     }),
@@ -61,7 +61,7 @@ const Card = ({ id, details, index, moveCard }) => {
   drag(drop(ref))
   return (
     <div ref={ref} style={{ ...style, opacity }}>
-      <OrderCard details={details} />
+      <OrderCard details={text}/>
     </div>
   )
 }

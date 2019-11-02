@@ -1,5 +1,4 @@
 import React from 'react';
-import pic from './../grub.png';
 import { connect } from 'react-redux';
 import { onGetRestDetailsSuccess, onGetRestDetailsFailure } from './../actions/actions';
 import SectionView from './SectionView';
@@ -16,19 +15,19 @@ class PlaceOrder extends React.Component {
 
     componentDidMount() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/getRestDetailsByRestName/' + this.props.restDetails.name, {
-            method: 'GET',
-            headers: {
-                "Authorization" : `Bearer${jwtToken}`,
-                },
-        }).then((response) => {
-            return response.json();
-        }).then((myJson) => {
-            if (myJson.success == false)
-                this.props.getRestDetailsFailureDispatch();
-            else
-                this.props.getRestDetailsSuccessDispatch(myJson.payload);
-        })
+        // fetch('/api/getRestDetailsByRestName/' + this.props.restDetails.name, {
+        //     method: 'GET',
+        //     headers: {
+        //         "Authorization" : `Bearer${jwtToken}`,
+        //         },
+        // }).then((response) => {
+        //     return response.json();
+        // }).then((myJson) => {
+        //     if (myJson.success == false)
+        //         this.props.getRestDetailsFailureDispatch();
+        //     else
+        //         this.props.getRestDetailsSuccessDispatch(myJson.payload);
+        // })
     }
 
     render() {
@@ -36,7 +35,7 @@ class PlaceOrder extends React.Component {
             <div class="container" style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                     <div>
-                        <img src={pic} />
+                        <img width= "200px" src={"/"+this.props.restDetails.displayPic} />
                     </div>
                     <h3>{this.props.restDetails && this.props.restDetails.name}</h3>
                 </div>
@@ -52,7 +51,7 @@ class PlaceOrder extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    return { restDetails: state.restDetails, cart: state.cart }
+    return { restDetails: state.restDetails, cart: state.cart,  }
 }
 
 const mapDispatchToProps = (dispatch) => {

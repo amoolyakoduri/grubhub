@@ -128,7 +128,7 @@ var updatePassword = (email,oldPassword,newPassword) => {
 //             })
 // })}
 
-var placeOrder = (restName,emailId,orderItems,deliveryDetails) => {
+var placeOrder = (restPic,restName,emailId,orderItems,deliveryDetails) => {
     return new Promise(function(resolve,reject) {
         var amt = 0;
         const promiseForAmt = orderItems.map( (orderItem) => {
@@ -137,12 +137,12 @@ var placeOrder = (restName,emailId,orderItems,deliveryDetails) => {
         Promise.resolve(promiseForAmt).then( () => {
             var orderItemsArray = [];
             const promiseForOrderItems = orderItems.map( (orderItem) => {
-                orderItemsInstance = new orderItemsSchema({name : orderItem.itemName,quantity:orderItem.quantity,price:orderItem.price});
+                orderItemsInstance = new orderItemsSchema({name : orderItem.name,quantity:orderItem.quantity,price:orderItem.price});
                 orderItemsArray.push(orderItemsInstance);
             })
             Promise.resolve(promiseForOrderItems).then( () => {
                 orderInstance = new orderSchema({name : deliveryDetails.firstName, address : deliveryDetails.address,
-                    amt : amt, emailId : emailId, restName : restName, status : "New", order_items : orderItemsArray })
+                    amt : amt,restPic:restPic, buyerEmail : emailId, restName : restName, status : "New", order_items : orderItemsArray })
                 orderInstance.save(function(err,results){
                     if(err) {
                         console.log("Error in placeOrder");
@@ -175,7 +175,7 @@ var placeOrder = (restName,emailId,orderItems,deliveryDetails) => {
 
 var pastOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        orderSchema.find({emailId:email,$or : [{status:"Delivered"},{status:"Cancelled"}]},function(err,results){
+        orderSchema.find({buyerEmail:email,$or : [{status:"Delivered"},{status:"Cancelled"}]},function(err,results){
             if(err) {
                 console.log("error in pastOrders");
                 reject(err);
@@ -202,9 +202,9 @@ var pastOrders = (email) => {
 
 var upcomingOrders = (email) => {
     return new Promise(function(resolve,reject) {
-        orderSchema.find({emailId:email,$or : [{status:"New"},{status:"Preparing"},{status:"Ready"}]},function(err,results){
+        orderSchema.find({buyerEmail:email,$or : [{status:"New"},{status:"Preparing"},{status:"Ready"}]},function(err,results){
             if(err) {
-                console.log("error in pastOrders");
+                console.log("error in upcomingOrders",err.message);
                 reject(err);
             } else {
                 resolve(results);

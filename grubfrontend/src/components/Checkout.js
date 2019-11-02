@@ -6,6 +6,8 @@ import loginCheck from './LoginCheck'
 import Cart from './Cart';
 import isBuyer from './isBuyer';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
+
 
 
 
@@ -13,7 +15,7 @@ class Checkout extends React.Component {
     constructor() {
         super();
         this.state = {
-            user: {},
+            app: {},
             deliveryDetails: {}
         }
 
@@ -21,11 +23,10 @@ class Checkout extends React.Component {
 
     componentDidMount() {
         let payload = {
-            firstName: this.props.user.firstName,
-            lastName: this.props.user.lastName,
-            phone: this.props.user.phone,
-            address: this.props.user.address,
-            instructions: "e.g. Check in with doorman"
+            firstName: this.props.app.firstName,
+            lastName: this.props.app.lastName,
+            phone: this.props.app.phone,
+            address: this.props.app.address
         }
         this.setState({ deliveryDetails: payload })
         this.props.getDeliveryDetailsSuccessDispatch(payload);
@@ -55,23 +56,24 @@ class Checkout extends React.Component {
 
     placeOrder = (event) => {
         event.preventDefault();
+        var jwtToken = ls.get('jwtToken').substring(3);
         let dateString = this.getDateString();
         this.props.getDeliveryDetailsSuccessDispatch(this.state.deliveryDetails, dateString);
         fetch('/api/placeOrder', {
             headers: {
+                "Authorization" : `Bearer${jwtToken}`,
                 'Content-Type': 'application/json'
             },
             method: 'POST',
             body: JSON.stringify({
-                emailId: this.props.user.emailId,
-                restId: this.props.cart.restId,
-                orderItems: this.props.cart.items,
+                restPic: this.props.restDetails.displayPic,
+                restName: this.props.restDetails.name,
+                orderItems: this.props.cart,
                 deliveryDetails: this.state.deliveryDetails
             }),
+        }).then((response) => {
+            return response.json();
         })
-            .then((response) => {
-                return response.json();
-            })
         this.props.history.push("/lets-eat");
     }
 
@@ -86,11 +88,10 @@ class Checkout extends React.Component {
                 <h6>Contact</h6>
                 <div>
                     <AvForm onValidSubmit={this.placeOrder} onInvalidSubmit={this.handleInvalidSubmit}>
-                        <AvField type="text" name="firstName" label={"First Name : " + this.state.deliveryDetails.firstName} onChange={this.changeHandler} placeholder={this.props.user.firstName} ></AvField>
-                        <AvField type="text" name="lastName" label={"Last Name : " + this.state.deliveryDetails.lastName} onChange={this.changeHandler} placeholder={this.props.user.lastName} ></AvField>
-                        <AvField type="text" name="phone" onChange={this.changeHandler} label={"Phone : " + this.state.deliveryDetails.phone} placeholder={this.props.user.phone} required></AvField>
-                        <AvField type="text" name="address" onChange={this.changeHandler} label={"Address : " + this.state.deliveryDetails.address} placeholder={this.props.user.address} required ></AvField>
-                        <AvField type="text" name="instructions" onChange={this.changeHandler} label={"Delivery Instructions : " + this.state.deliveryDetails.instructions} placeholder={this.props.user.instructions} ></AvField>
+                        <AvField type="text" name="firstName" label={"First Name : " + this.state.deliveryDetails.firstName} onChange={this.changeHandler} placeholder={this.props.app.firstName} ></AvField>
+                        <AvField type="text" name="lastName" label={"Last Name : " + this.state.deliveryDetails.lastName} onChange={this.changeHandler} placeholder={this.props.app.lastName} ></AvField>
+                        <AvField type="text" name="phone" onChange={this.changeHandler} label={"Phone : " + this.state.deliveryDetails.phone} placeholder={this.props.app.phone} ></AvField>
+                        <AvField type="text" name="address" onChange={this.changeHandler} label={"Address : " + this.state.deliveryDetails.address} placeholder={this.props.app.address}  ></AvField>
                         <hr />
                         <Button >Place Order!</Button>
                     </AvForm>
@@ -102,8 +103,8 @@ class Checkout extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const { restaurants, restDetails, cart, deliveryDetails, ...user } = state;
-    return { user, deliveryDetails, restDetails, cart };
+    const {  restDetails, cart, deliveryDetails, app} = state;
+    return { app, deliveryDetails, restDetails, cart };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -112,4 +113,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(Checkout)));
+export default connect(mapStateToProps, mapDispatchToProps)(Checkout)//(loginCheck(isBuyer(Checkout)));

@@ -16,13 +16,13 @@ const getCookie = (cname) => {
 
 
 export const isLoggedIn = () => {
-    return getCookie('loggedIn') !== '' ? true : false;
+    return isLoggedIn == true;
 }
 
-export const isBuyer = (type) => {
-    return type === "buyer";
+export const isBuyer = (userType) => {
+    return userType === "buyer";
 }
 
-export const isOwner = (type) => {
-    return type === "owner";
+export const isOwner = (userType) => {
+    return userType === "owner";
 }

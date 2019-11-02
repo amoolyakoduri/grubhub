@@ -84,8 +84,8 @@ class Account extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const { pastOrders, upcomingOrders, type } = state;
-  return { pastOrders, upcomingOrders, type };
+  const { pastOrders, upcomingOrders, userType } = state;
+  return { pastOrders, upcomingOrders, userType };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -97,4 +97,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(mapStateToProps,mapDispatchToProps)(loginCheck(Account));
+export default connect(mapStateToProps,mapDispatchToProps)(Account);//(loginCheck(Account));

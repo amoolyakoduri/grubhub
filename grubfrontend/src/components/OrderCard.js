@@ -15,6 +15,12 @@ class OrderCard extends React.Component {
     super();
   }
 
+  goToChat = (orderId) => {
+    this.props.history.push({
+      pathname: '/chat/'+orderId,
+    })
+  }
+
   repeatOrder = (event) => {
     event.preventDefault();
     fetch('http://localhost/getRestDetails/' + this.props.details.restId)
@@ -48,12 +54,15 @@ class OrderCard extends React.Component {
   render() {
     console.log("in order");
     var details = this.props.details;
+    var orderId = details._id;
     return (<Card >
-      <CardImg style={{width: '250px'}}  src={'/'+details.displayPic} alt="Card image cap" />
+      <CardImg style={{width: '250px'}}  src={'/'+details.restPic} alt="Card image cap" />
       <CardBody>
         <CardTitle>{details.restName}</CardTitle>
         <CardSubtitle>Amount: {details.amt}</CardSubtitle>
+        Order Status : {details.status}
         <Button onClick={this.repeatOrder}>Repeat Order</Button>
+        <Button onClick={()=>{this.goToChat(orderId)}}>Chat!</Button>
       </CardBody>
     </Card>)
   }

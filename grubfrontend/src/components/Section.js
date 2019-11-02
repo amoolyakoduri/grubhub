@@ -152,9 +152,6 @@ class Section extends React.Component {
 }
 
 const mapStateToProps = (state, props) => {
-    // var  sections  = state.restDetails && state.restDetails.sections;
-    // var menu =  sections && state.restDetails.sections.filter( s => s.name == props.name).menu;
-    // return {menu};
 }
 
 const mapDispatchToProps = (dispatch) => {

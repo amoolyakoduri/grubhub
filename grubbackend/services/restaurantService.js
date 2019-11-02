@@ -245,7 +245,7 @@ var getItemsInSection = (restId,section) => {
 
 var getOrders = (restName) => {
     return new Promise(function(resolve,reject) {
-        orderSchema.find({restName:restName},function(err,results){
+        orderSchema.find({restName:restName,$or : [{status:"New"},{status:"Preparing"},{status:"Ready"}]},function(err,results){
             if(err) {
                 console.log("Error in getOrders");
                 reject(err);

@@ -72,7 +72,7 @@ class RestaurantDetails extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const { restDetails, ...user } = state;
+    const { restDetails } = state;
     return {restDetails};
 }
 

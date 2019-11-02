@@ -13,11 +13,11 @@ class OrderItems extends React.Component {
         let order = this.props.order;
         return <div className="container" style={{display:"flex",flexDirection:"column"}}>
             <h4>Order Details:</h4>
-            <p>Order Id : {order.id}</p>
+            <p>Order Id : {order._id}</p>
             <p>Name : {order.name}</p>
             <p>Delivery address : {order.address}</p>
             <p>Bill : {order.amt}</p>
-            <p>Customer Email : {order.emailId}</p>
+            <p>Customer Email : {order.buyerEmail}</p>
             <p>Order Status : {order.status}</p>
             Order Items:
             <Table>
@@ -29,7 +29,7 @@ class OrderItems extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        order.items.map(item => {
+                        order.order_items.map(item => {
                             return <tr>
                                 <td>{item.name}</td>
                                 <td>{item.quantity}</td>

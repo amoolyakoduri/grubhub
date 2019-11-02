@@ -14,7 +14,7 @@ const isBuyerComponent = (WrappedComponent) => {
 }
 
 const mapStateToProps = (state) => {
-    const { userType } = state;
+    const  userType  = state.app.userType;
     return { userType };
 }
 

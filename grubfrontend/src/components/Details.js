@@ -11,8 +11,8 @@ class Details extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            user: {},
-            emailId: this.props.user.emailId,
+            app: {},
+            emailId: this.props.app.emailId,
             firstName: "",
             lastName: "",
             address: "",
@@ -35,8 +35,8 @@ class Details extends React.Component {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                emailId: this.props.emailId,
-                user: this.state.user
+                emailId: this.props.app.emailId,
+                app: this.state.app
             })
         })
             .then((response) => {
@@ -48,7 +48,7 @@ class Details extends React.Component {
                         error1: myJson.message
                     })
                 } else
-                    this.props.updateDetailsSuccessDispatch(this.state.user);
+                    this.props.updateDetailsSuccessDispatch(this.state.app);
             }
             )
     }
@@ -60,7 +60,7 @@ class Details extends React.Component {
                 "content-type": "application/json"
             },
             body: JSON.stringify({
-                emailId: this.state.user.emailId,
+                emailId: this.state.app.emailId,
                 oldPassword: this.state.oldPassword,
                 newPassword: this.state.newPassword
             })
@@ -85,7 +85,7 @@ class Details extends React.Component {
         let value = event.target.value;
         console.log("key is ", key);
         this.setState(state => {
-            return Object.assign({}, state, { user: Object.assign({}, state.user, { [key]: value }) })
+            return Object.assign({}, state, { app: Object.assign({}, state.app, { [key]: value }) })
         });
     }
 
@@ -102,18 +102,18 @@ class Details extends React.Component {
         return <div className="container" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <div className="container">
                 <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.update}>
-                    <AvField label=" First Name :" type="text" name="firstName" onInput={this.changeHandler} placeholder={this.props.user.firstName} ></AvField>
-                    <AvField type="text" label=" Last Name :" name="lastName" onChange={this.changeHandler} placeholder={this.props.user.lastName} ></AvField>
-                    <AvField type="text" label="Phone : " name="phone" onChange={this.changeHandler} placeholder={this.props.user.phone} ></AvField>
-                    <AvField type="text" name="address" label="Address : " onChange={this.changeHandler} placeholder={this.props.user.address} ></AvField>
-                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.user.emailId} ></AvField>
+                    <AvField label=" First Name :" type="text" name="firstName" onInput={this.changeHandler} placeholder={this.props.app.firstName} ></AvField>
+                    <AvField type="text" label=" Last Name :" name="lastName" onChange={this.changeHandler} placeholder={this.props.app.lastName} ></AvField>
+                    <AvField type="text" label="Phone : " name="phone" onChange={this.changeHandler} placeholder={this.props.app.phone} ></AvField>
+                    <AvField type="text" name="address" label="Address : " onChange={this.changeHandler} placeholder={this.props.app.address} ></AvField>
+                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.app.emailId} ></AvField>
                     <Button >Update Details</Button>
                     {this.state.error1 && <div style={{ color: "red" }}>{this.state.error1}</div>}
                 </AvForm>
             </div>
             <div className="container">
                 <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.updatePassword}>
-                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.user.emailId} required ></AvField>
+                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.app.emailId} required ></AvField>
                     <AvField type="password" name="oldPassword" label="Old Password : " onChange={this.changePasswordHandler} required></AvField>
                     <AvField type="password" name="newPassword" label="New Password : " onChange={this.changePasswordHandler} required></AvField>
                     <Button >Update Password</Button>
@@ -126,8 +126,8 @@ class Details extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const { restaurants, emailId, ...user } = state;
-    return { user, emailId };
+    const {  app } = state;
+    return { app};
 }
 
 const mapDispatchToProps = (dispatch) => {

@@ -1,20 +1,19 @@
 import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS, 
         LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
         UPDATE_DETAILS_SUCCESS, SIGNUP_FAILURE, SIGNUP_SUCCESS,
-        REST_REGISTERATION_SUCCESS, DELETE_ITEM_SUCCESS,
-        GET_ORDERS_SUCCESS, ADD_SECTION_SUCCESS, ADD_ITEM_SUCCESS,
-        UPDATE_REST_DETAILS_SUCCESS, CURRENT_REST_DETAILS_SUCCESS,
-        GET_REST_DETAILS_SUCCESS, GET_REST_DETAILS_FAILURE, ADD_TO_CART_SUCCESS,
-        DELETE_ORDER_ITEM_SUCCESS, GET_DELIVERY_DETAILS_SUCCESS,
+        REST_REGISTERATION_SUCCESS,
+        GET_ORDERS_SUCCESS, 
+        UPDATE_REST_DETAILS_SUCCESS,  GET_DELIVERY_DETAILS_SUCCESS,
         GET_PAST_ORDERS_SUCCESS, GET_PAST_ORDERS_FAILURE,
         GET_ORDER_ITEMS_SUCCESS, GET_ORDER_ITEMS_FAILURE,
         UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
         SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
-        SEARCH_FAILURE, GET_OWNER_REST_DETAILS_FAILURE, GET_OWNER_REST_DETAILS_SUCCESS,
-        GET_PAST_ORDERS_OWNER_SUCCESS,
-        DELETE_SECTION_SUCCESS} from './../actions/actions';
+        SEARCH_FAILURE,  SEND_MESSAGE_SUCCESS,
+        GET_PAST_ORDERS_OWNER_SUCCESS,} from './../actions/actions';
 import restDetails from './restDetails';
+import cart from './cart';
 import { combineReducers } from 'redux';
+import  cloneDeep from 'lodash.clonedeep';
 
 function app(state = {},action) {
     switch(action.type) {
@@ -40,7 +39,6 @@ function app(state = {},action) {
                 userType : action.payload.payload.userType,
                 displayPic : action.payload.payload.displayPic,
                 token : action.payload.token
-                //restDetails : action.payload.payload.restDetails
             })
         case LOGIN_FAILURE:
         case LOGOUT_SUCCESS: 
@@ -94,19 +92,8 @@ function app(state = {},action) {
                 pastOrders : action.payload
             })
         
-        case ADD_TO_CART_SUCCESS :
-            const nextStateCart = Object.assign({},state);
-            const cart = Object.assign({},nextStateCart.cart);
-            cart.items.push(action.payload);
-            nextStateCart.cart = cart; //open browser
-            return nextStateCart; 
-        case DELETE_ORDER_ITEM_SUCCESS : 
-            const nextStateOrderItem = Object.assign({},state);
-            const cartOrderItem = Object.assign([],nextStateOrderItem.cart.items);
-            const delIndex = cartOrderItem.findIndex(c => c.itemId === action.payload.itemId);
-            cartOrderItem.splice(delIndex,1);
-            nextStateOrderItem.cart.items  = cartOrderItem;
-            return nextStateOrderItem;
+         
+        
         case GET_DELIVERY_DETAILS_SUCCESS :
             return Object.assign({},state,{
                 deliveryDetails : {
@@ -140,14 +127,13 @@ function app(state = {},action) {
             })
         case GET_ORDER_ITEMS_FAILURE :
             return Object.assign({},state,{
-                cart : {}
+                cart : []
             })
         case UPDATE_ORDER_SUCCESS :
-            let futureState = Object.assign({},state);
-            let orders = futureState.orders;
-            let index  = orders.findIndex( o => o.id === action.payload.orderId);
+            const futureState = cloneDeep(state);
+            const orders = Object.assign([],futureState.orders);
+            const index  = orders.findIndex( o => o._id == action.payload.orderId);
             orders[index].status = action.payload.status;
-            orders[index].statusId = action.payload.statusId;
             futureState.orders = orders;
             return futureState;
         case SEARCH_SUCCESS :
@@ -164,4 +150,4 @@ function app(state = {},action) {
 }
 
 // export default app;
-export default combineReducers({ restDetails, app });
+export default combineReducers({ restDetails, app, cart });

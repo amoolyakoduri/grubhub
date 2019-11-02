@@ -19,19 +19,26 @@ const OrderItemsSchema = new Schema ({
 })
 
 const ChatSchema = new Schema ({
-    message : {
-        type : String,
-        required : true
-    },
-    from : {
-        type : String,
-        required : true
+    messages : [{
+        msg : {
+                type : String,
+                required : true
+            },
+        senderId : {
+                type : String,
+                required : true
+        }
+    }],
+    orderId : {
+        type :String,
+        required : true,
+        unique : true
     }
 },{ timestamps: { createdAt: 'created_at' } })
 
 
 const OrderSchema = new Schema({
-        _id : mongoose.Schema.Types.ObjectId,
+        _order_id : mongoose.Schema.Types.ObjectId,
         name : {
             type : String,
             required : true
@@ -44,11 +51,15 @@ const OrderSchema = new Schema({
             type : String,
             required : true
         },
-        ownerEmail : {
+        buyerEmail : {
             type : String,
             required : true
         },
         restName : {
+            type : String,
+            required : true
+        },
+        restPic : {
             type : String,
             required : true
         },

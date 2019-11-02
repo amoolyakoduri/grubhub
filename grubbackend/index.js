@@ -18,6 +18,25 @@ require('./config/passport')(passport);
 session(app, mongo.initSessionStore);
 var MongoStore  = require('connect-mongo')(session);
 
+var server = app.listen(port, () => console.log(`Grubhub backend app listening on port ${port}!`));
+
+
+///// Socket IO 
+var io = require('socket.io')(server);
+io.on('connection', (client) => {
+  //console.log('a new client connected');
+  client.on('message',(payload) => {
+    console.log("msg recieved is ",payload.msg );
+    console.log("msg sent by ",payload.senderId);
+    console.log("for order id ",payload.orderId);
+    client.emit("reply","this is reply ");
+  })
+});
+io.listen(3005)
+
+
+
+
 
 app.use(session({
   saveUninitialized: true,
@@ -46,7 +65,6 @@ app.use('/api' ,routes);
 app.use('/', proxy({
     target: 'http://localhost:3000'
 }))
-app.listen(port, () => console.log(`Grubhub backend app listening on port ${port}!`));
 process.on('unhandledRejection', (reason, p) => {
   // I just caught an unhandled promise rejection, since we already have fallback handler for unhandled errors (see below), let throw and let him handle that
 console.log(reason);

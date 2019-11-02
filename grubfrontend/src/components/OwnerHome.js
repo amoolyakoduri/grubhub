@@ -10,11 +10,11 @@ import ls from 'local-storage';
 
 
 const orderStatus = [
-    { name: "New", value: 1 },
-    { name: "Preparing", value: 2 },
-    { name: "Ready", value: 3 },
-    { value: "4", name: "Delivered" },
-    { name: "Cancelled", value: 5 }
+    { name: "New"},
+    { name: "Preparing"},
+    { name: "Ready"},
+    { name: "Delivered" },
+    { name: "Cancelled"}
 ]
 
 
@@ -23,7 +23,8 @@ class OwnerHome extends React.Component {
     constructor() {
         super();
         this.state = {
-            ordres: []
+            ordres: [],
+            status : ""
         }
         this.menu = this.menu.bind(this);
         this.toggle = this.toggle.bind(this);
@@ -81,25 +82,28 @@ class OwnerHome extends React.Component {
     }
 
     changeHandler = (orderId, event) => {
-
+        var jwtToken = ls.get('jwtToken').substring(3);
+        this.setState({status:event.target.value },
         fetch('/api/updateOrder', {
             headers: {
+                "Authorization" : `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json'
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 orderId: orderId,
                 status: event.target.value
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            if (myJson.payload == null)
+            if (myJson.success == false)
                 this.props.updateOrderFailureDispatch();
-            else
-                this.props.updateOrderSuccessDispatch(myJson.payload);
-        })
+            else {
+                var payload = { orderId , status : this.state.status}
+                this.props.updateOrderSuccessDispatch(payload);
+            }
+        }))
     }
 
     render() {
@@ -109,7 +113,8 @@ class OwnerHome extends React.Component {
             </div>
             <h4>
                 Current Orders:
-            </h4>
+            </h4>{
+                        this.props.orders &&  
             <Table>
                 <thead>
                     <tr>
@@ -122,18 +127,17 @@ class OwnerHome extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        this.props.orders &&
                         this.props.orders.map(order => {
                             return (<tr>
-                                <td><Button color="white" onClick={this.toggle}>{order.id}</Button></td>
+                                <td><Button color="white" onClick={this.toggle}>{order._id}</Button></td>
                                 <td>{order.name}</td>
                                 <td>{order.address}</td>
                                 <td>{order.amt}</td>
                                 <td>
                                     <FormGroup>
-                                        <Input type="select" onChange={(event) => this.changeHandler(order.id, event)} name="status" id="status">
+                                        <Input type="select" onChange={(event) => this.changeHandler(order._id, event)} name="status" id="status">
                                             {
-                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.value} selected={o.name === order.status}>{o.name}</option>))
+                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.name} selected={o.name === order.status}>{o.name}</option>))
                                             }
                                         </Input>
                                     </FormGroup>
@@ -146,9 +150,11 @@ class OwnerHome extends React.Component {
                     }
                 </tbody>
             </Table>
+                        }
             <h4>
                 Past Orders:
             </h4>
+            {this.props.pastOrders &&
             <Table>
                 <thead>
                     <tr>
@@ -161,21 +167,14 @@ class OwnerHome extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        this.props.pastOrders &&
                         this.props.pastOrders.map(order => {
                             return (<tr>
-                                <td><Button color="white" onClick={this.toggle}>{order.id}</Button></td>
+                                <td><Button color="white" onClick={this.toggle}>{order._id}</Button></td>
                                 <td>{order.name}</td>
                                 <td>{order.address}</td>
                                 <td>{order.amt}</td>
                                 <td>
-                                    <FormGroup>
-                                        <Input type="select" onChange={(event) => this.changeHandler(order.id, event)} name="status" id="status">
-                                            {
-                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.value} selected={o.name === order.status}>{o.name}</option>))
-                                            }
-                                        </Input>
-                                    </FormGroup>
+                                    {order.status}
                                 </td>
                                 <Collapse isOpen={this.state.collapse}>
                                     <OrderItems order={order} />
@@ -185,7 +184,7 @@ class OwnerHome extends React.Component {
                     }
                 </tbody>
             </Table>
-
+            }
         </div>
     }
 }
@@ -204,8 +203,8 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 const mapStateToProps = (state) => {
-    const { orders, pastOrders,restDetails } = state;
-    const { emailId } = state.app;
+    const { orders, pastOrders,emailId } = state.app;
+    const { restDetails } = state;
     return { restDetails, orders, pastOrders,emailId };
 }
 

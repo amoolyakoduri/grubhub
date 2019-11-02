@@ -12,13 +12,13 @@ class Cart extends React.Component {
         super(props);
         this.state = {
             error: null,
-            cart: {}
+            cart: []
 
         }
     }
 
     checkout = (event) => {
-        if (this.props.cart && this.props.cart.items && this.props.cart.items.length!=0) {
+        if (this.props.cart && this.props.cart && this.props.cart.length!=0) {
             this.setState({
                 error: null
             })
@@ -43,8 +43,8 @@ class Cart extends React.Component {
             <h4 className="container">Your Order</h4>
             <hr />
             {
-                this.props.cart && this.props.cart.items &&
-                this.props.cart.items.map(orderItem => {
+                this.props.cart && 
+                this.props.cart.map(orderItem => {
                     amt = amt + orderItem.quantity * orderItem.price;
                     return <div className="container" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <div><h6>{orderItem.name}</h6></div>
@@ -65,7 +65,6 @@ class Cart extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    // const {restDetails,cart} =state;
     return { restDetails: state.restDetails, cart: state.cart };
 }
 
@@ -75,4 +74,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(loginCheck(isBuyer(Cart))));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Cart));//(loginCheck(isBuyer(Cart))));

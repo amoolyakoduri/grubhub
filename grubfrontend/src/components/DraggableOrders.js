@@ -1,47 +1,14 @@
 import React, { useState, useCallback } from 'react'
-import update from 'immutability-helper';
-import OrderCard from './OrderCard';
-import DraggableCard from './DraggableCard';
+import Card from './DraggableCard'
+import update from 'immutability-helper'
 const style = {
   width: 400,
+  display:"flex",
+  flexDirection : "row"
 }
-const Container = () => {
+const Container = (props) => {
   {
-    const [cards, setCards] = useState([
-      {
-        id: 1,
-        details : {
-            displayPic : "",
-            restName : "1",
-            amt : 5.00
-        }
-
-      },
-      {
-        id: 2,
-        details : {
-            displayPic : "",
-            restName : "2",
-            amt : 5.00
-        }
-      },
-      {
-        id: 3,
-        details : {
-            displayPic : "",
-            restName : "3",
-            amt : 5.00
-        }
-      },
-      {
-        id: 4,
-        details : {
-            displayPic : "",
-            restName : "4",
-            amt : 5.00
-        }
-      }
-    ])
+    const [ cards, setCards ] = useState(props.upcomingOrders.map(e => { e.id = e._id; return e}));
     const moveCard = useCallback(
       (dragIndex, hoverIndex) => {
         const dragCard = cards[dragIndex]
@@ -55,14 +22,13 @@ const Container = () => {
     )
     const renderCard = (card, index) => {
       return (
-        // <Card
-        //   key={card.id}
-        //   index={index}
-        //   id={card.id}
-        //   text={card.text}
-        // />
-        <DraggableCard details={card.details} index={index} key={card.id}
-        moveCard={moveCard} ></DraggableCard>
+        <Card
+          key={card.id}
+          index={index}
+          id={card.id}
+          text={card}
+          moveCard={moveCard}
+        />
       )
     }
     return (

@@ -17,6 +17,7 @@ import DraggableOrders from './DraggableOrders';
 import { onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure } from '../actions/actions';
 import { isLoggedIn } from '../helpers';
 import { DndProvider } from 'react-dnd'
+import Chat from './Chat';
 	import HTML5Backend from 'react-dnd-html5-backend'
 	
 import Cart from './Cart';
@@ -52,6 +53,7 @@ class Main extends React.Component {
                     <Route path='/placeOrder' component={PlaceOrder} />
                     <Route path="/checkout" component={Checkout} />
                     <Route path="/cart" component={Cart} />
+                    <Route path="/chat/:orderId" component = {Chat} />
                     <Route path="/upcomingOrders" render = {() => <DndProvider backend={HTML5Backend}>
 					<DraggableOrders />
 				</DndProvider>} />

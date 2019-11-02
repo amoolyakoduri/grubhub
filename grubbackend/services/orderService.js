@@ -39,7 +39,7 @@ var placeOrder = (restId,emailId,orderItems,deliveryDetails) => {
         })
         Promise.resolve(promise).then( () => {
             orderInstance = new orderSchema({"amt":amt,"address":deliveryDetails.address,"name":deliveryDetails.name,
-        "emailId": emailId, "_restaurant_id": restId,"status":"New","order_items":orderItems});
+        "emailId": emailId, "restaurant": restId,"status":"New","order_items":orderItems});
         orderInstance.save(function(err,results){
             if(error) {
                 console.log("Error in placeOrder");

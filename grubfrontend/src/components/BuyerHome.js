@@ -7,7 +7,11 @@ import loginCheck from './LoginCheck'
 import { connect } from 'react-redux';
 import { onGetPastOrdersFailure, onGetUpcomingOrdersFailure, onGetUpcomingOrdersSuccess, onGetPastOrdersSuccess, onGetRestaurantsSuccess } from './../actions/actions'
 import ls from 'local-storage';
+import DraggableOrders from './DraggableOrders';
 
+import { DndProvider } from 'react-dnd'
+	import HTML5Backend from 'react-dnd-html5-backend'
+	
 
 
 class BuyerHome extends React.Component {
@@ -64,15 +68,17 @@ class BuyerHome extends React.Component {
         return <div >
             <JumbotronHome />
             {this.props.upcomingOrders &&
-            <div className="container">
-            <h1 style={{ textAlign: "center", color: "black" }}>Your Upcoming Orders</h1>
-            
-                <OrdersContainer orders={this.props.upcomingOrders} display="card" />
-                </div>
+            <div style = {{display:"flex",flexDirection:"column"}}>
+            <h4 class="container" >Your Upcoming Orders</h4>
+
+            <DndProvider backend={HTML5Backend}>				
+                <DraggableOrders upcomingOrders={this.props.upcomingOrders} />
+            </DndProvider>
+            </div>
             }
             {this.props.pastOrders &&
-            <div className="container">
-            <h1 style={{ textAlign: "center", color: "black" }}>Your Past Orders</h1>
+            <div style = {{display:"flex",flexDirection:"column"}}>
+            <h4 class="container"  style={{ textAlign: "center", color: "black" }}>Your Past Orders</h4>
                 <OrdersContainer orders={this.props.pastOrders} display="card" />
                 </div>
             }{this.props.restaurants &&
@@ -82,8 +88,9 @@ class BuyerHome extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const { pastOrders, emailId, restaurants, upcomingOrders } = state;
-    return { pastOrders, emailId, restaurants, upcomingOrders };
+    const { pastOrders, restaurants, upcomingOrders } = state.app;
+    const emailId = state.app.emailId;
+    return { pastOrders, restaurants, upcomingOrders , emailId};
 }
 
 const mapDispatchToProps = (dispatch) => {
