@@ -50,7 +50,7 @@ class Section extends React.Component {
     data.append('desc', this.state.desc);
     data.append('price', this.state.price);
     data.append('pic', this.state.pic);
-    fetch('/api/rest/addItem', {
+    fetch('http://3.133.102.192:3003'+'/api/rest/addItem', {
       headers: {
         "Authorization": `Bearer${jwtToken}`
       },
@@ -78,7 +78,7 @@ class Section extends React.Component {
     this.setState(prevState => ({
       modal2: !prevState.modal2
     }));
-    fetch('/api/rest/deleteItem', {
+    fetch('http://3.133.102.192:3003'+'/api/rest/deleteItem', {
       headers: {
         "Authorization": `Bearer${jwtToken}`,
         'Content-Type': 'application/json'

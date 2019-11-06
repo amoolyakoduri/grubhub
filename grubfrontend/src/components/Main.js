@@ -26,7 +26,7 @@ class Main extends React.Component {
 
     componentDidMount() {
         if (isLoggedIn()) {
-            fetch('/api/getUserDetailsFromSession')
+            fetch('http://3.133.102.192:3003'+'/api/getUserDetailsFromSession')
                 .then(res => res.json())
                 .then(res => {
                     this.props.onOwnerLoginSuccess(res);

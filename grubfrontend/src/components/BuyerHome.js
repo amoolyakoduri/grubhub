@@ -45,7 +45,7 @@ class BuyerHome extends React.Component {
 
     componentDidMount() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/user/pastOrders/' + this.props.emailId, {
+        fetch('http://3.133.102.192:3003'+'/api/user/pastOrders/' + this.props.emailId, {
             method: 'GET',
             headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {
@@ -58,7 +58,7 @@ class BuyerHome extends React.Component {
                 this.props.getPastOrdersSuccessDispatch(myJson.payload);
             }
         })
-        fetch('/api/user/getRestaurants', {
+        fetch('http://3.133.102.192:3003'+'/api/user/getRestaurants', {
             method: 'GET',
             headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {
@@ -71,7 +71,7 @@ class BuyerHome extends React.Component {
             }, () => this.setElementsForCurrentPage());
             this.props.getRestaurantsSuccessDispatch(myJson.payload);
         })
-        fetch('/api/user/upcomingOrders/' + this.props.emailId, {
+        fetch('http://3.133.102.192:3003'+'/api/user/upcomingOrders/' + this.props.emailId, {
             method: 'GET',
             headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {

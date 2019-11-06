@@ -43,7 +43,7 @@ class CustomNavbar extends React.Component {
 
   logout(e) {
     e.preventDefault();
-    fetch('/api/auth/logout')
+    fetch('http://3.133.102.192:3003'+'/api/auth/logout')
       .then(res => res.json())
       .then(res => {
         this.props.logoutSuccessDispatch();

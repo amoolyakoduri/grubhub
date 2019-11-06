@@ -38,7 +38,7 @@ class Filters extends React.Component {
       })
       return null;
     } else {
-      fetch('/api/user/search', {
+      fetch('http://3.133.102.192:3003'+'/api/user/search', {
         method: 'POST',
         headers: {
           "Authorization": `Bearer${jwtToken}`,

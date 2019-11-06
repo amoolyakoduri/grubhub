@@ -42,7 +42,7 @@ class OwnerHome extends React.Component {
 
     componentDidMount() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/rest/getRestDetails/' + this.props.emailId, {
+        fetch('http://3.133.102.192:3003'+'/api/rest/getRestDetails/' + this.props.emailId, {
             method: 'GET',
             headers: { "Authorization": `Bearer ${jwtToken}` }
         })
@@ -55,7 +55,7 @@ class OwnerHome extends React.Component {
                     this.props.getOwnerRestDetailsSuccessDispatch(myJson.payload[0]);
                 }
             }).then(() => {
-                fetch('/api/rest/getOrders/' + this.props.restDetails.name, {
+                fetch('http://3.133.102.192:3003'+'/api/rest/getOrders/' + this.props.restDetails.name, {
                     method: 'GET',
                     headers: { "Authorization": `Bearer ${jwtToken}` }
                 })
@@ -69,7 +69,7 @@ class OwnerHome extends React.Component {
                         }
                     })
             }).then(() => {
-                fetch('/api/rest/getPastOrders/' + this.props.restDetails.name, {
+                fetch('http://3.133.102.192:3003'+'/api/rest/getPastOrders/' + this.props.restDetails.name, {
                     method: 'GET',
                     headers: { "Authorization": `Bearer ${jwtToken}` }
                 })
@@ -89,7 +89,7 @@ class OwnerHome extends React.Component {
         var jwtToken = ls.get('jwtToken').substring(3);
         var status = event.target.value;
         this.setState({ status: event.target.value })
-        fetch('/api/rest/updateOrder', {
+        fetch('http://3.133.102.192:3003'+'/api/rest/updateOrder', {
             headers: {
                 "Authorization": `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json'

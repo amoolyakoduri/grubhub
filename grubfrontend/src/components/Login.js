@@ -36,7 +36,7 @@ class Login extends React.Component {
 
   login(event) {
     event.preventDefault();
-    fetch('/api/auth/login', {
+    fetch('http://3.133.102.192:3003'+'/api/auth/login', {
       headers: {
         'Content-Type': 'application/json'
       },
