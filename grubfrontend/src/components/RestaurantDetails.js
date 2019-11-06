@@ -21,7 +21,7 @@ class RestaurantDetails extends React.Component {
     update() {
         const updatedRestDetails = Object.assign({}, this.props.restDetails, this.state.restDetails);
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/rest/updateRestDetails', {
+        fetch('http://3.133.102.192:3003'+'/api/rest/updateRestDetails', {
             method: 'POST',
             headers: {
                 "Authorization": `Bearer${jwtToken}`,

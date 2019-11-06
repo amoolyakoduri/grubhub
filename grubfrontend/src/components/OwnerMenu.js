@@ -44,7 +44,7 @@ class OwnerMenu extends React.Component {
         this.setState(prevState => ({
             modal1: !prevState.modal1
         }));
-        fetch('/api/rest/addSection', {
+        fetch('http://3.133.102.192:3003'+'/api/rest/addSection', {
             headers: {
                 "Authorization": `Bearer${jwtToken}`,
                 "Content-Type": "application/json",
@@ -71,7 +71,7 @@ class OwnerMenu extends React.Component {
         this.setState(prevState => ({
             modal2: !prevState.modal2
         }));
-        fetch('/api/rest/deleteSection', {
+        fetch('http://3.133.102.192:3003'+'/api/rest/deleteSection', {
             headers: {
                 "Authorization": `Bearer${jwtToken}`,
                 "Content-Type": "application/json"

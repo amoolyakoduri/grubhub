@@ -41,7 +41,7 @@ class SignUp extends React.Component {
     data.append('address', this.state.address);
     data.append('phone', this.state.phone);
 
-    fetch('/api/auth/signUp', {
+    fetch('http://3.133.102.192:3003'+'/api/auth/signUp', {
       method: 'POST',
       body: data
     })

@@ -59,7 +59,7 @@ class Checkout extends React.Component {
         var jwtToken = ls.get('jwtToken').substring(3);
         let dateString = this.getDateString();
         this.props.getDeliveryDetailsSuccessDispatch(this.state.deliveryDetails, dateString);
-        fetch('/api/user/placeOrder', {
+        fetch('http://3.133.102.192:3003'+'/api/user/placeOrder', {
             headers: {
                 "Authorization": `Bearer${jwtToken}`,
                 'Content-Type': 'application/json'

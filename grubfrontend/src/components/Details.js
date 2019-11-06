@@ -33,7 +33,7 @@ class Details extends React.Component {
 
     update() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/user/updateDetails', {
+        fetch('http://3.133.102.192:3003'+'/api/user/updateDetails', {
             method: 'POST',
             headers: {
                 "Authorization": `Bearer${jwtToken}`,
@@ -60,7 +60,7 @@ class Details extends React.Component {
 
     updatePassword = (event) => {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/user/updatePassword', {
+        fetch('http://3.133.102.192:3003'+'/api/user/updatePassword', {
             method: 'POST',
             headers: {
                 "Authorization": `Bearer${jwtToken}`,

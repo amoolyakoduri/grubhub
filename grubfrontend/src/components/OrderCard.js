@@ -26,7 +26,7 @@ class OrderCard extends React.Component {
   repeatOrder = (event) => {
     event.preventDefault();
     var jwtToken = ls.get('jwtToken').substring(3);
-    fetch('/api/user/getRestDetailsByRestName/' + this.props.details.restName,{
+    fetch('http://3.133.102.192:3003'+'/api/user/getRestDetailsByRestName/' + this.props.details.restName,{
       method: 'GET',
       headers: {"Authorization" : `Bearer ${jwtToken}`}})
       .then((response) => {

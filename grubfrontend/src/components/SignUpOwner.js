@@ -36,7 +36,7 @@ class SignUpOwner extends React.Component {
     data.append('phone', this.state.phone);
     data.append('displayPic', this.state.displayPic);
     data.append('emailId', this.props.emailId);
-    fetch('/api/auth/registerRestaurant', {
+    fetch('http://3.133.102.192:3003'+'/api/auth/registerRestaurant', {
       method: 'POST',
       body: data,
     })
