@@ -1,6 +1,7 @@
 import React, { useRef } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import OrderCard from './OrderCard';
+
 const style = {
   // border: '1px dashed gray',
   // padding: '0.5rem 1rem',
@@ -61,7 +62,7 @@ const Card = ({ id, text, index, moveCard }) => {
   drag(drop(ref))
   return (
     <div ref={ref} style={{ ...style, opacity }}>
-      <OrderCard details={text}/>
+      <OrderCard details={text} />
     </div>
   )
 }

@@ -1,6 +1,5 @@
 import React from 'react';
-import pic from './../grub.png';
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
 import Details from './Details';
 import RestaurantDetails from './RestaurantDetails';
 import loginCheck from './LoginCheck';
@@ -13,22 +12,22 @@ class Profile extends React.Component {
         }
     }
 
-    render(){
-        return <div class="container" style = {{border:"black"}}>
+    render() {
+        return <div class="container" style={{ border: "black" }}>
             <div>
-            <img width= "200px" src={"/"+this.props.displayPic}></img>
+                <img width="200px" src={"/" + this.props.displayPic}></img>
             </div>
-            <Details/>
-            { this.props.userType=== "owner" && 
-                <RestaurantDetails/> }
+            <Details />
+            {this.props.userType === "owner" &&
+                <RestaurantDetails />}
         </div>
     }
 }
 
 const mapStateToProps = (state) => {
-    const {userType , isLoggedIn, displayPic } = state.app;
-    return {userType,isLoggedIn,displayPic};
+    const { userType, isLoggedIn, displayPic } = state.app;
+    return { userType, isLoggedIn, displayPic };
 }
 
 
-export default connect(mapStateToProps)(Profile)//(loginCheck(Profile));
+export default connect(mapStateToProps)(loginCheck(Profile));

@@ -3,7 +3,6 @@ import {
   Collapse,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
   NavLink,
@@ -17,6 +16,7 @@ import pic from './../grub.png'
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
 import { onLogoutSuccess } from '../actions/actions';
+import ls from 'local-storage';
 
 class CustomNavbar extends React.Component {
 
@@ -41,12 +41,14 @@ class CustomNavbar extends React.Component {
     window.location.href = "/signUp"
   }
 
-  logout() {
-    fetch('/api/logout')
+  logout(e) {
+    e.preventDefault();
+    fetch('/api/auth/logout')
       .then(res => res.json())
       .then(res => {
         this.props.logoutSuccessDispatch();
-        this.props.history.push('/login');
+        ls.set('isLoggedIn', false);
+        window.location.href = '/login'
       })
 
   }

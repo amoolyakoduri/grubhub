@@ -1,8 +1,7 @@
 import React from 'react';
-import { Table, Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
-import Chat from './Chat';
-import {onCurrentOrderSuccess} from './../actions/actions';
-import {connect} from 'react-redux';
+import { Table, Button } from 'reactstrap';
+import { onCurrentOrderSuccess } from './../actions/actions';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
 class OrderItems extends React.Component {
@@ -14,14 +13,14 @@ class OrderItems extends React.Component {
     goToChat = (details) => {
         this.props.getCurrentOrderSuccessDispatch(details);
         this.props.history.push({
-          pathname: '/chat/',
+            pathname: '/chat',
         })
-      }
+    }
 
 
     render() {
         let order = this.props.order;
-        return <div className="container" style={{display:"flex",flexDirection:"column"}}>
+        return <div className="container" style={{ display: "flex", flexDirection: "column" }}>
             <h4>Order Details:</h4>
             <p>Order Id : {order._id}</p>
             <p>Name : {order.name}</p>
@@ -55,8 +54,8 @@ class OrderItems extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-      getCurrentOrderSuccessDispatch: (payload) => { dispatch(onCurrentOrderSuccess(payload))}
+        getCurrentOrderSuccessDispatch: (payload) => { dispatch(onCurrentOrderSuccess(payload)) }
     }
-  }
+}
 
-export default connect(null,mapDispatchToProps)(withRouter(OrderItems));
+export default connect(null, mapDispatchToProps)(withRouter(OrderItems));

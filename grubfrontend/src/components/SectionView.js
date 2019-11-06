@@ -1,11 +1,6 @@
 import React from 'react';
-import {
-    Card, CardText, CardBody,
-    CardTitle, CardSubtitle, Button, Modal, ModalHeader, ModalBody, ModalFooter
-  } from 'reactstrap';
-import QuantityBox from './QuantityBox';
-import {onAddToCartSuccess} from './../actions/actions';
-import {connect} from 'react-redux';
+import { onAddToCartSuccess } from './../actions/actions';
+import { connect } from 'react-redux';
 import ItemDetails from './ItemDetails';
 
 class SectionView extends React.Component {
@@ -14,44 +9,45 @@ class SectionView extends React.Component {
         super();
         this.state = {
             modal: false,
-            quantity : 1
-          };
+            quantity: 1
+        };
         this.addToCart = this.addToCart.bind(this);
     }
 
-    resetQuantity=()=> {
-        this.setState({quantity:1});
+    resetQuantity = () => {
+        this.setState({ quantity: 1 });
     }
 
-    addToCart(itemId,quantity,price,name) {
+    addToCart(itemId, quantity, price, name) {
         let payload = {
             quantity: quantity,
-            price:price,
+            price: price,
             name: name
         }
         this.props.addToCartSuccessDispatch(payload);
         this.setState(prevState => ({
             modal: !prevState.modal,
-            quantity : 1
-          }));    }
+            quantity: 1
+        }));
+    }
 
     toggle = () => {
         this.setState(prevState => ({
             modal: !prevState.modal,
-            quantity : 1
-          }));
+            quantity: 1
+        }));
     }
 
-    render(){
+    render() {
         return <div >
             <h4>{this.props.details.name}</h4>
-            <div style={{display:"flex",flexDirection:"row"}}>
-            {this.props.details.menu && 
-                this.props.details.menu.map( item => {
-                    return (
-                        <ItemDetails details={item} addToCart = {this.addToCart} /> 
-                   )
-                })}
+            <div style={{ display: "flex", flexDirection: "row" }}>
+                {this.props.details.menu &&
+                    this.props.details.menu.map(item => {
+                        return (
+                            <ItemDetails details={item} addToCart={this.addToCart} />
+                        )
+                    })}
             </div>
         </div>
     }
@@ -59,8 +55,8 @@ class SectionView extends React.Component {
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        addToCartSuccessDispatch : (payload) => { dispatch(onAddToCartSuccess(payload))}
+        addToCartSuccessDispatch: (payload) => { dispatch(onAddToCartSuccess(payload)) }
     }
 }
 
-export default connect(null,mapDispatchToProps)(SectionView);
+export default connect(null, mapDispatchToProps)(SectionView);

@@ -1,52 +1,52 @@
 const userSchema = require('./../models/users').User;
 const restSchema = require('./../models/restaurants').Restaurant;
 
-function handle_request(body, callback){
-   
+function handle_request(body, callback) {
+
     console.log("Inside book kafka backend");
     console.log(JSON.stringify(body));
-    switch(body.msg){ 
-        case "Login" :
+    switch (body.msg) {
+        case "Login":
             authenticate(body.payload)
-            .then( (results) => {
-               callback(null, results);
-               return;
-            }).catch( (err) => {
-               callback(err.message,null);
-               return;
-            }) 
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        case "SignUp" :
+        case "SignUp":
             createUser(body.payload)
-            .then( (results) => {
-                callback(null, results);
-                return;
-            }).catch( (err) => {
-                callback(err.message,null);
-                return;
-            }) 
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        case "FindUser" :
+        case "FindUser":
             findUser(body.payload)
-            .then( (results) => {
-                callback(null, results);
-                return;
-            }).catch( (err) => {
-                callback(err.message,null);
-                return;
-            }) 
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        case "CreateRestaurant" : 
+        case "CreateRestaurant":
             createRestaurant(body.payload)
-            .then( (results) => {
-                callback(null, results);
-                return;
-            }).catch( (err) => {
-                callback(err.message,null);
-                return;
-            }) 
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        default : 
+        default:
             defaultFunc(body.payload);
             break;
     }
@@ -54,19 +54,19 @@ function handle_request(body, callback){
 };
 
 var authenticate = (payload) => {
-    return new Promise( (resolve,reject) => {
+    return new Promise((resolve, reject) => {
         userSchema.find({
-            emailId:payload.email,
-            password:payload.password
-        }, function(err,results){
-            if(err){
+            emailId: payload.email,
+            password: payload.password
+        }, function (err, results) {
+            if (err) {
                 console.log("error in authenticate")
                 reject(err);
             } else {
-                if(results.length == 0) {
+                if (results.length == 0) {
                     console.log("Not logged in!");
-                } else{
-                    console.log("logged in! ",results);
+                } else {
+                    console.log("logged in! ", results);
                 }
                 resolve(results);
             }
@@ -75,34 +75,34 @@ var authenticate = (payload) => {
 }
 
 var findUser = (payload) => {
-    return new Promise( (resolve,reject) => {
+    return new Promise((resolve, reject) => {
         userSchema.find({
-            emailId : payload.email
-        },function(err,results){
-            if(err) {
+            emailId: payload.email
+        }, function (err, results) {
+            if (err) {
                 reject("Invalid Credentials!");
             }
             resolve(results);
-        })   
+        })
     })
-    
+
 }
 
 
 
 var createUser = (payload) => {
-    return new Promise( (resolve,reject) => {
+    return new Promise((resolve, reject) => {
         var userInstance = new userSchema({
-            emailId:payload.email,
-            password:payload.password,
-            userDetails:payload.userDetails
+            emailId: payload.email,
+            password: payload.password,
+            userDetails: payload.userDetails
         });
-        userInstance.save(function(err,results){
-            if(err){
+        userInstance.save(function (err, results) {
+            if (err) {
                 console.log("error in create user")
                 reject(err);
             } else {
-                console.log("user created! ",results);
+                console.log("user created! ", results);
                 resolve(results);
             }
         })
@@ -110,22 +110,22 @@ var createUser = (payload) => {
 }
 
 var createRestaurant = (payload) => {
-    return new Promise( (resolve,reject) => {
+    return new Promise((resolve, reject) => {
         var restInstance = new restSchema({
-            name:payload.name,
-            zip:payload.zip,
-            phone:payload.phone,
-            cuisine:payload.cuisine,
-            address:payload.address,
-            ownerEmail:payload.ownerEmail,
-            displayPic:payload.displayPic,
+            name: payload.name,
+            zip: payload.zip,
+            phone: payload.phone,
+            cuisine: payload.cuisine,
+            address: payload.address,
+            ownerEmail: payload.ownerEmail,
+            displayPic: payload.displayPic,
         });
-        restInstance.save(function(err,results){ 
-            if(err) {
+        restInstance.save(function (err, results) {
+            if (err) {
                 console.log("Error occurred in createRestaurant.");
                 reject(err);
             } else {
-                console.log("Restaurant created ",results);
+                console.log("Restaurant created ", results);
                 resolve(results);
             }
         })
@@ -133,7 +133,7 @@ var createRestaurant = (payload) => {
 }
 
 var defaultFunc = (payload) => {
-    console.log("payload recieved is ",JSON.stringify(payload));
+    console.log("payload recieved is ", JSON.stringify(payload));
     return;
 }
 

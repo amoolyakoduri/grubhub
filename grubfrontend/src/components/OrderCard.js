@@ -26,7 +26,7 @@ class OrderCard extends React.Component {
   repeatOrder = (event) => {
     event.preventDefault();
     var jwtToken = ls.get('jwtToken').substring(3);
-    fetch('/api/getRestDetailsByRestName/' + this.props.details.restName,{
+    fetch('/api/user/getRestDetailsByRestName/' + this.props.details.restName,{
       method: 'GET',
       headers: {"Authorization" : `Bearer ${jwtToken}`}})
       .then((response) => {
@@ -39,26 +39,12 @@ class OrderCard extends React.Component {
           this.props.getOrderItemsSuccessDispatch(this.props.details.order_items)
 
       })
-    // fetch('/api/getOrderItems/' + this.props.details.id)
-    //   .then((response) => {
-    //     return response.json();
-    //   }).then((myJson) => {
-    //     if (myJson.payload == null)
-    //       this.props.getOrderItemsFailureDispatch();
-    //     else {
-    //       let payload = {
-    //         restId: this.props.details.restId,
-    //         items: myJson.payload
-    //       }
-      //   }
-      // })
     this.props.history.push("/cart");
   }
 
 
 
   render() {
-    console.log("in order");
     var details = this.props.details;
     return (<Card >
       <CardImg style={{width: '250px'}}  src={'/'+details.restPic} alt="Card image cap" />

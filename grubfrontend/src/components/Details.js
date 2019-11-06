@@ -1,9 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Input } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { onUpdateDetailsSuccess, onUpdateDetailsFailure } from '../actions/actions';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 import ls from 'local-storage';
+import isBuyer from './isBuyer';
+import loginCheck from './LoginCheck'
 
 var md5 = require('md5');
 
@@ -31,10 +33,10 @@ class Details extends React.Component {
 
     update() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/updateDetails', {
+        fetch('/api/user/updateDetails', {
             method: 'POST',
             headers: {
-                "Authorization" : `Bearer${jwtToken}`,
+                "Authorization": `Bearer${jwtToken}`,
                 "content-type": "application/json"
             },
             body: JSON.stringify({
@@ -58,10 +60,10 @@ class Details extends React.Component {
 
     updatePassword = (event) => {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/updatePassword', {
+        fetch('/api/user/updatePassword', {
             method: 'POST',
             headers: {
-                "Authorization" : `Bearer${jwtToken}`,
+                "Authorization": `Bearer${jwtToken}`,
                 "content-type": "application/json"
             },
             body: JSON.stringify({
@@ -128,8 +130,8 @@ class Details extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const {  app } = state;
-    return { app};
+    const { app } = state;
+    return { app };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -139,4 +141,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Details);
+export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(Details)));

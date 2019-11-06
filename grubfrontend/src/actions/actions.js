@@ -1,5 +1,3 @@
-import { func } from "prop-types";
-
 const OWNER_LOGIN_SUCCESS = "OWNER_LOGIN_SUCCESS";
 const BUYER_LOGIN_SUCCESS = "BUYER_LOGIN_SUCCESS";
 const LOGIN_FAILURE = "LOGIN_FAILURE";
@@ -49,287 +47,287 @@ const CURRENT_ORDER_SUCCESS = 'CURRENT_ORDER_SUCCESS';
 const MESSAGE_RECIEVE_SUCCESS = 'MESSAGE_RECIEVE_SUCCESS';
 const LOAD_INITIAL_SOCKET = 'LOAD_INITIAL_SOCKET';
 
-function onLoadInitialSocket(socket){
+function onLoadInitialSocket(socket) {
     return (dispatch) => {
-		socket.on('peer-msg',(res)=>{
-		   console.log(res)
-		   dispatch(onMessageRecieveSuccess(res))
-	   })
-	}
-}
-
-function onMessageRecieveSuccess(payload){
-    return {
-        type : MESSAGE_RECIEVE_SUCCESS,
-        payload : payload
+        socket.on('peer-msg', (res) => {
+            console.log(res)
+            dispatch(onMessageRecieveSuccess(res))
+        })
     }
 }
 
-function onCurrentOrderSuccess(payload){
+function onMessageRecieveSuccess(payload) {
     return {
-        type : CURRENT_ORDER_SUCCESS,
-        payload : payload
+        type: MESSAGE_RECIEVE_SUCCESS,
+        payload: payload
     }
 }
 
-function onSendMessageSuccess(payload){
+function onCurrentOrderSuccess(payload) {
     return {
-        type : SEND_MESSAGE_SUCCESS,
-        payload : payload
+        type: CURRENT_ORDER_SUCCESS,
+        payload: payload
     }
 }
 
-function onSendMessageFailure(){
+function onSendMessageSuccess(payload) {
     return {
-        type : SEND_MESSAGE_FAILURE,
-        payload : null
+        type: SEND_MESSAGE_SUCCESS,
+        payload: payload
+    }
+}
+
+function onSendMessageFailure() {
+    return {
+        type: SEND_MESSAGE_FAILURE,
+        payload: null
     }
 }
 
 function onOwnerLoginSuccess(payload) {
     return {
-        type : OWNER_LOGIN_SUCCESS,
-        payload : payload
+        type: OWNER_LOGIN_SUCCESS,
+        payload: payload
     }
 }
 
 function onBuyerLoginSuccess(payload) {
     return {
-        type : BUYER_LOGIN_SUCCESS,
-        payload:payload
+        type: BUYER_LOGIN_SUCCESS,
+        payload: payload
     }
 }
 
 function onLoginFailure() {
     return {
-        type : LOGIN_FAILURE,
-        payload :null
+        type: LOGIN_FAILURE,
+        payload: null
     }
 }
 
 function onLogoutSuccess() {
     return {
-        type : LOGOUT_SUCCESS,
-        payload : null
+        type: LOGOUT_SUCCESS,
+        payload: null
     }
 }
 
 function onGetRestaurantsSuccess(restaurants) {
     return {
-        type : GET_RESTAURANTS_SUCCESS,
+        type: GET_RESTAURANTS_SUCCESS,
         payload: restaurants
     }
 }
 
-function onUpdateDetailsSuccess(details){
+function onUpdateDetailsSuccess(details) {
     return {
-        type : UPDATE_DETAILS_SUCCESS,
-        payload : details
+        type: UPDATE_DETAILS_SUCCESS,
+        payload: details
     }
 }
 
 function onUpdateDetailsFailure() {
     return {
-        type : UPDATE_DETAILS_FAILURE,
-        payload:null
+        type: UPDATE_DETAILS_FAILURE,
+        payload: null
     }
 }
 
 function onUpdateRestDetailsSuccess(payload) {
     return {
         type: UPDATE_REST_DETAILS_SUCCESS,
-        payload:payload
+        payload: payload
     }
 }
 
 function onUpdateRestDetailsFailure() {
     return {
         type: UPDATE_REST_DETAILS_FAILURE,
-        payload:null
+        payload: null
     }
 }
 
-function onSignUpSuccess(userDetails){
+function onSignUpSuccess(userDetails) {
     return {
-        type : SIGNUP_SUCCESS,
-        payload : userDetails
+        type: SIGNUP_SUCCESS,
+        payload: userDetails
     }
 }
 
 function onSignUpFailure() {
     return {
-        type : SIGNUP_FAILURE,
-        payload : null
+        type: SIGNUP_FAILURE,
+        payload: null
     }
 }
 
-function onRestRegisterationSuccess(payload){
+function onRestRegisterationSuccess(payload) {
     return {
-        type : REST_REGISTERATION_SUCCESS,
-        payload : payload
+        type: REST_REGISTERATION_SUCCESS,
+        payload: payload
     }
 }
 
-function onRestRegisterationFailure(){
+function onRestRegisterationFailure() {
     return {
-        type : REST_REGISTERATION_FAILURE,
-        payload : null
+        type: REST_REGISTERATION_FAILURE,
+        payload: null
     }
 }
 
 function onGetOrdersSuccess(payload) {
     return {
-        type : GET_ORDERS_SUCCESS,
-        payload : payload
+        type: GET_ORDERS_SUCCESS,
+        payload: payload
     }
 }
 
 function onGetOrdersFailure() {
     return {
-        type : GET_ORDERS_FAILURE,
-        payload : null
+        type: GET_ORDERS_FAILURE,
+        payload: null
     }
 }
 
 function onGetPastOrdersOwnerSuccess(payload) {
     return {
         type: GET_PAST_ORDERS_OWNER_SUCCESS,
-        payload : payload
+        payload: payload
     }
 }
 
 function onGetPastOrdersOwnerFailure() {
     return {
         type: GET_PAST_ORDERS_OWNER_FAILURE,
-        payload : null
+        payload: null
     }
 }
 
 function onAddSectionSuccess(payload) {
     return {
-        type : ADD_SECTION_SUCCESS,
-        payload : payload
+        type: ADD_SECTION_SUCCESS,
+        payload: payload
     }
 }
 
 function onAddSectionFailure() {
     return {
-        type : ADD_SECTION_FAILURE,
-        payload : null
+        type: ADD_SECTION_FAILURE,
+        payload: null
     }
 }
 
 function onDeleteSectionSuccess(payload) {
     return {
-        type : DELETE_SECTION_SUCCESS,
-        payload : payload
+        type: DELETE_SECTION_SUCCESS,
+        payload: payload
     }
 }
 
 function onDeleteSectionFailure() {
     return {
-        type : DELETE_SECTION_FAILURE,
-        payload : null
+        type: DELETE_SECTION_FAILURE,
+        payload: null
     }
 }
 
 function onAddItemSuccess(payload, sectionName) {
     return {
-        type:ADD_ITEM_SUCCESS,
-        payload:payload,
+        type: ADD_ITEM_SUCCESS,
+        payload: payload,
         sectionName
     }
 }
 
 function onAddItemFailure() {
     return {
-        type:ADD_ITEM_FAILURE,
-        payload:null
+        type: ADD_ITEM_FAILURE,
+        payload: null
     }
 }
 
-function onDeleteItemSuccess(payload,sectionName){
+function onDeleteItemSuccess(payload, sectionName) {
     return {
-        type : DELETE_ITEM_SUCCESS,
-        payload:payload,
+        type: DELETE_ITEM_SUCCESS,
+        payload: payload,
         sectionName
     }
 }
 
-function onDeleteItemFailure(){
+function onDeleteItemFailure() {
     return {
-        type : DELETE_ITEM_FAILURE,
-        payload:null
+        type: DELETE_ITEM_FAILURE,
+        payload: null
     }
 }
 
 function onCurrentRestDetailsSuccess(payload) {
     return {
-        type : CURRENT_REST_DETAILS_SUCCESS,
-        payload : payload
+        type: CURRENT_REST_DETAILS_SUCCESS,
+        payload: payload
     }
 }
 
 function onGetRestDetailsSuccess(payload) {
     return {
-        type : GET_REST_DETAILS_SUCCESS,
-        payload : payload
+        type: GET_REST_DETAILS_SUCCESS,
+        payload: payload
     }
 }
 
 function onGetRestDetailsFailure() {
     return {
-        type : GET_REST_DETAILS_FAILURE,
+        type: GET_REST_DETAILS_FAILURE,
         payload: null
     }
 }
 
 function onAddToCartSuccess(payload) {
     return {
-        type : ADD_TO_CART_SUCCESS,
-        payload : payload
+        type: ADD_TO_CART_SUCCESS,
+        payload: payload
     }
 }
 
 function onDeleteOrderItemSuccess(payload) {
     return {
-        type : DELETE_ORDER_ITEM_SUCCESS,
-        payload : payload
+        type: DELETE_ORDER_ITEM_SUCCESS,
+        payload: payload
     }
 }
 
-function onGetDeliveryDetailsSuccess(payload,dateString) {
+function onGetDeliveryDetailsSuccess(payload, dateString) {
     return {
-        type : GET_DELIVERY_DETAILS_SUCCESS,
-        payload : payload,
+        type: GET_DELIVERY_DETAILS_SUCCESS,
+        payload: payload,
         dateString
     }
 }
 
 function onGetPastOrdersSuccess(payload) {
     return {
-        type : GET_PAST_ORDERS_SUCCESS,
-        payload : payload
+        type: GET_PAST_ORDERS_SUCCESS,
+        payload: payload
     }
 }
 
 function onGetPastOrdersFailure() {
     return {
-        type : GET_PAST_ORDERS_FAILURE,
+        type: GET_PAST_ORDERS_FAILURE,
         payload: null
     }
 }
 
 function onGetUpcomingOrdersSuccess(payload) {
     return {
-        type : GET_UPCOMING_ORDERS_SUCCESS,
-        payload : payload
+        type: GET_UPCOMING_ORDERS_SUCCESS,
+        payload: payload
     }
 }
 
 function onGetUpcomingOrdersFailure() {
     return {
-        type : GET_UPCOMING_ORDERS_FAILURE,
+        type: GET_UPCOMING_ORDERS_FAILURE,
         payload: null
     }
 }
@@ -337,60 +335,61 @@ function onGetUpcomingOrdersFailure() {
 function onGetOrderItemsSuccess(payload) {
     return {
         type: GET_ORDER_ITEMS_SUCCESS,
-        payload :payload
+        payload: payload
     }
 }
 
 function onGetOrderItemsFailure() {
     return {
         type: GET_ORDER_ITEMS_FAILURE,
-        payload : null
+        payload: null
     }
 }
 
 function onUpdateOrderSuccess(payload) {
     return {
         type: UPDATE_ORDER_SUCCESS,
-        payload : payload
+        payload: payload
     }
 }
 
 function onUpdateOrderFailure() {
     return {
-        type : UPDATE_ORDER_FAILURE,
-        payload : null
+        type: UPDATE_ORDER_FAILURE,
+        payload: null
     }
 }
 
-function onSearchSuccess(payload){
+function onSearchSuccess(payload) {
     return {
-        type : SEARCH_SUCCESS,
-        payload:payload
+        type: SEARCH_SUCCESS,
+        payload: payload
     }
 }
 
 function onSearchFailure() {
     return {
-        type : SEARCH_FAILURE,
-        payload : null
+        type: SEARCH_FAILURE,
+        payload: null
     }
 }
 
 function onGetOwnerRestDetailsSuccess(payload) {
     return {
-        type : GET_OWNER_REST_DETAILS_SUCCESS,
-        payload : payload
+        type: GET_OWNER_REST_DETAILS_SUCCESS,
+        payload: payload
     }
 }
 
-function onGetOwnerRestDetailsFailure(){
+function onGetOwnerRestDetailsFailure() {
     return {
-        type : GET_OWNER_REST_DETAILS_FAILURE,
-        payload : null
+        type: GET_OWNER_REST_DETAILS_FAILURE,
+        payload: null
     }
 }
 
-export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
+export {
+    onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure,
     onLogoutSuccess, onGetRestaurantsSuccess,
     onUpdateDetailsSuccess, onUpdateDetailsFailure,
     onUpdateRestDetailsSuccess, onUpdateRestDetailsFailure,
@@ -417,7 +416,7 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
     UPDATE_DETAILS_SUCCESS, UPDATE_DETAILS_FAILURE,
     UPDATE_REST_DETAILS_SUCCESS, UPDATE_REST_DETAILS_FAILURE,
-    SIGNUP_FAILURE,SIGNUP_SUCCESS, CURRENT_ORDER_SUCCESS,
+    SIGNUP_FAILURE, SIGNUP_SUCCESS, CURRENT_ORDER_SUCCESS,
     REST_REGISTERATION_FAILURE, SEND_MESSAGE_SUCCESS,
     REST_REGISTERATION_SUCCESS, SEND_MESSAGE_FAILURE,
     GET_ORDERS_SUCCESS, GET_ORDERS_FAILURE,
@@ -435,9 +434,5 @@ export { onOwnerLoginSuccess , onBuyerLoginSuccess, onLoginFailure,
     GET_UPCOMING_ORDERS_FAILURE, GET_UPCOMING_ORDERS_SUCCESS,
     DELETE_SECTION_FAILURE, DELETE_SECTION_SUCCESS,
     GET_OWNER_REST_DETAILS_SUCCESS, GET_OWNER_REST_DETAILS_FAILURE,
-    LOAD_INITIAL_SOCKET }
-
-
-
-
-
+    LOAD_INITIAL_SOCKET
+}

@@ -1,7 +1,6 @@
 import React from 'react';
 import {
-  Jumbotron, Button, InputGroupAddon,
-  Nav, NavItem, NavLink,
+  Jumbotron, Button
 } from 'reactstrap';
 import pic from './../grub.png';
 import './../css/JumbotronHome.css'

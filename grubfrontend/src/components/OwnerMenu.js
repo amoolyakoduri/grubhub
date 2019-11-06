@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody} from 'reactstrap';
 import { connect } from 'react-redux';
 import Section from './Section';
 import { onAddSectionSuccess, onAddSectionFailure, onDeleteSectionSuccess, onDeleteSectionFailure } from './../actions/actions';
@@ -7,16 +7,13 @@ import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 import ls from 'local-storage';
-import { stat } from 'fs';
-
-
 
 class OwnerMenu extends React.Component {
     constructor() {
         super();
         this.state = {
             modal1: false,
-            modal2:false
+            modal2: false
         };
         this.toggle1 = this.toggle1.bind(this);
         this.toggle2 = this.toggle2.bind(this);
@@ -47,9 +44,9 @@ class OwnerMenu extends React.Component {
         this.setState(prevState => ({
             modal1: !prevState.modal1
         }));
-        fetch('/api/addSection', {
+        fetch('/api/rest/addSection', {
             headers: {
-                "Authorization" : `Bearer${jwtToken}`,
+                "Authorization": `Bearer${jwtToken}`,
                 "Content-Type": "application/json",
             },
             method: 'POST',
@@ -69,14 +66,14 @@ class OwnerMenu extends React.Component {
         })
     }
 
-    delete = ()=> {
+    delete = () => {
         var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal2: !prevState.modal2
         }));
-        fetch('/api/deleteSection', {
+        fetch('/api/rest/deleteSection', {
             headers: {
-                "Authorization" : `Bearer${jwtToken}`,
+                "Authorization": `Bearer${jwtToken}`,
                 "Content-Type": "application/json"
             },
             method: 'POST',
@@ -90,7 +87,7 @@ class OwnerMenu extends React.Component {
             if (myJson.success == false) {
                 this.props.deleteSectionFailureDispatch();
             } else {
-                this.props.deleteSectionSuccessDispatch({sectionName:this.state.sectionName});
+                this.props.deleteSectionSuccessDispatch({ sectionName: this.state.sectionName });
             }
         })
     }
@@ -104,9 +101,9 @@ class OwnerMenu extends React.Component {
             <h4>Menu:</h4>
             <div class="container" style={{ display: "flex", flexDirection: "column" }}>
                 {
-                    this.props.sections && 
+                    this.props.sections &&
                     this.props.sections.map(section => {
-                        return <Section name={section.name} details = {section} />
+                        return <Section name={section.name} details={section} />
                     })
                 }
             </div>
@@ -138,16 +135,16 @@ class OwnerMenu extends React.Component {
 
 const mapStateToProps = (state) => {
     const sections = state.restDetails && state.restDetails.sections;
-    return {  sections};
+    return { sections };
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
         addSectionSuccessDispatch: (payload) => { dispatch(onAddSectionSuccess(payload)) },
         addSectionFailureDispatch: () => { dispatch(onAddSectionFailure()) },
-        deleteSectionSuccessDispatch : (payload) => { dispatch(onDeleteSectionSuccess(payload))},
-        deleteSectionFailureDispatch : () => { dispatch(onDeleteSectionFailure())}
+        deleteSectionSuccessDispatch: (payload) => { dispatch(onDeleteSectionSuccess(payload)) },
+        deleteSectionFailureDispatch: () => { dispatch(onDeleteSectionFailure()) }
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(OwnerMenu)//(loginCheck(isOwner(OwnerMenu)));
+export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isOwner(OwnerMenu)));

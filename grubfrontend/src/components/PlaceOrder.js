@@ -5,7 +5,6 @@ import SectionView from './SectionView';
 import Cart from './Cart';
 import isBuyer from './isBuyer';
 import loginCheck from './LoginCheck';
-import ls from 'local-storage';
 
 
 class PlaceOrder extends React.Component {
@@ -14,20 +13,6 @@ class PlaceOrder extends React.Component {
     }
 
     componentDidMount() {
-        var jwtToken = ls.get('jwtToken').substring(3);
-        // fetch('/api/getRestDetailsByRestName/' + this.props.restDetails.name, {
-        //     method: 'GET',
-        //     headers: {
-        //         "Authorization" : `Bearer${jwtToken}`,
-        //         },
-        // }).then((response) => {
-        //     return response.json();
-        // }).then((myJson) => {
-        //     if (myJson.success == false)
-        //         this.props.getRestDetailsFailureDispatch();
-        //     else
-        //         this.props.getRestDetailsSuccessDispatch(myJson.payload);
-        // })
     }
 
     render() {
@@ -35,7 +20,7 @@ class PlaceOrder extends React.Component {
             <div class="container" style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ display: "flex", flexDirection: "row" }}>
                     <div>
-                        <img width= "200px" src={"/"+this.props.restDetails.displayPic} />
+                        <img width="200px" src={"/" + this.props.restDetails.displayPic} />
                     </div>
                     <h3>{this.props.restDetails && this.props.restDetails.name}</h3>
                 </div>
@@ -51,7 +36,7 @@ class PlaceOrder extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    return { restDetails: state.restDetails, cart: state.cart,  }
+    return { restDetails: state.restDetails, cart: state.cart, }
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -61,4 +46,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(PlaceOrder)//(loginCheck(isBuyer(PlaceOrder)));
+export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(PlaceOrder)));

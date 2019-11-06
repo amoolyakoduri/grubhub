@@ -1,9 +1,13 @@
 import React from 'react';
-import { Label, Button, Input } from 'reactstrap';
+import { Button } from 'reactstrap';
 import './../css/Filters.css'
 import { connect } from 'react-redux';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
 import { onSearchFailure, onSearchSuccess } from './../actions/actions';
+import isBuyer from './isBuyer';
+import loginCheck from './LoginCheck'
+import ls from 'local-storage';
+
 
 class Filters extends React.Component {
 
@@ -27,15 +31,17 @@ class Filters extends React.Component {
   }
 
   getResults = () => {
+    var jwtToken = ls.get('jwtToken').substring(3);
     if (this.state.restaurant === "" && this.state.item === "" && this.state.cuisine === "") {
       this.setState({
         error: "Add filters please."
       })
       return null;
     } else {
-      fetch('/api/search', {
+      fetch('/api/user/search', {
         method: 'POST',
         headers: {
+          "Authorization": `Bearer${jwtToken}`,
           "content-type": "application/json"
         },
         body: JSON.stringify({
@@ -46,10 +52,9 @@ class Filters extends React.Component {
       }).then((response) => {
         return response.json();
       }).then((myJson) => {
-        if (myJson.payload == null) {
+        if (myJson.success == false) {
           this.props.getSearchFailureDispatch();
         } else {
-          console.log(myJson);
           this.props.getSearchSuccessDispatch(myJson.payload);
         }
       })
@@ -86,4 +91,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Filters);
+export default connect(null, mapDispatchToProps)(loginCheck(isBuyer(Filters)));

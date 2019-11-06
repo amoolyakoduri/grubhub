@@ -1,42 +1,42 @@
 const userSchema = require('./../models/users').User;
 
 
-function handle_request(body, callback){
-   
+function handle_request(body, callback) {
+
     console.log("Inside book kafka backend");
     console.log(JSON.stringify(body));
-    switch(body.msg){
-        case "GetUserDetails" :
+    switch (body.msg) {
+        case "GetUserDetails":
             getUserDetails(body.payload)
-            .then( (results) => {
-               callback(null, results);
-               return;
-            }).catch( (err) => {
-               callback(err.message,null);
-               return;
-            })
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        case "UpdatePassword" :
+        case "UpdatePassword":
             updatePassword(body.payload)
-            .then( (results) => {
-               callback(null, results);
-               return;
-            }).catch( (err) => {
-               callback(err.message,null);
-               return;
-            })
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        case "UpdateDetails" :
+        case "UpdateDetails":
             updateDetails(body.payload)
-            .then( (results) => {
-                callback(null, results);
-                return;
-            }).catch( (err) => {
-                callback(err.message,null);
-                return;
-            })
+                .then((results) => {
+                    callback(null, results);
+                    return;
+                }).catch((err) => {
+                    callback(err.message, null);
+                    return;
+                })
             break;
-        default : 
+        default:
             defaultFunc(body.payload);
             break;
     }
@@ -47,32 +47,33 @@ function handle_request(body, callback){
 
 
 var getUserDetails = (payload) => {
-    return new Promise(function(resolve, reject){
+    return new Promise(function (resolve, reject) {
         userSchema.find({
-            emailId : payload.email
-        }, function(err,results){
-            if(err) {
+            emailId: payload.email
+        }, function (err, results) {
+            if (err) {
                 console.log("error in getUserDetails");
                 reject("error");
             } else {
-            resolve(results);
+                resolve(results);
             }
         })
-})}
+    })
+}
 
 var updateDetails = (payload) => {
-    return new Promise(function(resolve,reject) {
+    return new Promise(function (resolve, reject) {
         const lastName = payload.userDetails.lastName;
-        const address = payload.userDetails.address; 
+        const address = payload.userDetails.address;
         const phone = payload.userDetails.phone;
-        userSchema.update({"emailId":payload.email},{
-            "userDetails.lastName" : lastName,
-            "userDetails.address" : address,
-            "userDetails.phone" : phone
-        },function(error,results){
-            if(error) {
+        userSchema.update({ "emailId": payload.email }, {
+            "userDetails.lastName": lastName,
+            "userDetails.address": address,
+            "userDetails.phone": phone
+        }, function (error, results) {
+            if (error) {
                 console.log("Error in updateDetails ");
-                reject(error); 
+                reject(error);
             } else {
                 resolve(results);
             }
@@ -81,11 +82,11 @@ var updateDetails = (payload) => {
 }
 
 var updatePassword = (payload) => {
-    return new Promise(function(resolve,reject) {
-        userSchema.update({"emailId":payload.email,"password":payload.oldPassword},{
-            "password" : payload.newPassword
-        },function(error,results){
-            if(error) {
+    return new Promise(function (resolve, reject) {
+        userSchema.update({ "emailId": payload.email, "password": payload.oldPassword }, {
+            "password": payload.newPassword
+        }, function (error, results) {
+            if (error) {
                 console.log("Error in updatePassword");
                 reject("error");
             } else {
@@ -97,7 +98,7 @@ var updatePassword = (payload) => {
 
 
 var defaultFunc = (payload) => {
-    console.log("payload recieved is ",JSON.stringify(payload));
+    console.log("payload recieved is ", JSON.stringify(payload));
     return;
 }
 

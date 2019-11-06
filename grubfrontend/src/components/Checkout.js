@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button, Input } from 'reactstrap';
+import { Button } from 'reactstrap';
 import { onGetDeliveryDetailsSuccess } from './../actions/actions';
 import loginCheck from './LoginCheck'
 import Cart from './Cart';
@@ -59,9 +59,9 @@ class Checkout extends React.Component {
         var jwtToken = ls.get('jwtToken').substring(3);
         let dateString = this.getDateString();
         this.props.getDeliveryDetailsSuccessDispatch(this.state.deliveryDetails, dateString);
-        fetch('/api/placeOrder', {
+        fetch('/api/user/placeOrder', {
             headers: {
-                "Authorization" : `Bearer${jwtToken}`,
+                "Authorization": `Bearer${jwtToken}`,
                 'Content-Type': 'application/json'
             },
             method: 'POST',
@@ -73,7 +73,7 @@ class Checkout extends React.Component {
             }),
         }).then((response) => {
             return response.json();
-        }).then( () => {
+        }).then(() => {
             this.props.history.push("/lets-eat");
         })
     }
@@ -104,7 +104,7 @@ class Checkout extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const {  restDetails, cart, deliveryDetails, app} = state;
+    const { restDetails, cart, deliveryDetails, app } = state;
     return { app, deliveryDetails, restDetails, cart };
 }
 
@@ -114,4 +114,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Checkout)//(loginCheck(isBuyer(Checkout)));
+export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(Checkout)));

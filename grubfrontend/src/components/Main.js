@@ -14,12 +14,12 @@ import PlaceOrder from './PlaceOrder';
 import Checkout from './Checkout';
 import { connect } from 'react-redux';
 import DraggableOrders from './DraggableOrders';
-import { onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure } from '../actions/actions';
+import { onOwnerLoginSuccess} from '../actions/actions';
 import { isLoggedIn } from '../helpers';
 import { DndProvider } from 'react-dnd'
 import Chat from './Chat';
-	import HTML5Backend from 'react-dnd-html5-backend'
-	
+import HTML5Backend from 'react-dnd-html5-backend'
+
 import Cart from './Cart';
 
 class Main extends React.Component {
@@ -39,7 +39,6 @@ class Main extends React.Component {
         return (
             <div>
                 <Router>
-                    {/*Render Different Component based on Route*/}
                     <Route path="/" component={CustomNavbar} />
                     <Route path="/login" component={Login} />
                     <Route path="/signUp" component={SignUp} />
@@ -53,10 +52,10 @@ class Main extends React.Component {
                     <Route path='/placeOrder' component={PlaceOrder} />
                     <Route path="/checkout" component={Checkout} />
                     <Route path="/cart" component={Cart} />
-                    <Route path="/chat" component = {Chat} />
-                    <Route path="/upcomingOrders" render = {() => <DndProvider backend={HTML5Backend}>
-					<DraggableOrders />
-				</DndProvider>} />
+                    <Route path="/chat" component={Chat} />
+                    <Route path="/upcomingOrders" render={() => <DndProvider backend={HTML5Backend}>
+                        <DraggableOrders />
+                    </DndProvider>} />
                 </Router>
             </div>
         )

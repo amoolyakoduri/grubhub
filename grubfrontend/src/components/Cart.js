@@ -13,12 +13,11 @@ class Cart extends React.Component {
         this.state = {
             error: null,
             cart: []
-
         }
     }
 
     checkout = (event) => {
-        if (this.props.cart && this.props.cart && this.props.cart.length!=0) {
+        if (this.props.cart && this.props.cart && this.props.cart.length != 0) {
             this.setState({
                 error: null
             })
@@ -42,7 +41,7 @@ class Cart extends React.Component {
         return <div >
             <h4 className="container">Your Order</h4>
             {
-                this.props.cart && 
+                this.props.cart &&
                 this.props.cart.map(orderItem => {
                     amt = amt + orderItem.quantity * orderItem.price;
                     return <div className="container" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
@@ -55,7 +54,7 @@ class Cart extends React.Component {
             }
             <hr />
             <h4 className="container">Items Total : {amt}$</h4>
-            <div className="container" style={{display:"flex",flexDirection:"column",width:"fit-content"}}>
+            <div className="container" style={{ display: "flex", flexDirection: "column", width: "fit-content" }}>
                 <Button onClick={this.checkout}>Proceed To Checkout</Button>
                 {this.state.error && <div style={{ color: "red" }}>{this.state.error}</div>}
             </div>
@@ -64,8 +63,8 @@ class Cart extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const {restDetails,cart} = state;
-    return { restDetails, cart};
+    const { restDetails, cart } = state;
+    return { restDetails, cart };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -74,4 +73,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Cart));//(loginCheck(isBuyer(Cart))));
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(loginCheck(isBuyer(Cart))));

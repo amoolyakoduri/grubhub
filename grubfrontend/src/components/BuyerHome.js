@@ -1,21 +1,21 @@
 import React from 'react';
 import OrdersContainer from './OrdersContainer';
 import JumbotronHome from './JumbotronHome';
-import RestaurantContainer from './RestaurantContainer';
 import isBuyer from './isBuyer';
 import RestoCard from './RestoCard';
 import loginCheck from './LoginCheck'
 import { connect } from 'react-redux';
-import {pic} from './../grub.png';
-import { onGetPastOrdersFailure, onGetUpcomingOrdersFailure, onGetUpcomingOrdersSuccess, onGetPastOrdersSuccess, onGetRestaurantsSuccess } from './../actions/actions'
+import {
+    onGetPastOrdersFailure, onGetUpcomingOrdersFailure,
+    onGetUpcomingOrdersSuccess, onGetPastOrdersSuccess, onGetRestaurantsSuccess
+} from './../actions/actions'
 import ls from 'local-storage';
 import DraggableOrders from './DraggableOrders';
 import ReactPaginate from 'react-paginate';
 import './../css/pagination.css';
-
 import { DndProvider } from 'react-dnd'
-	import HTML5Backend from 'react-dnd-html5-backend'
-	
+import HTML5Backend from 'react-dnd-html5-backend'
+
 
 
 class BuyerHome extends React.Component {
@@ -36,18 +36,18 @@ class BuyerHome extends React.Component {
 
     setElementsForCurrentPage() {
         let elements = this.state.data
-                      .slice(this.state.offset, this.state.offset + this.state.perPage)
-                      .map(rest =>
-          ( <div><RestoCard details={rest} /><hr/></div>)
-        );
+            .slice(this.state.offset, this.state.offset + this.state.perPage)
+            .map(rest =>
+                (<div><RestoCard details={rest} /><hr /></div>)
+            );
         this.setState({ elements: elements });
-      }
+    }
 
     componentDidMount() {
         var jwtToken = ls.get('jwtToken').substring(3);
-        fetch('/api/pastOrders/' + this.props.emailId, {
+        fetch('/api/user/pastOrders/' + this.props.emailId, {
             method: 'GET',
-            headers: {"Authorization" : `Bearer ${jwtToken}`},
+            headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
@@ -58,9 +58,9 @@ class BuyerHome extends React.Component {
                 this.props.getPastOrdersSuccessDispatch(myJson.payload);
             }
         })
-        fetch('/api/getRestaurants', {
+        fetch('/api/user/getRestaurants', {
             method: 'GET',
-            headers: {"Authorization" : `Bearer ${jwtToken}`},
+            headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
@@ -68,12 +68,12 @@ class BuyerHome extends React.Component {
             this.setState({
                 data: myJson.payload,
                 pageCount: Math.ceil(myJson.payload.length / this.state.perPage)
-              }, () => this.setElementsForCurrentPage());
+            }, () => this.setElementsForCurrentPage());
             this.props.getRestaurantsSuccessDispatch(myJson.payload);
         })
-        fetch('/api/upcomingOrders/' + this.props.emailId, {
+        fetch('/api/user/upcomingOrders/' + this.props.emailId, {
             method: 'GET',
-            headers: {"Authorization" : `Bearer ${jwtToken}`},
+            headers: { "Authorization": `Bearer ${jwtToken}` },
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
@@ -90,58 +90,52 @@ class BuyerHome extends React.Component {
         const selectedPage = data.selected;
         const offset = selectedPage * this.state.perPage;
         this.setState({ currentPage: selectedPage, offset: offset }, () => {
-          this.setElementsForCurrentPage();
+            this.setElementsForCurrentPage();
         });
-      }
+    }
 
     render() {
         let paginationElement;
-    if (this.state.pageCount > 1) {
-      paginationElement = (
-        <ReactPaginate
-          previousLabel={"← Previous"}
-          nextLabel={"Next →"}
-          breakLabel={<span className="gap">...</span>}
-          pageCount={this.state.pageCount}
-          onPageChange={this.handlePageClick}
-          forcePage={this.state.currentPage}
-          containerClassName={"span"}
-          previousLinkClassName={"previous_page"}
-          nextLinkClassName={"next_page"}
-          activeClassName={"span.active"}
-        />
-      );
-    }
-        return <div  style ={{textAlign:"center"}}>
+        if (this.state.pageCount > 1) {
+            paginationElement = (
+                <ReactPaginate
+                    previousLabel={"← Previous"}
+                    nextLabel={"Next →"}
+                    breakLabel={<span className="gap">...</span>}
+                    pageCount={this.state.pageCount}
+                    onPageChange={this.handlePageClick}
+                    forcePage={this.state.currentPage}
+                    containerClassName={"span"}
+                    previousLinkClassName={"previous_page"}
+                    nextLinkClassName={"next_page"}
+                    activeClassName={"span.active"}
+                />
+            );
+        }
+        return <div style={{ textAlign: "center" }}>
             <JumbotronHome />
             {this.props.upcomingOrders &&
-            // <div style = {{display:"flex",flexDirection:"column"}}>
-            <div>
-            <h4 class="container" >Your Upcoming Orders</h4>
-
-            <DndProvider backend={HTML5Backend}>				
-                {/* <DraggableOrders upcomingOrders={this.props.upcomingOrders} /> */}
-                <DraggableOrders />
-            </DndProvider>
-            </div>
+                <div>
+                    <h4 class="container" >Your Upcoming Orders</h4>
+                    <DndProvider backend={HTML5Backend}>
+                        <DraggableOrders />
+                    </DndProvider>
+                </div>
             }
             {this.props.pastOrders &&
-            //<div style = {{display:"flex",flexDirection:"column"}}>
-            <div >
-            <h4 class="container"  style={{ textAlign: "center", color: "black" }}>Your Past Orders</h4>
-                <OrdersContainer orders={this.props.pastOrders}  />
+                <div >
+                    <h4 class="container" style={{ textAlign: "center", color: "black" }}>Your Past Orders</h4>
+                    <OrdersContainer orders={this.props.pastOrders} />
                 </div>
             }
-            {/* <Button onClick = {this.goToRestaurants} > Checkout Restaurants ! </Button> */}
             {this.props.restaurants &&
-                <div style={{display:"flex",flexDirection:"column"}}>
+                <div style={{ display: "flex", flexDirection: "column" }}>
                     <div>{paginationElement}</div>
-                    <div style = {{border:"#d0dcdc",width:"fit-content",textAlign:"center",position:"absolute",left:"40%",display:"flex",flexDirection:"column",justifyContent:"space-around"}}>
+                    <div style={{ border: "#d0dcdc", width: "fit-content", textAlign: "center", position: "absolute", left: "40%", display: "flex", flexDirection: "column", justifyContent: "space-around" }}>
                         {this.state.elements}
                     </div >
-                    {/* <div>{paginationElement}</div> */}
                 </div>
-            }      
+            }
         </div>
     }
 }
@@ -149,7 +143,7 @@ class BuyerHome extends React.Component {
 const mapStateToProps = (state) => {
     const { pastOrders, restaurants, upcomingOrders } = state.app;
     const emailId = state.app.emailId;
-    return { pastOrders, restaurants, upcomingOrders , emailId};
+    return { pastOrders, restaurants, upcomingOrders, emailId };
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -162,4 +156,4 @@ const mapDispatchToProps = (dispatch) => {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(BuyerHome)//(loginCheck(isBuyer(BuyerHome)));
+export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isBuyer(BuyerHome)));
