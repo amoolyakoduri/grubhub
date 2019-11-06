@@ -4,9 +4,15 @@ var User = require('./services/userService');
 var Order = require('./services/orderService');
 var Rest = require('./services/restaurantService');
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/grubhub1', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+//mongodb+srv://root:<password>@grubhubparent-cy2ev.mongodb.net/test?retryWrites=true&w=majority
+//mongodb://localhost:27017/grubhub1
+mongoose.connect('mongodb+srv://root:root@grubhubparent-cy2ev.mongodb.net/test?retryWrites=true&w=majority', function(err,res){
+    if(err){
+        console.log(err);
+    }
+    else{
+        console.log(res);
+    }
 });
 
 function handleTopicRequest(topic_name, fname) {

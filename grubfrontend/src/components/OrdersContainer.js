@@ -11,7 +11,7 @@ class OrdersContainer extends React.Component {
 
     render() {
         return this.props.orders ? (<div >
-            <div style={{ display: "flex", flexDirection: "row" }}>
+            <div style={{ display: "flex", flexDirection: "row" ,width : "min-content"}}>
                 {this.props.orders && this.props.orders.map(order => {
                     return <OrderCard details={order}></OrderCard>
                 })}
