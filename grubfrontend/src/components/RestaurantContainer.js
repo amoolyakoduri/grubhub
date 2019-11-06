@@ -20,16 +20,12 @@ class RestaurantContainer extends React.Component {
         let display = this.props.display;
         return  this.props.restaurants ? (<div >
             <h4 class="container" > Restaurants </h4>
-            <div style={{display:"flex",justifyContent: 'space-evenly',flexDirection: this.props.display==='tuple' ? 'column': 'row'}}>
+            <div style={{display:"flex",flexDirection: "row"}}>
             {
                 this.props.restaurants.length == 0 ?
                 <h5>No restaurants to display</h5> :
                this.props.restaurants.map( resto => {
-                    return display === "tuple" ?
-                    <div>
-                    <RestoTuple details = {resto}/>
-                    </div> : 
-                    <RestoCard details = {resto}/>
+                    return <RestoCard details = {resto}/>
                    
                 })
             }

@@ -1,6 +1,7 @@
 import React from 'react';
 import {message} from './../helpers/socket';
 import {connect} from 'react-redux';
+import {onSendMessageSuccess} from './../actions/actions';
 
 class SendMessageForm extends React.Component {
 
@@ -11,16 +12,22 @@ class SendMessageForm extends React.Component {
     }
   }
 
+ 
   send = (event) => {
     event.preventDefault();
     var payload = {
-      senderId : this.props.app.emailId,
-      msg : this.state.msg,
-      orderId : this.props.orderId,
+      senderId : this.props.emailId,
+      text : this.state.msg,
+      orderId : this.props.currentOrder._id,
     }
     if(this.state.msg!="")
     message(payload);
   }
+
+
+  componentDidMount(){
+    
+  } 
 
   handleMessage = (event) => {
     this.setState({msg:event.target.value});
@@ -40,12 +47,13 @@ class SendMessageForm extends React.Component {
   }
 
 const mapStateToProps = (state) => {
-    const {  app } = state;
-    return { app};
+  const {currentOrder,emailId} = state.app;
+  return {currentOrder,emailId};
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
+      sendMessageSuccessDispatch : (payload) => { dispatch(onSendMessageSuccess(payload))}
     }
 }
 

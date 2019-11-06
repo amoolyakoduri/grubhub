@@ -1,24 +1,26 @@
 import React from 'react';
 import MessageList from './MessageList';
 import SendMessageForm from './SendMessageForm';
-import Container from './DraggableOrders';
+import { connect } from 'react-redux';
 
 class Chat extends React.Component {
 
     constructor(props){
         super();
-        // this.state = {
-        //     orderId : props.location.state.orderId
-        // }
+
     }
 
     render() {
         return <div class = "container" style = {{"display":"flex","flexDirection":"column", "border": "#7cd0d4", "border-style": "dashed"}}>
-            For Order Id : {this.props.match.params.orderId}
+            For Order Id : {this.props.currentOrder._id}
             <MessageList />
-            <SendMessageForm orderId = {this.props.match.params.orderId} />
+            <SendMessageForm />
             </div>
     }
 }
+const mapStateToProps = (state) => {
+    const { currentOrder} = state.app;
+    return {currentOrder};
+}
 
-export default Chat;
+export default connect(mapStateToProps)(Chat);

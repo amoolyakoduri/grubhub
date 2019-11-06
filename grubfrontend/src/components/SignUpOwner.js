@@ -50,12 +50,12 @@ class SignUpOwner extends React.Component {
       this.props.restRegisterFailureDispatch();
   } else {
     console.log(" Registered ! ", jsonRes);
-    let payload = Object.assign({},this.state,{
-      restId:jsonRes.payload.insertId
-    })
-    this.props.restRegisterSuccessDispatch(payload);
+    // let payload = Object.assign({},this.state,{
+    //   restId:jsonRes.payload.insertId
+    // })
+    //this.props.restRegisterSuccessDispatch(payload);
   }
-  this.props.history.push("/home"); 
+  this.props.history.push("/login"); 
 
   })
 }

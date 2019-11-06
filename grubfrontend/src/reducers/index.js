@@ -9,7 +9,10 @@ import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS,
         UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
         SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
         SEARCH_FAILURE,  SEND_MESSAGE_SUCCESS,
-        GET_PAST_ORDERS_OWNER_SUCCESS,} from './../actions/actions';
+        GET_PAST_ORDERS_OWNER_SUCCESS,
+        CURRENT_ORDER_SUCCESS,
+        MESSAGE_RECIEVE_SUCCESS,
+        LOAD_INITIAL_SOCKET,} from './../actions/actions';
 import restDetails from './restDetails';
 import cart from './cart';
 import { combineReducers } from 'redux';
@@ -17,6 +20,11 @@ import  cloneDeep from 'lodash.clonedeep';
 
 function app(state = {},action) {
     switch(action.type) {
+        // case LOAD_INITIAL_SOCKET :
+        //     action.payload.on('initialList',(res)=>{
+        //         console.log(res)
+        //         MESSAGE_RECIEVE_SUCCESS(res)
+        //     })
         case  BUYER_LOGIN_SUCCESS:
             return Object.assign({},state,{
                 emailId : action.payload.payload.emailId,
@@ -50,8 +58,6 @@ function app(state = {},action) {
             })
         case UPDATE_DETAILS_SUCCESS :
             return Object.assign({},state,{
-                emailId : action.payload.emailId,
-                firstName : action.payload.firstName,
                 lastName : action.payload.lastName,
                 phone : action.payload.phone,
                 address : action.payload.address
@@ -72,7 +78,6 @@ function app(state = {},action) {
                 emailId : action.payload.emailId,
                 userType : action.payload.userType,
             });
-
         case REST_REGISTERATION_SUCCESS :
             return Object.assign({},state, {
                 restDetails : Object.assign({},{
@@ -91,9 +96,10 @@ function app(state = {},action) {
             return Object.assign({},state,{
                 pastOrders : action.payload
             })
-        
-         
-        
+        case CURRENT_ORDER_SUCCESS :
+            return Object.assign({},state,{
+                currentOrder : action.payload
+            })
         case GET_DELIVERY_DETAILS_SUCCESS :
             return Object.assign({},state,{
                 deliveryDetails : {
@@ -121,14 +127,7 @@ function app(state = {},action) {
             return Object.assign({},state,{
                 upcomingOrders : []
             })
-        case GET_ORDER_ITEMS_SUCCESS :
-            return Object.assign({},state,{
-                cart : action.payload
-            })
-        case GET_ORDER_ITEMS_FAILURE :
-            return Object.assign({},state,{
-                cart : []
-            })
+        
         case UPDATE_ORDER_SUCCESS :
             const futureState = cloneDeep(state);
             const orders = Object.assign([],futureState.orders);
@@ -136,6 +135,22 @@ function app(state = {},action) {
             orders[index].status = action.payload.status;
             futureState.orders = orders;
             return futureState;
+        case MESSAGE_RECIEVE_SUCCESS:
+            const nextState1 = cloneDeep(state);
+            const currentOrder1 = nextState1.currentOrder;
+            const chat1 = Object.assign([],currentOrder1.chat);
+            chat1.push({text : action.payload.text, senderId : action.payload.senderId});
+            currentOrder1.chat = chat1;
+            nextState1.currentOrder = currentOrder1;
+            return nextState1; 
+        case SEND_MESSAGE_SUCCESS:
+            const nextState = cloneDeep(state);
+            const currentOrder = nextState.currentOrder;
+            const chat = Object.assign([],currentOrder.chat);
+            chat.push({text : action.payload.text, senderId : action.payload.senderId});
+            currentOrder.chat = chat;
+            nextState.currentOrder = currentOrder;
+            return nextState;            
         case SEARCH_SUCCESS :
             return Object.assign({},state, {
                 searchList : action.payload

@@ -1,11 +1,10 @@
-import openSocket from 'socket.io-client';
-const socket = openSocket('http://localhost:3003');
-
-
-
+var io = require('socket.io-client')
+var socket = io()
 function message (payload) {
-    socket.on("reply",(reply) => console.log("recieved reply ",reply));
-    socket.emit('message',payload);
+    socket.emit('peer-msg', payload);
 }
-
-export {message}
+function init() {
+    return socket;
+  }
+  
+  export {message, init};

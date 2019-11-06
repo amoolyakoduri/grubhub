@@ -1,57 +1,57 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {init} from './../helpers/socket';
+import {onSendMessageSuccess,onMessageRecieveSuccess,onLoadInitialSocket} from './../actions/actions';
+
+let socket;
 
 class MessageList extends React.Component{
-    constructor(){
-        super()
+    constructor(props){
+        super(props)    
+        socket = init();
+        socket.on('newmsg', function (data) {
+          console.log("new msg ",data);      
+          if(data!=null){
+            props.recieveMessageSuccessDispatch(data);
+          }
+        })
+    } 
+
+    componentDidMount(){
+      socket = init();
     }
 
+    componentWillUnmount() {
+      //p2psocket.disconnect()
+    //alert("Disconnecting Socket as component will unmount")
+  }
+
    
-    render() {
-        const messages = [
-            {
-                id : 0,
-                senderId : "a",
-                text : "hi"
-            },
-            {
-                id : 1,
-                senderId : "b",
-                text : "hey"
-            },
-            {
-                id : 2,
-                senderId : "a",
-                text : "whatsup"
-            }
-        ]
-    
-        return (
-          <ul className="message-list">                 
-            {messages.map(message => {
+  render() {
+    const chat = this.props.currentOrder.chat;
+    return (<ul id="msgList">{ chat.map(message => {
               return (
-               <li key={message.id}>
-                 <div>
-                   {message.senderId}
-                 </div>
-                 <div>
-                   {message.text}
-                 </div>
-               </li>
-             )
-           })}
-         </ul>
-        )
-      }
+                  <li>
+                  <p>{message.senderId}:</p>
+                  <p>{message.text}</p>
+                  </li>
+              )
+            })
+            }
+    </ul>)
+  }
 }
 
 const mapStateToProps = (state) => {
-    const {  app } = state;
-    return { app};
+  const {currentOrder} = state.app;
+  return {currentOrder};
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
+      sendMessageSuccessDispatch : (payload) => { dispatch(onSendMessageSuccess(payload))},
+      recieveMessageSuccessDispatch : (payload) => { dispatch(onMessageRecieveSuccess(payload))},
+      onLoadInitialSocketDispatch : (socket) => { dispatch(onLoadInitialSocket(socket))}
     }
 }
 

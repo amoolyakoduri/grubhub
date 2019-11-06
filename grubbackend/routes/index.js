@@ -1,17 +1,12 @@
 const routes = require('express').Router();
-const auth = require('../services/authenticationService');
-const userService = require('./../services/userService');
-const restService = require('./../services/restaurantService');
 var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
-var message = require('./../services/messageService');
 var passport = require('passport');
 var jwt = require('jsonwebtoken');
 require('./../config/passport')(passport);
 const secret_key = "Passphrase for encryption should be 45-50 char long";
 var requireAuth = passport.authenticate('jwt', {session: false});
-var ExtractJwt = require('passport-jwt').ExtractJwt;
-
+var kafka = require('./../kafka/client');
 
 
 routes.get('/logout', (req, res) => {
@@ -19,48 +14,33 @@ routes.get('/logout', (req, res) => {
 })
 
 routes.post('/login',(req,res) => {
-    var email = req.body.emailId;
-    var password = req.body.password;
-    auth.authenticate(email,password)
-    .then( (response) => {
-        if(response.length!=0){
-
-            var token = jwt.sign({email:email}, secret_key, {
-                expiresIn: 10080 // in seconds
-            });
-            //req.session.user = response[0].userDetails;
-            //res.cookie('loggedIn', true, { maxAge: 600000*5 });
-            res.status(200).json({success:true, message:"Login Successful",payload:response[0].userDetails,token: 'JWT ' + token});    
-            }
-        else {
-            res.status(401).json({success:false,message:"Invalid Credentials",payload:null});
+    var body = {
+        msg : "Login",
+        payload : {
+            email : req.body.emailId,
+            password : req.body.password
         }
-    }).catch( (err) => {
-        console.log("Couldnt login");
-        res.status(401).json({success:false,message:err.message,payload:null});
-    })
-})
-
-routes.get('/getUserDetails/:email',requireAuth,(req,res) => {
-    var email = req.params.email;
-    userService.getUserDetails(email) 
-    .then((response) => {
-        console.log("User details : ",response);
-        if(response.length!=0){
-            res.status(200).json({success:true,message:"Fetching user details",payload: response[0].userDetails});
+    }
+    kafka.make_request('GAuth', body, function(err,results){
+        console.log(" res is ",results);
+        if(err){
+            console.log("Couldnt login");
+            res.status(401).json({success:false,message:err.message,payload:null});
         } else {
-            res.status(200).json({success:true,message:"Invalid user email",payload: null});
+            if(results.length!=0){
+                var token = jwt.sign({email:req.body.emailId}, secret_key, {
+                    expiresIn: 10080 }); 
+                res.status(200).json({success:true, message:"Login Successful",payload:results[0].userDetails,token: 'JWT ' + token});    
+            } else {
+                res.status(401).json({success:false,message:"Invalid Credentials",payload:null});
+            }
         }
-    }).catch((err) => {
-        console.log("Couldnt get user details");
-        res.status(400).json({success:false,message:err.message,payload:null});
-    })
+        
+    });
 })
+
 
 routes.post('/signUp', upload.single('displayPic'), (req,res) => {
-    console.log("req body is ",req.body);
-    var email = req.body.emailId;
-    var password = req.body.password;
     var userDetails = {
         firstName : req.body.firstName,
         lastName : req.body.lastName,
@@ -70,29 +50,43 @@ routes.post('/signUp', upload.single('displayPic'), (req,res) => {
         userType : req.body.userType,
         emailId : req.body.emailId
     }
-    auth.createUser(email,password,userDetails)
-    .then((results) => {
-        res.status(200).json({success:true,message:"User successfully created"});
-    }).catch( (err) => {
-        res.status(500).json({success:false,message:err.message});
+    var body = {
+        msg : "SignUp",
+        payload : {
+            email : req.body.emailId,
+            password : req.body.password,
+            userDetails : userDetails
+        }
+    }
+    kafka.make_request('GAuth', body, function(err,results){
+        if(err){
+            res.status(500).json({success:false,message:err.message,payload:null});
+        } else {
+            res.status(200).json({success:true,message:"User successfully created",payload:null});
+        }
     })
 })
 
+
 routes.post('/registerRestaurant',upload.single('displayPic'),(req,res) => {
-    console.log("in register");
-    var name = req.body.name;
-    var zip = req.body.zipcode;
-    var phone = req.body.phone;
-    var cuisine = req.body.cuisine;
-    var address = req.body.address;
-    var email = req.body.emailId;
-    var displayPic = req.file.path;
-    auth.createRestaurant(name,phone,cuisine,address,zip,email,displayPic)
-    .then( (results) => {
-        console.log(results);
-        res.status(200).json({success:true,message:"Restaurant successfully registered!"});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message})
+    var body = {
+        msg : "CreateRestaurant",
+        payload : {
+            name : req.body.name,
+            zip : req.body.zipcode,
+            phone : req.body.phone,
+            cuisine : req.body.cuisine,
+            address : req.body.address,
+            ownerEmail : req.body.emailId,
+            displayPic : req.file.path,
+        }
+    }
+    kafka.make_request('GAuth', body, function(err,results){
+        if(err){
+            res.status(500).json({success:false,message:err.message,payload:null})
+        } else {
+            res.status(200).json({success:true,message:"Restaurant successfully registered!",payload:null});
+        }
     })
 });
 
@@ -101,13 +95,20 @@ routes.post('/registerRestaurant',upload.single('displayPic'),(req,res) => {
 routes.post('/addSection',requireAuth,(req,res) => {
     var token = req.headers.authorization.substr(7);
     var payload = jwt.verify(token, secret_key);
-    var section = req.body.section;
     var ownerEmail = payload.email;
-    restService.addSection(ownerEmail,section)
-    .then( (response) => {
-        res.status(200).json({success:true,message:"Section added!",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
+    var body = {
+        msg : "AddSection",
+        payload : {
+            ownerEmail : ownerEmail,
+            section : req.body.section,
+        }
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(500).json({success:false,message:err.message,payload:null});
+        } else {
+            res.status(200).json({success:true,message:"Section added!",payload:null});
+        }
     })
 })
 
@@ -115,27 +116,23 @@ routes.post('/deleteSection',requireAuth,(req,res) => {
     var token = req.headers.authorization.substr(7);
     var payload = jwt.verify(token, secret_key);
     var ownerEmail = payload.email;
-    var section = req.body.section;
-    if(section == undefined ){
+    var body = {
+        msg : "DeleteSection",
+        payload : {
+            ownerEmail : ownerEmail,
+            section : req.body.section,
+        }
+    }
+    if(body.payload.section == undefined ){
         res.status(500).json({success:false,message:"Section missing",payload:null});
     } else {
-    restService.deleteSection(ownerEmail,section)
-    .then( () => {
-        res.status(200).json({success:true,message:"Section deleted!",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })}
-})
-
-routes.get('/getItems/:section',requireAuth,(req,res) => {
-    var token = req.headers.authorization.substr(7);
-    var payload = jwt.verify(token, secret_key);
-    var ownerEmail = payload.email;
-    var section = req.params.section;
-    if(section == undefined ){
-        res.status(500).json({success:false,message:"Section missing",payload:null});
-    } else {
-
+        kafka.make_request('GRest', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Section deleted!",payload:null});
+            }
+        })
     }
 })
 
@@ -143,263 +140,445 @@ routes.post('/addItem',requireAuth,(req,res) => {
     var token = req.headers.authorization.substr(7);
     var payload = jwt.verify(token, secret_key);
     var ownerEmail = payload.email;
-    var name = req.body.name;
-    var desc = req.body.desc;
-    var price = req.body.price;
-    var section = req.body.section;
-    if(section == undefined ){
+    var body = {
+        msg : "AddItem",
+        payload : {
+            ownerEmail : ownerEmail,
+            section : req.body.section,
+            price : req.body.price,
+            desc : req.body.desc,
+            name : req.body.name
+        }
+    }
+    if(body.payload.section == undefined ){
         res.status(500).json({success:false,message:"Section missing",payload:null});
     } else {
-    restService.addItem(ownerEmail,name,desc,price,section)
-    .then(() => {
-        res.status(200).json({success:true,message:"Item added!",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })}
+        kafka.make_request('GRest', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Item added!",payload:null});
+            }
+        })
+    }
 })
 
 routes.post('/deleteItem',requireAuth,(req,res) => {
     var token = req.headers.authorization.substr(7);
     var payload = jwt.verify(token, secret_key);
     var ownerEmail = payload.email;
-    var itemName = req.body.name;
-    var section = req.body.section;
-    if(section === undefined || itemName == undefined){
+    var body = {
+        msg : "DeleteItem",
+        payload : {
+            ownerEmail : ownerEmail,
+            section : req.body.section,
+            itemName : req.body.name
+        }
+    }
+    if(body.payload.section === undefined || body.payload.itemName == undefined){
         res.status(500).json({success:false,message:"Section or name missing",payload:null});
     } else {
-    restService.deleteItem(ownerEmail,itemName,section)
-    .then(() => {
-        res.status(200).json({success:true,message:"Item deleted!",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })
-}
+        kafka.make_request('GRest', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Item deleted!",payload:null});
+            }
+        })
+    }
 })
 
 routes.get('/getOrders/:restName',requireAuth,(req,res) => {
-    var restName = req.params.restName;
-    restService.getOrders(restName)
-    .then((results) => {
-        if(results.length != 0)
-        res.status(200).json({success:true,message:"Orders fetched",payload: results});
-        else
-        res.status(200).json({success:true, message:"No orders", payload:null})
-    }).catch( (err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })
+    var body = {
+        msg : "GetOrdersByRestName",
+        payload : {
+            restName : req.params.restName
+        }
+    }
+    if(body.payload.restName == undefined){
+        res.status(400).json({success:false,message:"Rest Name undefined",payload:null});
+    } else {
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                if(results.length != 0)
+                res.status(200).json({success:true,message:"Orders fetched",payload: results});
+                else
+                res.status(200).json({success:true, message:"No orders", payload:null})            }
+        })
+    }
 })
 
 routes.get('/getPastOrders/:restName',requireAuth,(req,res) => {
-    var restName = req.params.restName;
-    restService.getPastOrders(restName)
-    .then((results) => {
-        if(results.length != 0)
-        res.status(200).json({success:true,message:"Orders fetched",payload:results});
-        else
-        res.status(200).json({success:true, message:"No orders", payload:null})
-    }).catch( (err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })
+    var body = {
+        msg : "GetPastOrdersByRestName",
+        payload : {
+            restName : req.params.restName
+        }
+    }
+    if(body.payload.restName == undefined){
+        res.status(400).json({success:false,message:"Rest Name undefined",payload:null});
+    } else {
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                if(results.length != 0)
+                    res.status(200).json({success:true,message:"Orders fetched",payload:results});
+                else
+                    res.status(200).json({success:true, message:"No orders", payload:null})
+            }
+        })
+    }
 })
 
 routes.post('/updateOrder',requireAuth,(req,res) => {
-    var orderId = req.body.orderId;
-    var status = req.body.status;
-    if(orderId == undefined || status == undefined) {
+    var body = {
+        msg : "UpdateOrder",
+        payload : {
+            orderId : req.body.orderId,
+            status : req.body.status
+        }
+    }
+    if(body.payload.orderId == undefined || body.payload.status == undefined) {
         res.status(500).json({success:false,message:"Status or order id undefined",payload:null});
     } else {
-    restService.updateOrderStatus(orderId,status)
-    .then((myJson) => {
-        console.log(myJson);
-        res.status(200).json({status:true,message:"Updated status",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })}
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {
+                console.log(results);
+                res.status(200).json({status:true,message:"Updated status",payload:null});
+            }
+        })
+    }
 })
 
 routes.post('/getOrdersByStatus',requireAuth,(req,res) => {
-    var restName = req.body.restName;
-    var status = req.body.status;
-    if(status == undefined || restName == undefined){
+    var body = {
+        msg : "GetOrdersByStatus",
+        payload : {
+            restName : req.body.restName,
+            status : req.body.status
+        }
+    }
+    if(body.payload.status == undefined || body.payload.restName == undefined){
         res.status(500).json({success:false,message:"Status or rest name undefined",payload:null});
     } else {
-    restService.getOrdersByStatus(restName,status)
-    .then((results) => {
-        res.status(200).json({success:true,message:"Fetching orders",payload:{orders:results}});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })}
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {        
+                res.status(200).json({success:true,message:"Fetching orders",payload:{orders:results}});
+            }
+        })
+    }
 })
 
-routes.get('/getOrderItems/:id',requireAuth,(req,res) => {
-    var orderId = req.params.id;
-    restService.getOrderItems(orderId)
-    .then( (response) => {
-        res.status(200).json({payload:response,message:"Fetching items for this order"});
-    }).catch( (error) => {
-        console.log("Error");
-        res.status(500).json({payload:null,message:"Couldnt fetch items for this order"});
+var sendMessage = (data) => {
+    var body = {
+        msg : "SendMessage",
+        payload : {
+            text : data.text,
+            senderId : data.senderId,
+            orderId : data.orderId
+        }
+    }
+    var response = null
+    if(body.payload.senderId == undefined || body.payload.orderId == undefined){
+        response = { success: false,message : "senderId or orderId undefined",payload:null}
+    } else {
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                response = { success: false,message :err.message,payload:null}
+            } else {        
+                response = { success: true,message : "message sent",payload:data}
+            }
+        })
+    }
+    return response;
+}
+
+routes.get('./getChat/:orderId',requireAuth,(req,res) => {
+    var body = {
+        msg : "GetChat",
+        payload : {
+            orderId : req.params.orderId
+        }
+    }
+    if(body.payload.orderId == undefined){
+        res.status(400).json({success:false,message:"OrderId undefined",payload:null});
+    } else {
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false,message:err.message,payload:null});
+            } else {        
+                res.status(200).json({success:true,message:"Fetching chat",payload:results});
+            }
+        })
+    }
+})
+
+// routes.get('/getOrderItems/:id',requireAuth,(req,res) => {
+//     var orderId = req.params.id;
+//     restService.getOrderItems(orderId)
+//     .then( (response) => {
+//         res.status(200).json({payload:response,message:"Fetching items for this order"});
+//     }).catch( (error) => {
+//         console.log("Error");
+//         res.status(500).json({payload:null,message:"Couldnt fetch items for this order"});
+//     })
+// })
+
+routes.get('/getRestDetails/:ownerEmail',requireAuth,(req,res) => {
+    var body = {
+        msg : "GetRestDetailsByOwnerEmail",
+        payload : {
+            ownerEmail : req.params.ownerEmail
+        }
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(400).json({success:false,message:err.message,payload:null});
+        } else {        
+            res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
+        }
+    })
+});
+
+routes.get('/getRestaurants',requireAuth,(req,res) => {
+    var body = {
+        msg : "GetRestaurants",
+        payload : {}
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(500).json({success:false,message:err.message,payload:null});
+        } else {        
+            res.status(200).json({success:true,message:"Fetching restaurants",payload : results});
+        }
+    })
+})
+
+
+routes.get('/getUserDetails/:email',requireAuth,(req,res) => {
+    var body = {
+        msg : "GetUserDetails",
+        payload : {
+            email : req.params.email
+        }
+    }
+    kafka.make_request('GUsers', body, function(err,results){
+        if(err){
+            console.log("Couldnt get user details");
+            res.status(400).json({success:false,message:err.message,payload:null});
+        } else {
+            if(results.length!=0){
+                res.status(200).json({success:true,message:"Fetching user details",payload: results[0].userDetails});
+            } else {
+                res.status(200).json({success:true,message:"Invalid user email",payload: null});
+            }        }
     })
 })
 
 routes.post( '/updatePassword',requireAuth,(req,res)=> {
-    var email = req.body.emailId;
-    var oldPassword = req.body.oldPassword;
-    var newPassword = req.body.newPassword;
-    userService.updatePassword(email,oldPassword,newPassword)
-    .then( (response) => {
-        if(response.payload.affectedRows===1){
-        res.status(200).json({payload:response,message:"Password Updated"});
-        } else {
-            res.status(500).json({payload:null,message:"Error in update password"});
-        }
-    }).catch( (error) => {
-        res.status(500).json({payload:null,message:"Error in update password"});
-    })
-})
-
-routes.post('/placeOrder',requireAuth,(req,res) => {
     var token = req.headers.authorization.substr(7);
     var payload = jwt.verify(token, secret_key);
     var emailId = payload.email;
-    var restName = req.body.restName;
-    var orderItems = req.body.orderItems;
-    var deliveryDetails = req.body.deliveryDetails;
-    var restPic = req.body.restPic
-    if(restName == undefined || orderItems == undefined || deliveryDetails == undefined){
+    var body = {
+        msg : "UpdatePassword",
+        payload : {
+            email : emailId,
+            oldPassword : req.body.oldPassword,
+            newPassword : req.body.newPassword
+        }
+    }
+    kafka.make_request('GUsers', body, function(err,results){
+        if(err){
+            res.status(500).json({success:false,message:err.message,payload:null});
+        } else {        
+            if(results.nModified===1){
+                res.status(200).json({success:true,message:"Password Updated",payload:results});
+                } else {
+                    res.status(500).json({success:false,message:"Invalid password",payload:null});
+                }
+        }
+    })
+})
+
+
+routes.post('/placeOrder',requireAuth,(req,res) => {
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key)
+    var body = {
+        msg : "PlaceOrder",
+        payload : {
+            email : payload.email,
+            restName : req.body.restName,
+            orderItems : req.body.orderItems,
+            deliveryDetails : req.body.deliveryDetails,
+            restPic : req.body.restPic        
+        }
+    }
+    if(body.payload.restName == undefined || body.payload.orderItems == undefined || body.payload.deliveryDetails == undefined){
         res.status(500).json({success:false, message:"rest name or order items or delivery details undefined",payload:null});
     } else {
-    userService.placeOrder(restPic,restName,emailId,orderItems,deliveryDetails)
-    .then( () => {
-        res.status(200).json({success:true,message:"Order Placed",payload:null});
-    }).catch((err) => {
-        res.status(500).json({success:false, message:err.message,payload:null});
-    })}
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(500).json({success:false, message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Order Placed",payload:null});
+            }
+        })
+    }
 })
 
 routes.get('/pastOrders/:emailId',requireAuth,(req,res) => {
-    var emailId = req.params.emailId;
-    if(emailId == undefined){
+    var body = {
+        msg : "PastOrdersByBuyerEmail",
+        payload : {
+            email : req.params.emailId
+        }
+    }
+    if(body.payload.email == undefined){
         res.status(400).json({success:false,message:"Email id undefined",payload:null});
     } else {
-    userService.pastOrders(emailId)
-    .then( (results) => {
-        res.status(200).json({success:true,message:"Fetching past orders",payload: results});
-    }) .catch( (err) => {
-        res.status(400).json({success:false,message:err.message,payload:null});
-    })}
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(400).json({success:false,message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Fetching past orders",payload: results});
+            }
+        })
+    }
 })
 
 routes.get('/upcomingOrders/:emailId',requireAuth,(req,res) => {
-    var emailId = req.params.emailId;
-    if(emailId == undefined){
+    var body = {
+        msg : "UpcomingOrdersByBuyerEmail",
+        payload : {
+            email : req.params.emailId
+        }
+    }
+    if(body.payload.email == undefined){
         res.status(400).json({success:false,message:"Email id undefined",payload:null});
     } else {
-    userService.upcomingOrders(emailId)
-    .then( (results) => {
-        res.status(200).json({success:true,message:"Fetching upcoming orders",payload: results});
-    }) .catch( (error) => {
-        res.status(400).json({success:false,message:err.message,payload:null});
-    })}
+        kafka.make_request('GOrders', body, function(err,results){
+            if(err){
+                res.status(400).json({success:false,message:err.message,payload:null});
+            } else {
+                res.status(200).json({success:true,message:"Fetching upcoming orders",payload: results});
+            }
+        })
+    }
 })
-
-routes.get('/getRestaurants',requireAuth,(req,res) => {
-    restService.getRestaurants()
-    .then( (response) => {
-        res.status(200).json({success:true,message:"Fetching restaurants",payload : response});
-    }).catch((err) => {
-        res.status(500).json({success:false,message:err.message,payload:null});
-    })
-})
-
+ 
 routes.post('/updateDetails',requireAuth,(req,res) => {
-    var user = req.body.user;
-    var email = req.body.emailId;
-    userService.updateDetails(email,user, req.session.user)
-    .then((response) => {
-        const updatedUser = Object.assign({}, req.session.user, user);
-        console.log('updated User => ', updatedUser);
-        req.session.user = updatedUser
-        console.log("Updated details are : ",response);
-        res.status(200).json({payload:updatedUser,message:"Updated details"});
-    }).catch((error) => {
-        console.log("Error in update details");
-        res.status(400).json({payload:null,message:"unable to update details"});
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var emailId = payload.email;
+    var body = {
+        msg : "UpdateDetails",
+        payload : {
+            email : emailId,
+            userDetails : req.body.userDetails,
+        }
+    }
+    kafka.make_request('GUsers', body, function(err,results){
+        if(err){
+            res.status(400).json({success:false,message:err.message,payload:null});
+        } else {
+            const updatedUser = Object.assign({}, body.payload.existingDetails, body.payload.user);
+            res.status(200).json({success:true,message:"Updated details",payload:updatedUser});
+        }
     })
-
 })
 
-routes.get('/getRestDetails/:ownerEmail',requireAuth,(req,res) => {
-    var ownerEmail = req.params.ownerEmail;
-    restService.getRestDetailsByOwnerEmail(ownerEmail)
-    .then( (results) => {
-        res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
-    }).catch( (err) => {
-        console.log("Error in getRestDetails");
-        res.status(400).json({success:false,message:err.message,payload:null});
-    })
-});
 
 routes.get('/getRestDetailsByRestName/:restName',requireAuth,(req,res) => {
-    var restName = req.params.restName;
-    restService.getRestDetailsByRestName(restName)
-    .then( (results) => {
-        res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
-    }).catch( (err) => {
-        console.log("Error in getRestDetails");
-        res.status(400).json({success:false,message:err.message,payload:null});
+    var body = {
+        msg : "GetRestDetailsByRestName",
+        payload : {
+            restName : req.params.restName
+        }
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(400).json({success:false,message:err.message,payload:null});
+        } else {
+            res.status(200).json({success:true,message:"Fetching Rest Details",payload:results});
+        }
     })
 });
 
 
 routes.post('/updateRestDetails',requireAuth,(req,res) => {
+    var token = req.headers.authorization.substr(7);
+    var payload = jwt.verify(token, secret_key);
+    var emailId = payload.email;
     var restDetails = {
-        id : req.body.restId,
-        name : req.body.restDetails.name,
+        ownerEmail : emailId,
         zipcode : req.body.restDetails.zip,
         phone : req.body.restDetails.phone,
         cuisine : req.body.restDetails.cuisine,
         address : req.body.restDetails.address
     }
-    restService.updateDetails(restDetails)
-    .then( (response) => {
-        console.log("Updated rest details are : ",response);
-        res.status(200).json({payload:response,message:"Updated rest details"});
-    }).catch( (error) => {
-        console.log("Error in upadate rest details");
-        res.status(400).json({payload:null,message:"unable to update rest details"})
+    var body = {
+        msg : "UpdateRestDetails",
+        payload : {
+            restDetails : restDetails
+        }
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(400).json({success:false,message:err.message,payload:null})
+        } else {
+            res.status(200).json({success:true,message:"Updated rest details",payload:results});
+        }
     })
 })
 
 routes.post('/search',requireAuth,(req,res) => {
-    var name = req.body.name;
-    var item = req.body.item;
-    var cuisine = req.body.cuisine;
-    userService.search(name,item,cuisine)
-    .then( (response) => {
-        res.status(200).json({message:"Fetching search results",payload:response});
-    }).catch( (err) => {
-        console.log("Error in search api");
-        res.status(400).json({message:"Error Fetching search results",payload:null});
+    var body = {
+        msg : "Search",
+        payload : {
+            name : req.body.name,
+            item : req.body.item,
+            cuisine : req.body.cuisine
+        }
+    }
+    kafka.make_request('GRest', body, function(err,results){
+        if(err){
+            res.status(400).json({success:false,message:err.message,payload:null});
+        } else {
+            res.status(200).json({success:true,message:"Fetching search results",payload:results});
+        }
     })
 })
 
-routes.get('/check',requireAuth, (req, res)=> {
-    message.sendMessage();
-    res.status(200).json({});
-})
+routes.post('/book', function(req, res){
 
+    kafka.make_request('post_book',req.body, function(err,results){
+        console.log('in result');
+        console.log(results);
+        if (err){
+            console.log("Inside err");
+            res.json({
+                status:"error",
+                msg:"System Error, Try Again."
+            })
+        }else{
+            console.log("Inside else");
+                res.json({
+                    updatedList:results
+                });
 
-// routes.post('/createUser',requireAuth,(req,res) => {
-//     var email = req.body.email;
-//     var password = req.body.password;
-//     var userDetails = req.body.userDetails;
-//     auth.createUser(email,password,userDetails)
-//     .then( (response) => {
-//         res.status(200).json({message:"Creating user",payload:response});
-//     }).catch( (err) => {
-//         console.log("Error in user api");
-//         res.status(400).json({message:"Error creating user",payload:null});
-//     })
-// })
-module.exports = routes;
+                res.end();
+            }
+        
+    });
+});
+
+module.exports.routes = routes;
+module.exports.sendMessage = sendMessage;

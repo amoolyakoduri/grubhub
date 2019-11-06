@@ -2,7 +2,7 @@ import { combineReducers } from 'redux'
 import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS, 
     GET_REST_DETAILS_SUCCESS, GET_REST_DETAILS_FAILURE, ADD_TO_CART_SUCCESS,
     DELETE_ORDER_ITEM_SUCCESS,CURRENT_REST_DETAILS_SUCCESS,
-    DELETE_SECTION_SUCCESS} from './../actions/actions';
+    DELETE_SECTION_SUCCESS, GET_ORDER_ITEMS_SUCCESS, GET_ORDER_ITEMS_FAILURE } from './../actions/actions';
     import  cloneDeep from 'lodash.clonedeep'
 
 function app(state = [],action) {
@@ -22,7 +22,10 @@ function app(state = [],action) {
             const delIndex = nextCart.findIndex(c => c.itemName === action.payload.itemName);
             nextCart.splice(delIndex,1);
             return nextCart;
-        
+        case GET_ORDER_ITEMS_SUCCESS :
+            return Object.assign([],state,action.payload)
+        case GET_ORDER_ITEMS_FAILURE :
+            return [];
         default :
             return state;
     }

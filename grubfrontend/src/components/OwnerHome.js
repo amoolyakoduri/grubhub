@@ -23,8 +23,8 @@ class OwnerHome extends React.Component {
     constructor() {
         super();
         this.state = {
-            ordres: [],
-            status : ""
+            status : "",
+
         }
         this.menu = this.menu.bind(this);
         this.toggle = this.toggle.bind(this);
@@ -32,7 +32,7 @@ class OwnerHome extends React.Component {
     }
 
     toggle() {
-        this.setState(state => ({ collapse: !state.collapse }));
+        this.setState({ collapse: !this.state.collapse });
     }
     menu(event) {
         event.preventDefault();
@@ -83,8 +83,9 @@ class OwnerHome extends React.Component {
 
     changeHandler = (orderId, event) => {
         var jwtToken = ls.get('jwtToken').substring(3);
-        this.setState({status:event.target.value },
-        fetch('/api/updateOrder', {
+        var status = event.target.value;
+        this.setState( {status:event.target.value }) 
+            fetch('/api/updateOrder', {
             headers: {
                 "Authorization" : `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json'
@@ -100,10 +101,12 @@ class OwnerHome extends React.Component {
             if (myJson.success == false)
                 this.props.updateOrderFailureDispatch();
             else {
-                var payload = { orderId , status : this.state.status}
+                var payload = { orderId , status :status}
                 this.props.updateOrderSuccessDispatch(payload);
             }
-        }))
+        }).catch( (err) => {
+            console.log(err.message)
+        })
     }
 
     render() {
@@ -137,9 +140,12 @@ class OwnerHome extends React.Component {
                                     <FormGroup>
                                         <Input type="select" onChange={(event) => this.changeHandler(order._id, event)} name="status" id="status">
                                             {
-                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.name} selected={o.name === order.status}>{o.name}</option>))
+                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => 
+                                                    (<option value={o.name} name= {o.name} selected={order.status}>{o.name}</option>)
+                                                )
                                             }
                                         </Input>
+                                        
                                     </FormGroup>
                                 </td>
                                 <Collapse isOpen={this.state.collapse}>

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Input } from 'reactstrap';
 import { onUpdateDetailsSuccess, onUpdateDetailsFailure } from '../actions/actions';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
 
 var md5 = require('md5');
 
@@ -29,21 +30,23 @@ class Details extends React.Component {
     }
 
     update() {
+        var jwtToken = ls.get('jwtToken').substring(3);
         fetch('/api/updateDetails', {
             method: 'POST',
             headers: {
+                "Authorization" : `Bearer${jwtToken}`,
                 "content-type": "application/json"
             },
             body: JSON.stringify({
                 emailId: this.props.app.emailId,
-                app: this.state.app
+                userDetails: this.state.app
             })
         })
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
                 console.log("myJson : ", myJson);
-                if (myJson.payload == null) {
+                if (myJson.success == false) {
                     this.setState({
                         error1: myJson.message
                     })
@@ -54,9 +57,11 @@ class Details extends React.Component {
     }
 
     updatePassword = (event) => {
+        var jwtToken = ls.get('jwtToken').substring(3);
         fetch('/api/updatePassword', {
             method: 'POST',
             headers: {
+                "Authorization" : `Bearer${jwtToken}`,
                 "content-type": "application/json"
             },
             body: JSON.stringify({
@@ -67,7 +72,7 @@ class Details extends React.Component {
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            if (myJson.payload == null) {
+            if (myJson.success == false) {
                 this.setState({
                     error2: myJson.message
                 })
@@ -102,18 +107,15 @@ class Details extends React.Component {
         return <div className="container" style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
             <div className="container">
                 <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.update}>
-                    <AvField label=" First Name :" type="text" name="firstName" onInput={this.changeHandler} placeholder={this.props.app.firstName} ></AvField>
                     <AvField type="text" label=" Last Name :" name="lastName" onChange={this.changeHandler} placeholder={this.props.app.lastName} ></AvField>
                     <AvField type="text" label="Phone : " name="phone" onChange={this.changeHandler} placeholder={this.props.app.phone} ></AvField>
                     <AvField type="text" name="address" label="Address : " onChange={this.changeHandler} placeholder={this.props.app.address} ></AvField>
-                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.app.emailId} ></AvField>
                     <Button >Update Details</Button>
                     {this.state.error1 && <div style={{ color: "red" }}>{this.state.error1}</div>}
                 </AvForm>
             </div>
             <div className="container">
                 <AvForm onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.updatePassword}>
-                    <AvField type="email" name="emailId" label="Email : " onChange={this.changeHandler} placeholder={this.state.app.emailId} required ></AvField>
                     <AvField type="password" name="oldPassword" label="Old Password : " onChange={this.changePasswordHandler} required></AvField>
                     <AvField type="password" name="newPassword" label="New Password : " onChange={this.changePasswordHandler} required></AvField>
                     <Button >Update Password</Button>

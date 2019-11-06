@@ -3,6 +3,7 @@ import {Button , Input} from 'reactstrap';
 import {connect} from 'react-redux';
 import { onUpdateRestDetailsSuccess, onUpdateRestDetailsFailure} from './../actions/actions';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
 
 
 
@@ -20,9 +21,11 @@ class RestaurantDetails extends React.Component {
 
     update() {
         const updatedRestDetails = Object.assign({},this.props.restDetails, this.state.restDetails);
+        var jwtToken = ls.get('jwtToken').substring(3);
         fetch('/api/updateRestDetails',{
             method:'POST',
             headers : {
+                "Authorization" : `Bearer${jwtToken}`,
                 "content-type" : "application/json"
             },
             body : JSON.stringify({
@@ -60,7 +63,6 @@ class RestaurantDetails extends React.Component {
         return <div>
             <h4>Restaurant Details</h4>
             <AvForm  onInvalidSubmit={this.handleInvalidSubmit} onValidSubmit={this.update}>
-            <AvField type= "text" label={"Name : "+this.props.restDetails.name} name="name" onInput={this.changeHandler} placeholder={this.props.name}></AvField>
             <AvField type= "text" label={"Cuisine : "+this.props.restDetails.cuisine} name="cuisine" onChange={this.changeHandler} placeholder={this.props.cuisine}></AvField>
             <AvField type= "text" name="phone" label={"Phone : "+this.props.restDetails.phone} onChange={this.changeHandler} placeholder={this.props.phone}></AvField>
             <AvField type= "text" name="address" label={"Address : "+this.props.restDetails.address} onChange={this.changeHandler} placeholder={this.props.address}></AvField>

@@ -1,11 +1,13 @@
 import React, { useState, useCallback } from 'react'
 import Card from './DraggableCard'
 import update from 'immutability-helper'
+import {connect } from 'react-redux'
 const style = {
-  width: 400,
   display:"flex",
-  flexDirection : "row"
+  flexDirection : "row",
+  width: "min-content"
 }
+
 const Container = (props) => {
   {
     const [ cards, setCards ] = useState(props.upcomingOrders.map(e => { e.id = e._id; return e}));
@@ -38,4 +40,9 @@ const Container = (props) => {
     )
   }
 }
-export default Container
+
+const mapStateToProps = (state) => {
+  const {upcomingOrders} = state.app;
+  return {upcomingOrders};
+}
+export default connect(mapStateToProps)(Container);

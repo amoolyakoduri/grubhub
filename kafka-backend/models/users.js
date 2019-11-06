@@ -1,4 +1,6 @@
-var mongoose = require('mongoose');
+ var mongoose = require('mongoose');
+//var mongoose = require('./../database').mongoose;
+
 
 const Schema = mongoose.Schema;
 

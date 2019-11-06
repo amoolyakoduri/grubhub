@@ -53,7 +53,7 @@ class Main extends React.Component {
                     <Route path='/placeOrder' component={PlaceOrder} />
                     <Route path="/checkout" component={Checkout} />
                     <Route path="/cart" component={Cart} />
-                    <Route path="/chat/:orderId" component = {Chat} />
+                    <Route path="/chat" component = {Chat} />
                     <Route path="/upcomingOrders" render = {() => <DndProvider backend={HTML5Backend}>
 					<DraggableOrders />
 				</DndProvider>} />

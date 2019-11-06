@@ -3,11 +3,14 @@ var mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const MenuSchema = new Schema({
-    _item_id : Schema.Types.ObjectId,
         name : {
             type : String,
             required : true,
-            unique : true
+            unique : true,
+            index:true,
+            default: null,
+            trim: true,
+            sparse: true
         },
         descr : {
             type : String,
@@ -19,31 +22,19 @@ const MenuSchema = new Schema({
         } 
 })
 
-MenuSchema.pre('validate',function(next){
-    next();
-})
-
-MenuSchema.pre('save',function(next){
-    next();
-})
 
 
 const SectionSchema = new Schema({
-    _section_id : Schema.Types.ObjectId,
     name : {
         type : String,
         required : true,
-        unique : true
+        unique : true,
+        index:true, 
+        sparse:true,
+        default: null,
+        trim: true,
     },
     menu : [MenuSchema]
-})
-
-SectionSchema.pre('validate',function(next){
-    next();
-})
-
-SectionSchema.pre('save',function(next){
-    next();
 })
 
 
@@ -77,16 +68,12 @@ const RestaurantSchema = new Schema({
         type : String,
         required : true
     } ,
-    sections : [ SectionSchema],
+    sections :{
+        type : [ SectionSchema],
+        required : false
+    } 
 })
 
-RestaurantSchema.pre('validate',function(next){
-    next();
-})
-
-RestaurantSchema.pre('save',function(next){
-    next();
-})
 
 
 module.exports.Restaurant = mongoose.model('Restaurant',RestaurantSchema);;

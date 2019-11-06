@@ -19,8 +19,7 @@ const OrderItemsSchema = new Schema ({
 })
 
 const ChatSchema = new Schema ({
-    messages : [{
-        msg : {
+        text : {
                 type : String,
                 required : true
             },
@@ -28,12 +27,6 @@ const ChatSchema = new Schema ({
                 type : String,
                 required : true
         }
-    }],
-    orderId : {
-        type :String,
-        required : true,
-        unique : true
-    }
 },{ timestamps: { createdAt: 'created_at' } })
 
 

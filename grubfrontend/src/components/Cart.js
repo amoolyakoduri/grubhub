@@ -41,7 +41,6 @@ class Cart extends React.Component {
         let amt = 0;
         return <div >
             <h4 className="container">Your Order</h4>
-            <hr />
             {
                 this.props.cart && 
                 this.props.cart.map(orderItem => {
@@ -65,7 +64,8 @@ class Cart extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    return { restDetails: state.restDetails, cart: state.cart };
+    const {restDetails,cart} = state;
+    return { restDetails, cart};
 }
 
 const mapDispatchToProps = (dispatch) => {

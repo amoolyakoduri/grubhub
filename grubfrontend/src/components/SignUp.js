@@ -62,7 +62,7 @@ class SignUp extends React.Component {
           emailId : this.state.emailId,
           userType : this.state.userType
         }
-        this.props.signUpSuccessDispatch(payload);
+        //this.props.signUpSuccessDispatch(payload);
         this.props.history.push('/signUpOwner');
       }
       })

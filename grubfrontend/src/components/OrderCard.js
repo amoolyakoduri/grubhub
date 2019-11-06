@@ -4,48 +4,54 @@ import {
   CardTitle, CardSubtitle, Button
 } from 'reactstrap';
 import './../css/Order.css';
-import pic from './../grub.png';
-import { onGetRestDetailsSuccess, onGetRestDetailsFailure, onGetOrderItemsFailure, onGetOrderItemsSuccess } from './../actions/actions';
+import { onGetRestDetailsSuccess, onGetRestDetailsFailure, onGetOrderItemsFailure, onGetOrderItemsSuccess, onCurrentOrderSuccess } from './../actions/actions';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import '../css/OrderCard.css'
+import ls from 'local-storage';
+
 
 class OrderCard extends React.Component {
   constructor() {
     super();
   }
 
-  goToChat = (orderId) => {
+  goToChat = (details) => {
+    this.props.getCurrentOrderSuccessDispatch(details);
     this.props.history.push({
-      pathname: '/chat/'+orderId,
+      pathname: '/chat/',
     })
   }
 
   repeatOrder = (event) => {
     event.preventDefault();
-    fetch('http://localhost/getRestDetails/' + this.props.details.restId)
+    var jwtToken = ls.get('jwtToken').substring(3);
+    fetch('/api/getRestDetailsByRestName/' + this.props.details.restName,{
+      method: 'GET',
+      headers: {"Authorization" : `Bearer ${jwtToken}`}})
       .then((response) => {
         return response.json();
       }).then((myJson) => {
-        if (myJson.payload == null)
+        if (myJson.success == false)
           this.props.getRestDetailsFailureDispatch();
-        else
+        else 
           this.props.getRestDetailsSuccessDispatch(myJson.payload);
+          this.props.getOrderItemsSuccessDispatch(this.props.details.order_items)
+
       })
-    fetch('/api/getOrderItems/' + this.props.details.id)
-      .then((response) => {
-        return response.json();
-      }).then((myJson) => {
-        if (myJson.payload == null)
-          this.props.getOrderItemsFailureDispatch();
-        else {
-          let payload = {
-            restId: this.props.details.restId,
-            items: myJson.payload
-          }
-          this.props.getOrderItemsSuccessDispatch(payload)
-        }
-      })
+    // fetch('/api/getOrderItems/' + this.props.details.id)
+    //   .then((response) => {
+    //     return response.json();
+    //   }).then((myJson) => {
+    //     if (myJson.payload == null)
+    //       this.props.getOrderItemsFailureDispatch();
+    //     else {
+    //       let payload = {
+    //         restId: this.props.details.restId,
+    //         items: myJson.payload
+    //       }
+      //   }
+      // })
     this.props.history.push("/cart");
   }
 
@@ -54,7 +60,6 @@ class OrderCard extends React.Component {
   render() {
     console.log("in order");
     var details = this.props.details;
-    var orderId = details._id;
     return (<Card >
       <CardImg style={{width: '250px'}}  src={'/'+details.restPic} alt="Card image cap" />
       <CardBody>
@@ -62,7 +67,7 @@ class OrderCard extends React.Component {
         <CardSubtitle>Amount: {details.amt}</CardSubtitle>
         Order Status : {details.status}
         <Button onClick={this.repeatOrder}>Repeat Order</Button>
-        <Button onClick={()=>{this.goToChat(orderId)}}>Chat!</Button>
+        <Button onClick={()=>{this.goToChat(details)}}>Chat!</Button>
       </CardBody>
     </Card>)
   }
@@ -73,7 +78,8 @@ const mapDispatchToProps = (dispatch) => {
     getRestDetailsSuccessDispatch: (payload) => { dispatch(onGetRestDetailsSuccess(payload)) },
     getRestDetailsFailureDispatch: () => { dispatch(onGetRestDetailsFailure()) },
     getOrderItemsSuccessDispatch: (payload) => { dispatch(onGetOrderItemsSuccess(payload)) },
-    getOrderItemsFailureDispatch: () => { dispatch(onGetOrderItemsFailure()) }
+    getOrderItemsFailureDispatch: () => { dispatch(onGetOrderItemsFailure()) },
+    getCurrentOrderSuccessDispatch: (payload) => { dispatch(onCurrentOrderSuccess(payload))}
   }
 }
 

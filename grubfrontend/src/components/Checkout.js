@@ -73,8 +73,9 @@ class Checkout extends React.Component {
             }),
         }).then((response) => {
             return response.json();
+        }).then( () => {
+            this.props.history.push("/lets-eat");
         })
-        this.props.history.push("/lets-eat");
     }
 
     handleInvalidSubmit = (event, errors, values) => {

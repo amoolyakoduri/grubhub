@@ -2,8 +2,8 @@ const express = require('express');
 const app = express();
 const port = 3003;
 var cors = require('cors');
-var routes = require('./routes');
-var consumers = require('./consumers');
+var routes = require('./routes/index').routes;
+var sendMessage = require('./routes/index').sendMessage;
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
@@ -11,32 +11,27 @@ var session = require('express-session');
 const proxy = require('http-proxy-middleware');
 var mongoose = require('./database').mongoose;
 var passport = require('passport');
-var jwt = require('jsonwebtoken');
 var mongo = require('mongodb');
-var LocalStrategy = require('passport-local').Strategy;
 require('./config/passport')(passport);
 session(app, mongo.initSessionStore);
 var MongoStore  = require('connect-mongo')(session);
 
-var server = app.listen(port, () => console.log(`Grubhub backend app listening on port ${port}!`));
-
-
-///// Socket IO 
-var io = require('socket.io')(server);
-io.on('connection', (client) => {
-  //console.log('a new client connected');
-  client.on('message',(payload) => {
-    console.log("msg recieved is ",payload.msg );
-    console.log("msg sent by ",payload.senderId);
-    console.log("for order id ",payload.orderId);
-    client.emit("reply","this is reply ");
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+io.on('connection', function(socket) {
+  console.log('A user connected');
+  socket.on('peer-msg', function (data) {
+    sendMessage(data)
+    io.sockets.emit('newmsg',data)
   })
+  
+  socket.on('disconnect', function () {
+     console.log('A user disconnected');
+  });
 });
-io.listen(3005)
-
-
-
-
+http.listen(port, function() {
+  console.log('listening on *:3000');
+});
 
 app.use(session({
   saveUninitialized: true,
@@ -66,11 +61,9 @@ app.use('/', proxy({
     target: 'http://localhost:3000'
 }))
 process.on('unhandledRejection', (reason, p) => {
-  // I just caught an unhandled promise rejection, since we already have fallback handler for unhandled errors (see below), let throw and let him handle that
 console.log(reason);
   throw reason;
 });
 process.on('uncaughtException', (error) => {
-  // I just received an error that was never handled, time to handle it and then decide whether a restart is needed
 console.log(error);
 });
