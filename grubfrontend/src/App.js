@@ -5,17 +5,16 @@ import { createStore } from 'redux'
 import { Provider } from 'react-redux';
 import app from './reducers/index';
 
-const initialState = {"isLoggedIn":false,"emailId":null,"firstName":null};
+const initialState = { "isLoggedIn": false, "emailId": null, "firstName": null, restDetails: {}, app: {} };
 
-const store = createStore(app,initialState,
-window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+const store = createStore(app, initialState, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
 function App() {
 
   return (
     <Provider store={store}>
-      <Main/>
-      </Provider>
+      <Main />
+    </Provider>
   );
 }
 

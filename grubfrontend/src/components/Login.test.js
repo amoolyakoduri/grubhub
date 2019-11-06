@@ -2,7 +2,7 @@ import React from 'react';
 import { configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import { Provider } from 'react-redux'
-import { shallow, mount, render } from 'enzyme';
+import { shallow } from 'enzyme';
 import {toBeInTheDocument, toHaveClass} from '@testing-library/jest-dom'
 
 expect.extend({toBeInTheDocument, toHaveClass})

@@ -1,20 +1,19 @@
 import React from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody} from 'reactstrap';
 import { connect } from 'react-redux';
 import Section from './Section';
 import { onAddSectionSuccess, onAddSectionFailure, onDeleteSectionSuccess, onDeleteSectionFailure } from './../actions/actions';
 import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
 import { AvForm, AvField } from 'availity-reactstrap-validation';
-
-
+import ls from 'local-storage';
 
 class OwnerMenu extends React.Component {
     constructor() {
         super();
         this.state = {
             modal1: false,
-            modal2:false
+            modal2: false
         };
         this.toggle1 = this.toggle1.bind(this);
         this.toggle2 = this.toggle2.bind(this);
@@ -41,56 +40,54 @@ class OwnerMenu extends React.Component {
     }
 
     create() {
+        var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal1: !prevState.modal1
         }));
-        fetch('/api/addSection', {
+        fetch('/api/rest/addSection', {
             headers: {
-                'Content-Type': 'application/json'
+                "Authorization": `Bearer${jwtToken}`,
+                "Content-Type": "application/json",
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 section: this.state.sectionName
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            console.log("created. ", myJson);
-            if (myJson.payload == null) {
+            if (myJson.success == false) {
                 this.props.addSectionFailureDispatch();
             } else {
-                let arr = Object.assign([], this.props.sections);
-                arr.push({ name: myJson.payload.section, items: [] });
-                this.props.addSectionSuccessDispatch(arr);
+                let sections = Object.assign([], this.props.sections);
+                sections.push({ name: this.state.sectionName, menu: [] });
+                this.props.addSectionSuccessDispatch(sections);
             }
         })
     }
 
-    delete = ()=> {
+    delete = () => {
+        var jwtToken = ls.get('jwtToken').substring(3);
         this.setState(prevState => ({
             modal2: !prevState.modal2
         }));
-        fetch('/api/deleteSection', {
+        fetch('/api/rest/deleteSection', {
             headers: {
-                'Content-Type': 'application/json'
+                "Authorization": `Bearer${jwtToken}`,
+                "Content-Type": "application/json"
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 section: this.state.sectionName
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
             console.log("created. ", myJson);
-            if (myJson.payload == null) {
+            if (myJson.success == false) {
                 this.props.deleteSectionFailureDispatch();
             } else {
-                console.log("myJson.payload for section delete is ",myJson.payload)
-                let arr = Object.assign([], this.props.sections);
-                arr.push({ name: myJson.payload.section, items: [] });
-                this.props.deleteSectionSuccessDispatch({sectionName:this.state.sectionName});
+                this.props.deleteSectionSuccessDispatch({ sectionName: this.state.sectionName });
             }
         })
     }
@@ -106,7 +103,7 @@ class OwnerMenu extends React.Component {
                 {
                     this.props.sections &&
                     this.props.sections.map(section => {
-                        return <Section key={section.name} details={section} />
+                        return <Section name={section.name} details={section} />
                     })
                 }
             </div>
@@ -137,17 +134,16 @@ class OwnerMenu extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    const restId = state.restDetails && state.restDetails.id;
     const sections = state.restDetails && state.restDetails.sections;
-    return { restId: restId, sections: sections };
+    return { sections };
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
         addSectionSuccessDispatch: (payload) => { dispatch(onAddSectionSuccess(payload)) },
         addSectionFailureDispatch: () => { dispatch(onAddSectionFailure()) },
-        deleteSectionSuccessDispatch : (payload) => { dispatch(onDeleteSectionSuccess(payload))},
-        deleteSectionFailureDispatch : () => { dispatch(onDeleteSectionFailure())}
+        deleteSectionSuccessDispatch: (payload) => { dispatch(onDeleteSectionSuccess(payload)) },
+        deleteSectionFailureDispatch: () => { dispatch(onDeleteSectionFailure()) }
     }
 }
 

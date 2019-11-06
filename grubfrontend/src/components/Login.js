@@ -1,11 +1,13 @@
 import React from 'react';
 import {
   Card, CardBody,
-  CardTitle, Button, Form, FormGroup, Label, Input,
+  CardTitle, Button,
 } from 'reactstrap';
 import BuyerHome from './BuyerHome';
 import { connect } from 'react-redux'
 import { AvForm, AvField } from 'availity-reactstrap-validation';
+import ls from 'local-storage';
+
 
 
 import { onOwnerLoginSuccess, onBuyerLoginSuccess, onLoginFailure } from '../actions/actions';
@@ -34,8 +36,7 @@ class Login extends React.Component {
 
   login(event) {
     event.preventDefault();
-    console.log("in submit ", this.state);
-    fetch('/api/login', {
+    fetch('/api/auth/login', {
       headers: {
         'Content-Type': 'application/json'
       },
@@ -46,7 +47,7 @@ class Login extends React.Component {
         return response.json();
       }).then((jsonRes) => {
         console.log("jsonRes is: ", jsonRes);
-        if (jsonRes.payload == null) {
+        if (jsonRes.success == false) {
           console.log("Couldnt login");
           this.setState({
             error: jsonRes.message
@@ -54,9 +55,11 @@ class Login extends React.Component {
           this.props.loginFailureDispatch();
         } else {
           console.log("logged in ! ", jsonRes);
-          if (jsonRes.payload.type === "owner") {
+          ls.set('jwtToken', jsonRes.token);
+          ls.set('isLoggedIn', true);
+          ls.set('userType', jsonRes.payload.userType);
+          if (jsonRes.payload.userType === "owner") {
             this.props.ownerLoginSuccessDispatch(jsonRes);
-
             this.props.history.push("/home");
           }
           else {
@@ -99,8 +102,8 @@ class Login extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const isLoggedIn = state;
-  return { isLoggedIn: isLoggedIn };
+  const isLoggedIn = state.app.isLoggedIn;
+  return { isLoggedIn };
 }
 
 const mapDispatchToProps = (dispatch) => {

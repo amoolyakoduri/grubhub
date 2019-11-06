@@ -10,7 +10,7 @@ class OrderTuple extends React.Component {
         var details = this.props.details;
         return <div >
             <div >
-                <img src={'/'+details.displayPic}  style={{width:"250px"}} />
+                <img src={'/' + details.displayPic} style={{ width: "250px" }} />
             </div>
             <div>
                 <h5> {details.restName}</h5>

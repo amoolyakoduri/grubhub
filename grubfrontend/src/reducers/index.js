@@ -1,208 +1,164 @@
-import {LOGIN_FAILURE,OWNER_LOGIN_SUCCESS,BUYER_LOGIN_SUCCESS, 
-        LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
-        UPDATE_DETAILS_SUCCESS, SIGNUP_FAILURE, SIGNUP_SUCCESS,
-        REST_REGISTERATION_SUCCESS, DELETE_ITEM_SUCCESS,
-        GET_ORDERS_SUCCESS, ADD_SECTION_SUCCESS, ADD_ITEM_SUCCESS,
-        UPDATE_REST_DETAILS_SUCCESS, CURRENT_REST_DETAILS_SUCCESS,
-        GET_REST_DETAILS_SUCCESS, ADD_TO_CART_SUCCESS,
-        DELETE_ORDER_ITEM_SUCCESS, GET_DELIVERY_DETAILS_SUCCESS,
-        GET_PAST_ORDERS_SUCCESS, GET_PAST_ORDERS_FAILURE,
-        GET_ORDER_ITEMS_SUCCESS, GET_ORDER_ITEMS_FAILURE,
-        UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
-        SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
-        SEARCH_FAILURE,
-        GET_PAST_ORDERS_OWNER_SUCCESS,
-        DELETE_SECTION_SUCCESS} from './../actions/actions';
+import {
+    LOGIN_FAILURE, OWNER_LOGIN_SUCCESS, BUYER_LOGIN_SUCCESS,
+    LOGOUT_SUCCESS, GET_RESTAURANTS_SUCCESS,
+    UPDATE_DETAILS_SUCCESS, SIGNUP_FAILURE, SIGNUP_SUCCESS,
+    REST_REGISTERATION_SUCCESS,
+    GET_ORDERS_SUCCESS,
+    UPDATE_REST_DETAILS_SUCCESS, GET_DELIVERY_DETAILS_SUCCESS,
+    GET_PAST_ORDERS_SUCCESS, GET_PAST_ORDERS_FAILURE,
+    UPDATE_ORDER_SUCCESS, GET_UPCOMING_ORDERS_FAILURE,
+    SEARCH_SUCCESS, GET_UPCOMING_ORDERS_SUCCESS,
+    SEARCH_FAILURE, SEND_MESSAGE_SUCCESS,
+    GET_PAST_ORDERS_OWNER_SUCCESS,
+    CURRENT_ORDER_SUCCESS,
+    MESSAGE_RECIEVE_SUCCESS
+} from './../actions/actions';
+import restDetails from './restDetails';
+import cart from './cart';
+import { combineReducers } from 'redux';
+import cloneDeep from 'lodash.clonedeep';
 
-function app(state,action) {
-    switch(action.type) {
-        case  BUYER_LOGIN_SUCCESS:
-            return Object.assign({},state,{
-                emailId : action.payload.payload.emailId,
-                firstName : action.payload.payload.firstName,
-                lastName : action.payload.payload.lastName,
-                phone : action.payload.payload.phone,
-                isLoggedIn : true,
-                address : action.payload.payload.address,
-                type : action.payload.payload.type,
-                displayPic : action.payload.payload.displayPic
+function app(state = {}, action) {
+    switch (action.type) {
+        case BUYER_LOGIN_SUCCESS:
+            return Object.assign({}, state, {
+                emailId: action.payload.payload.emailId,
+                firstName: action.payload.payload.firstName,
+                lastName: action.payload.payload.lastName,
+                phone: action.payload.payload.phone,
+                isLoggedIn: true,
+                address: action.payload.payload.address,
+                userType: action.payload.payload.userType,
+                displayPic: action.payload.payload.displayPic
             })
         case OWNER_LOGIN_SUCCESS:
-            return Object.assign({},state,{
-                emailId : action.payload.payload.emailId,
-                firstName : action.payload.payload.firstName,
-                lastName : action.payload.payload.lastName,
-                phone : action.payload.payload.phone,
-                isLoggedIn : true,
-                address : action.payload.payload.address,
-                type : action.payload.payload.type,
-                displayPic : action.payload.payload.displayPic,
-                restDetails : action.payload.payload.restDetails
+            return Object.assign({}, state, {
+                emailId: action.payload.payload.emailId,
+                firstName: action.payload.payload.firstName,
+                lastName: action.payload.payload.lastName,
+                phone: action.payload.payload.phone,
+                isLoggedIn: true,
+                address: action.payload.payload.address,
+                userType: action.payload.payload.userType,
+                displayPic: action.payload.payload.displayPic,
+                token: action.payload.token
             })
         case LOGIN_FAILURE:
-        case LOGOUT_SUCCESS: 
+        case LOGOUT_SUCCESS:
         case SIGNUP_FAILURE:
-            return Object.assign({},{isLoggedIn : false,emailId:null,firstName:null})
+            return Object.assign({}, { isLoggedIn: false, emailId: null, firstName: null })
         case GET_RESTAURANTS_SUCCESS:
-            return Object.assign({},state,{
-                restaurants : action.payload.restaurants
+            return Object.assign({}, state, {
+                restaurants: action.payload
             })
-        case UPDATE_DETAILS_SUCCESS :
-            return Object.assign({},state,{
-                emailId : action.payload.emailId,
-                firstName : action.payload.firstName,
-                lastName : action.payload.lastName,
-                phone : action.payload.phone,
-                address : action.payload.address
+        case UPDATE_DETAILS_SUCCESS:
+            return Object.assign({}, state, {
+                lastName: action.payload.lastName,
+                phone: action.payload.phone,
+                address: action.payload.address
             })
-        case UPDATE_REST_DETAILS_SUCCESS :
-            let nexState =  Object.assign({},state);
+        case UPDATE_REST_DETAILS_SUCCESS:
+            let nexState = Object.assign({}, state);
             let restDetails = nexState.restDetails;
-            restDetails = {...restDetails,
-                name : action.payload.name,
-                cuisine : action.payload.cuisine,
-                phone : action.payload.phone,
-                address : action.payload.address,
-                zipcode : action.payload.zipcode
+            restDetails = {
+                ...restDetails,
+                name: action.payload.name,
+                cuisine: action.payload.cuisine,
+                phone: action.payload.phone,
+                address: action.payload.address,
+                zipcode: action.payload.zipcode
             }
             return nexState;
         case SIGNUP_SUCCESS:
-            return Object.assign({},state,{
-                emailId : action.payload.payload.emailId,
-                firstName : action.payload.payload.firstName,
-                lastName : action.payload.payload.lastName,
-                isLoggedIn : true,
-                displayPic : action.payload.payload.displayPic,
-                type : action.payload.payload.type,
+            return Object.assign({}, state, {
+                emailId: action.payload.emailId,
+                userType: action.payload.userType,
             });
-        case REST_REGISTERATION_SUCCESS :
-            return Object.assign({},state, {
-                restDetails : Object.assign({},{
-                id : action.payload.restId,
-                name : action.payload.name,
-                cuisine : action.payload.cuisine,
-                address : action.payload.address,
-                zipcode : action.payload.zipcode,
-                phone : action.payload.phone
-            })})
-        case GET_ORDERS_SUCCESS :
-            return Object.assign({},state,{
-                orders : action.payload.orders
-            })
-        case GET_PAST_ORDERS_OWNER_SUCCESS : 
-            return Object.assign({},state,{
-                pastOrders : action.payload.pastOrders
-            })
-        case ADD_SECTION_SUCCESS :     
-            return Object.assign({},state,{
-                restDetails: {
-                    ...state.restDetails,
-                    sections: action.payload
-                }
-            })
-        case ADD_ITEM_SUCCESS :
-            const nextState = Object.assign({}, state);
-            const sections = nextState.restDetails.sections;
-            const sectionId = sections.findIndex(s => s.name === action.sectionName)
-            sections[sectionId].items =[ ...sections[sectionId].items, ...action.payload];
-            return nextState;
-        case DELETE_ITEM_SUCCESS : 
-            const nextStateDelete = Object.assign({},state);
-            const sectionsDelete =   Object.assign([],nextStateDelete.restDetails.sections);
-            const sectionIndex = sectionsDelete.findIndex( s => s.name === action.sectionName);
-            const itemIndex =sectionsDelete[sectionIndex].items.findIndex( i => i.id == action.payload.itemId)
-            const sectionItems =  Object.assign([],sectionsDelete[sectionIndex].items);
-            //const items = sectionItems.splice(itemIndex,1);
-            sectionItems.splice(itemIndex,1);
-            sectionsDelete[sectionIndex].items = sectionItems;
-            nextStateDelete.restDetails.sections = sectionsDelete;
-            return nextStateDelete;
-        case DELETE_SECTION_SUCCESS :
-            const nextStateSection = Object.assign({},state);
-            const sectionsAll = Object.assign([],nextStateSection.restDetails.sections);
-            const sectionIndexToDelete = sectionsAll.findIndex( s => s.name === action.payload.sectionName);
-            sectionsAll.splice(sectionIndexToDelete,1);
-            nextStateSection.restDetails.sections = sectionsAll;
-            return nextStateSection;
-        case CURRENT_REST_DETAILS_SUCCESS :
-            return Object.assign({},state,{
-                restDetails : action.payload
-            })
-        case GET_REST_DETAILS_SUCCESS : 
-            return Object.assign({},state,{
-                restDetails : action.payload.restDetails,
-                cart : Object.assign({},{
-                    restId: action.payload.restDetails.id,
-                    items:[]
+        case REST_REGISTERATION_SUCCESS:
+            return Object.assign({}, state, {
+                restDetails: Object.assign({}, {
+                    id: action.payload.restId,
+                    name: action.payload.name,
+                    cuisine: action.payload.cuisine,
+                    address: action.payload.address,
+                    zipcode: action.payload.zipcode,
+                    phone: action.payload.phone
                 })
             })
-        case ADD_TO_CART_SUCCESS :
-            const nextStateCart = Object.assign({},state);
-            const cart = Object.assign({},nextStateCart.cart);
-            cart.items.push(action.payload);
-            nextStateCart.cart = cart; //open browser
-            return nextStateCart; 
-        case DELETE_ORDER_ITEM_SUCCESS : 
-            const nextStateOrderItem = Object.assign({},state);
-            const cartOrderItem = Object.assign([],nextStateOrderItem.cart.items);
-            const delIndex = cartOrderItem.findIndex(c => c.itemId === action.payload.itemId);
-            cartOrderItem.splice(delIndex,1);
-            nextStateOrderItem.cart.items  = cartOrderItem;
-            return nextStateOrderItem;
-        case GET_DELIVERY_DETAILS_SUCCESS :
-            return Object.assign({},state,{
-                deliveryDetails : {
-                    firstName : action.payload.firstName,
-                    lastName : action.payload.lastName,
-                    phone : action.payload.phone,
-                    address : action.payload.address,
-                    instructions : action.payload.instructions,
-                    date : action.dateString
+        case GET_ORDERS_SUCCESS:
+            return Object.assign({}, state, {
+                orders: action.payload
+            })
+        case GET_PAST_ORDERS_OWNER_SUCCESS:
+            return Object.assign({}, state, {
+                pastOrders: action.payload
+            })
+        case CURRENT_ORDER_SUCCESS:
+            return Object.assign({}, state, {
+                currentOrder: action.payload
+            })
+        case GET_DELIVERY_DETAILS_SUCCESS:
+            return Object.assign({}, state, {
+                deliveryDetails: {
+                    firstName: action.payload.firstName,
+                    lastName: action.payload.lastName,
+                    phone: action.payload.phone,
+                    address: action.payload.address,
+                    instructions: action.payload.instructions,
+                    date: action.dateString
                 }
             })
-        case GET_PAST_ORDERS_SUCCESS : 
-            return Object.assign({},state,{
-                pastOrders : action.payload
+        case GET_PAST_ORDERS_SUCCESS:
+            return Object.assign({}, state, {
+                pastOrders: action.payload
             })
         case GET_PAST_ORDERS_FAILURE:
-            return Object.assign({},state,{
-                pastOrders : []
+            return Object.assign({}, state, {
+                pastOrders: []
             })
-        case GET_UPCOMING_ORDERS_SUCCESS : 
-            return Object.assign({},state,{
-                upcomingOrders : action.payload
+        case GET_UPCOMING_ORDERS_SUCCESS:
+            return Object.assign({}, state, {
+                upcomingOrders: action.payload
             })
         case GET_UPCOMING_ORDERS_FAILURE:
-            return Object.assign({},state,{
-                upcomingOrders : []
+            return Object.assign({}, state, {
+                upcomingOrders: []
             })
-        case GET_ORDER_ITEMS_SUCCESS :
-            return Object.assign({},state,{
-                cart : action.payload
-            })
-        case GET_ORDER_ITEMS_FAILURE :
-            return Object.assign({},state,{
-                cart : {}
-            })
-        case UPDATE_ORDER_SUCCESS :
-            let futureState = Object.assign({},state);
-            let orders = futureState.orders;
-            let index  = orders.findIndex( o => o.id === action.payload.orderId);
+
+        case UPDATE_ORDER_SUCCESS:
+            const futureState = cloneDeep(state);
+            const orders = Object.assign([], futureState.orders);
+            const index = orders.findIndex(o => o._id == action.payload.orderId);
             orders[index].status = action.payload.status;
-            orders[index].statusId = action.payload.statusId;
             futureState.orders = orders;
             return futureState;
-        case SEARCH_SUCCESS :
-            return Object.assign({},state, {
-                searchList : action.payload
+        case MESSAGE_RECIEVE_SUCCESS:
+            const nextState1 = cloneDeep(state);
+            const currentOrder1 = nextState1.currentOrder;
+            const chat1 = Object.assign([], currentOrder1.chat);
+            chat1.push({ text: action.payload.text, senderId: action.payload.senderId });
+            currentOrder1.chat = chat1;
+            nextState1.currentOrder = currentOrder1;
+            return nextState1;
+        case SEND_MESSAGE_SUCCESS:
+            const nextState = cloneDeep(state);
+            const currentOrder = nextState.currentOrder;
+            const chat = Object.assign([], currentOrder.chat);
+            chat.push({ text: action.payload.text, senderId: action.payload.senderId });
+            currentOrder.chat = chat;
+            nextState.currentOrder = currentOrder;
+            return nextState;
+        case SEARCH_SUCCESS:
+            return Object.assign({}, state, {
+                searchList: action.payload
             })
-        case SEARCH_FAILURE :
-            return Object.assign({},state,{
-                searchList : state.restaurants
+        case SEARCH_FAILURE:
+            return Object.assign({}, state, {
+                searchList: state.restaurants
             })
         default:
             return state;
     }
 }
 
-export default app;
+export default combineReducers({ restDetails, app, cart });

@@ -1,28 +1,13 @@
-const getCookie = (cname) => {
-    var name = cname + "=";
-    var decodedCookie = decodeURIComponent(document.cookie);
-    var ca = decodedCookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-      var c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-}
-
+import ls from 'local-storage';
 
 export const isLoggedIn = () => {
-    return getCookie('loggedIn') !== '' ? true : false;
+    return ls.get('isLoggedIn') === true;
 }
 
-export const isBuyer = (type) => {
-    return type === "buyer";
+export const isBuyer = () => {
+    return ls.get('userType') === "buyer";
 }
 
-export const isOwner = (type) => {
-    return type === "owner";
+export const isOwner = () => {
+    return ls.get('userType') === "owner";
 }

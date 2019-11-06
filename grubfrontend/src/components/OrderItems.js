@@ -1,6 +1,8 @@
 import React from 'react';
-import { Table, Button, Form, FormGroup, Label, Input, FormText } from 'reactstrap';
-
+import { Table, Button } from 'reactstrap';
+import { onCurrentOrderSuccess } from './../actions/actions';
+import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
 
 class OrderItems extends React.Component {
 
@@ -8,16 +10,23 @@ class OrderItems extends React.Component {
         super()
     }
 
+    goToChat = (details) => {
+        this.props.getCurrentOrderSuccessDispatch(details);
+        this.props.history.push({
+            pathname: '/chat',
+        })
+    }
+
 
     render() {
         let order = this.props.order;
-        return <div className="container" style={{display:"flex",flexDirection:"column"}}>
+        return <div className="container" style={{ display: "flex", flexDirection: "column" }}>
             <h4>Order Details:</h4>
-            <p>Order Id : {order.id}</p>
+            <p>Order Id : {order._id}</p>
             <p>Name : {order.name}</p>
             <p>Delivery address : {order.address}</p>
             <p>Bill : {order.amt}</p>
-            <p>Customer Email : {order.emailId}</p>
+            <p>Customer Email : {order.buyerEmail}</p>
             <p>Order Status : {order.status}</p>
             Order Items:
             <Table>
@@ -29,7 +38,7 @@ class OrderItems extends React.Component {
                 </thead>
                 <tbody>
                     {
-                        order.items.map(item => {
+                        order.order_items.map(item => {
                             return <tr>
                                 <td>{item.name}</td>
                                 <td>{item.quantity}</td>
@@ -38,9 +47,15 @@ class OrderItems extends React.Component {
                     }
                 </tbody>
             </Table>
-
+            <Button onClick={() => this.goToChat(order)}>Chat!</Button>
         </div>
     }
 }
 
-export default OrderItems;
+const mapDispatchToProps = (dispatch) => {
+    return {
+        getCurrentOrderSuccessDispatch: (payload) => { dispatch(onCurrentOrderSuccess(payload)) }
+    }
+}
+
+export default connect(null, mapDispatchToProps)(withRouter(OrderItems));

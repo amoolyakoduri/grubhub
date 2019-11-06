@@ -1,6 +1,5 @@
 import React from 'react';
 import './../css/RestoTuple.css'
-import pic from './../grub.png';
 
 class RestoTuple extends React.Component {
 
@@ -13,14 +12,14 @@ class RestoTuple extends React.Component {
         return <div>
             <div class="tuple">
                 <div >
-                <img  style={{width:"250px"}}  src = {'/'+details.displayPic} />
+                    <img style={{ width: "250px" }} src={'/' + details.displayPic} />
                 </div>
                 <div>
-                <h5> {details.name}</h5>
-                {details.cuisine}
+                    <h5> {details.name}</h5>
+                    {details.cuisine}
                 </div>
             </div>
-        <hr />
+            <hr />
         </div>
     }
 }

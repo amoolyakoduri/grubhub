@@ -1,26 +1,8 @@
-const mysql = require('mysql');
-const db = mysql.createConnection ({
-    host: 'localhost',
-    user: 'root',
-    password: 'password',
-    database: 'grubhub',
-    insecureAuth : true
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27017/grubhub1', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
-var pool = mysql.createPool({
-    connectionLimit: 5,
-    host: 'localhost',
-    user: 'root',
-    password: 'password', 
-    database: 'grubhub'
-});
-
-db.connect((err) => {
-    if (err) {
-        throw err;
-    }
-    console.log('Connected to database');
-});
-
-module.exports.db  = db;
-module.exports.pool = pool;
+module.exports.mongoose = mongoose.connection;

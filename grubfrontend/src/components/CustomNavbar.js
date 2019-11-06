@@ -3,7 +3,6 @@ import {
   Collapse,
   Navbar,
   NavbarToggler,
-  NavbarBrand,
   Nav,
   NavItem,
   NavLink,
@@ -17,6 +16,7 @@ import pic from './../grub.png'
 import { Link } from 'react-router-dom';
 import { connect } from 'react-redux'
 import { onLogoutSuccess } from '../actions/actions';
+import ls from 'local-storage';
 
 class CustomNavbar extends React.Component {
 
@@ -41,15 +41,16 @@ class CustomNavbar extends React.Component {
     window.location.href = "/signUp"
   }
 
-  logout() {
-    fetch('/api/logout')
+  logout(e) {
+    e.preventDefault();
+    fetch('/api/auth/logout')
       .then(res => res.json())
       .then(res => {
         this.props.logoutSuccessDispatch();
-        this.props.history.push('/login');
+        ls.set('isLoggedIn', false);
+        window.location.href = '/login'
       })
 
-    // window.location.href="/login"
   }
 
   toggle() {
@@ -64,7 +65,7 @@ class CustomNavbar extends React.Component {
     if (this.props.isLoggedIn)
       nav = (<div style={{ display: "flex", flexDirection: "row" }}>
         <NavItem>
-          <Link style={{ color: "#606369" }} to={this.props.type === "buyer" ? "/lets-eat" : "/home"}>Home</Link>
+          <Link style={{ color: "#606369" }} to={this.props.userType === "buyer" ? "/lets-eat" : "/home"}>Home</Link>
         </NavItem>
         <UncontrolledDropdown nav inNavbar>
           <DropdownToggle nav caret>
@@ -90,7 +91,7 @@ class CustomNavbar extends React.Component {
     return (
       <div>
         <Navbar color="light" light expand="md">
-          <Link to={this.props.type === "buyer" ? "/lets-eat" : "/home"}><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
+          <Link to={this.props.userType === "buyer" ? "/lets-eat" : "/home"}><img style={{ height: "50px", width: "85px" }} src={pic} /></Link>
           <NavbarToggler onClick={this.toggle} />
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
@@ -107,10 +108,10 @@ class CustomNavbar extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const isLoggedIn = state.isLoggedIn;
-  const type = state.type;
-  const firstName = state.firstName;
-  return { isLoggedIn, type, firstName };
+  const isLoggedIn = state.app.isLoggedIn;
+  const firstName = state.app.firstName;
+  const userType = state.app.userType;
+  return { isLoggedIn, firstName, userType };
 }
 
 function mapDispatchToProps(dispatch) {

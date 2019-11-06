@@ -1,18 +1,21 @@
 import React from 'react';
 import { Table, Button, Collapse, CardBody, Card, FormGroup, Input } from 'reactstrap';
-
-import { onGetOrdersSuccess, onUpdateOrderFailure, onUpdateOrderSuccess, onGetOrdersFailure, onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess } from './../actions/actions';
+import { onGetOrdersSuccess, onGetOwnerRestDetailsFailure, 
+    onGetOwnerRestDetailsSuccess, onUpdateOrderFailure, onUpdateOrderSuccess,
+     onGetOrdersFailure, onGetPastOrdersOwnerFailure, onGetPastOrdersOwnerSuccess } from './../actions/actions';
 import { connect } from 'react-redux';
 import isOwner from './isOwner';
 import loginCheck from './LoginCheck';
 import OrderItems from './OrderItems';
+import ls from 'local-storage';
+
 
 const orderStatus = [
-    { name: "New", value: 1 },
-    { name: "Preparing", value: 2 },
-    { name: "Ready", value: 3 },
-    { value: "4", name: "Delivered" },
-    { name: "Cancelled", value: 5 }
+    { name: "New" },
+    { name: "Preparing" },
+    { name: "Ready" },
+    { name: "Delivered" },
+    { name: "Cancelled" }
 ]
 
 
@@ -21,7 +24,8 @@ class OwnerHome extends React.Component {
     constructor() {
         super();
         this.state = {
-            ordres: []
+            status: "",
+
         }
         this.menu = this.menu.bind(this);
         this.toggle = this.toggle.bind(this);
@@ -29,7 +33,7 @@ class OwnerHome extends React.Component {
     }
 
     toggle() {
-        this.setState(state => ({ collapse: !state.collapse }));
+        this.setState({ collapse: !this.state.collapse });
     }
     menu(event) {
         event.preventDefault();
@@ -37,47 +41,75 @@ class OwnerHome extends React.Component {
     }
 
     componentDidMount() {
-        fetch('/api/getOrders/' + this.props.restId)
+        var jwtToken = ls.get('jwtToken').substring(3);
+        fetch('/api/rest/getRestDetails/' + this.props.emailId, {
+            method: 'GET',
+            headers: { "Authorization": `Bearer ${jwtToken}` }
+        })
             .then((response) => {
                 return response.json();
             }).then((myJson) => {
-                if (myJson.payload == null) {
-                    this.props.getOrdersFailureDispatch();
+                if (myJson.success == false) {
+                    this.props.getOwnerRestDetailsFailureDispatch();
                 } else {
-                    this.props.getOrdersSuccessDispatch(myJson.payload);
+                    this.props.getOwnerRestDetailsSuccessDispatch(myJson.payload[0]);
                 }
-            })
-        fetch('/api/getPastOrders/' + this.props.restId)
-            .then((response) => {
-                return response.json();
-            }).then((myJson) => {
-                if (myJson.payload == null) {
-                    this.props.getPastOrdersOwnerFailureDispatch();
-                } else {
-                    this.props.getPastOrdersOwnerSuccessDispatch(myJson.payload);
-                }
+            }).then(() => {
+                fetch('/api/rest/getOrders/' + this.props.restDetails.name, {
+                    method: 'GET',
+                    headers: { "Authorization": `Bearer ${jwtToken}` }
+                })
+                    .then((response) => {
+                        return response.json();
+                    }).then((myJson) => {
+                        if (myJson.success == false) {
+                            this.props.getOrdersFailureDispatch();
+                        } else {
+                            this.props.getOrdersSuccessDispatch(myJson.payload);
+                        }
+                    })
+            }).then(() => {
+                fetch('/api/rest/getPastOrders/' + this.props.restDetails.name, {
+                    method: 'GET',
+                    headers: { "Authorization": `Bearer ${jwtToken}` }
+                })
+                    .then((response) => {
+                        return response.json();
+                    }).then((myJson) => {
+                        if (myJson.success == false) {
+                            this.props.getPastOrdersOwnerFailureDispatch();
+                        } else {
+                            this.props.getPastOrdersOwnerSuccessDispatch(myJson.payload);
+                        }
+                    })
             })
     }
 
     changeHandler = (orderId, event) => {
-
-        fetch('/api/updateOrder', {
+        var jwtToken = ls.get('jwtToken').substring(3);
+        var status = event.target.value;
+        this.setState({ status: event.target.value })
+        fetch('/api/rest/updateOrder', {
             headers: {
+                "Authorization": `Bearer ${jwtToken}`,
                 'Content-Type': 'application/json'
             },
             method: 'POST',
             body: JSON.stringify({
-                restId: this.props.restId,
                 orderId: orderId,
                 status: event.target.value
             })
         }).then((response) => {
             return response.json();
         }).then((myJson) => {
-            if (myJson.payload == null)
+            if (myJson.success == false)
                 this.props.updateOrderFailureDispatch();
-            else
-                this.props.updateOrderSuccessDispatch(myJson.payload);
+            else {
+                var payload = { orderId, status: status }
+                this.props.updateOrderSuccessDispatch(payload);
+            }
+        }).catch((err) => {
+            console.log(err.message)
         })
     }
 
@@ -88,83 +120,86 @@ class OwnerHome extends React.Component {
             </div>
             <h4>
                 Current Orders:
-            </h4>
-            <Table>
-                <thead>
-                    <tr>
-                        <th>OrderId</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Bill</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        this.props.orders &&
-                        this.props.orders.map(order => {
-                            return (<tr>
-                                <td><Button color="white" onClick={this.toggle}>{order.id}</Button></td>
-                                <td>{order.name}</td>
-                                <td>{order.address}</td>
-                                <td>{order.amt}</td>
-                                <td>
-                                    <FormGroup>
-                                        <Input type="select" onChange={(event) => this.changeHandler(order.id, event)} name="status" id="status">
-                                            {
-                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.value} selected={o.name === order.status}>{o.name}</option>))
-                                            }
-                                        </Input>
-                                    </FormGroup>
-                                </td>
-                                <Collapse isOpen={this.state.collapse}>
-                                    <OrderItems order={order} />
-                                </Collapse>
-                            </tr>)
-                        })
-                    }
-                </tbody>
-            </Table>
+            </h4>{
+                this.props.orders &&
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>OrderId</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Bill</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            this.props.orders.map(order => {
+                                var index = orderStatus.findIndex(s => s.name === order.status)
+                                return (<tr>
+                                    <td><Button color="white" onClick={this.toggle}>{order._id}</Button></td>
+                                    <td>{order.name}</td>
+                                    <td>{order.address}</td>
+                                    <td>{order.amt}</td>
+                                    <td>
+                                        <FormGroup>
+                                            <Input type="select" onChange={(event) => this.changeHandler(order._id, event)} name="status" id="status">
+                                                {
+                                                    orderStatus.map((o, i) => {
+                                                        if (i < index)
+                                                            return <option disabled value={o.name} name={o.name} >{o.name}</option>
+                                                        else
+                                                            return <option value={o.name} name={o.name} >{o.name}</option>
+                                                    }
+                                                    )
+                                                }
+                                            </Input>
+
+                                        </FormGroup>
+                                    </td>
+                                    <Collapse isOpen={this.state.collapse}>
+                                        <OrderItems order={order} />
+                                    </Collapse>
+                                </tr>)
+                            })
+                        }
+                    </tbody>
+                </Table>
+            }
             <h4>
                 Past Orders:
             </h4>
-            <Table>
-                <thead>
-                    <tr>
-                        <th>OrderId</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Bill</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        this.props.pastOrders &&
-                        this.props.pastOrders.map(order => {
-                            return (<tr>
-                                <td><Button color="white" onClick={this.toggle}>{order.id}</Button></td>
-                                <td>{order.name}</td>
-                                <td>{order.address}</td>
-                                <td>{order.amt}</td>
-                                <td>
-                                    <FormGroup>
-                                        <Input type="select" onChange={(event) => this.changeHandler(order.id, event)} name="status" id="status">
-                                            {
-                                                orderStatus.slice(orderStatus.findIndex(s => s.name == order.status)).map(o => (<option value={o.value} selected={o.name === order.status}>{o.name}</option>))
-                                            }
-                                        </Input>
-                                    </FormGroup>
-                                </td>
-                                <Collapse isOpen={this.state.collapse}>
-                                    <OrderItems order={order} />
-                                </Collapse>
-                            </tr>)
-                        })
-                    }
-                </tbody>
-            </Table>
-
+            {this.props.pastOrders &&
+                <Table>
+                    <thead>
+                        <tr>
+                            <th>OrderId</th>
+                            <th>Name</th>
+                            <th>Address</th>
+                            <th>Bill</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            this.props.pastOrders.map(order => {
+                                return (<tr>
+                                    <td><Button color="white" onClick={this.toggle}>{order._id}</Button></td>
+                                    <td>{order.name}</td>
+                                    <td>{order.address}</td>
+                                    <td>{order.amt}</td>
+                                    <td>
+                                        {order.status}
+                                    </td>
+                                    <Collapse isOpen={this.state.collapse}>
+                                        <OrderItems order={order} />
+                                    </Collapse>
+                                </tr>)
+                            })
+                        }
+                    </tbody>
+                </Table>
+            }
         </div>
     }
 }
@@ -176,14 +211,16 @@ const mapDispatchToProps = (dispatch) => {
         updateOrderSuccessDispatch: (payload) => { dispatch(onUpdateOrderSuccess(payload)) },
         updateOrderFailureDispatch: () => { dispatch(onUpdateOrderFailure()) },
         getPastOrdersOwnerFailureDispatch: () => { dispatch(onGetPastOrdersOwnerFailure()) },
-        getPastOrdersOwnerSuccessDispatch: (payload) => { dispatch(onGetPastOrdersOwnerSuccess(payload)) }
+        getPastOrdersOwnerSuccessDispatch: (payload) => { dispatch(onGetPastOrdersOwnerSuccess(payload)) },
+        getOwnerRestDetailsSuccessDispatch: (payload) => { dispatch(onGetOwnerRestDetailsSuccess(payload)) },
+        getOwnerRestDetailsFailureDispatch: () => { dispatch(onGetOwnerRestDetailsFailure()) }
     }
 }
 
 const mapStateToProps = (state) => {
-    const restId = state && state.restDetails && state.restDetails.id;
-    const { orders, pastOrders } = state;
-    return { restId: restId, orders: orders, pastOrders };
+    const { orders, pastOrders, emailId } = state.app;
+    const { restDetails } = state;
+    return { restDetails, orders, pastOrders, emailId };
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(loginCheck(isOwner(OwnerHome)));
